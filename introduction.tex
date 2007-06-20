@@ -1,52 +1,52 @@
 \chapter{Introduction}
 \label{introduction}
 
-CCS \cite{milner:ccs} is commonly used for modelling synchronous
-communication between two processes, where one sends a signal and the
-other receives it at the same time (a concept referred to as
-\emph{local synchronization}).  However, it cannot directly represent
-systems involving synchronization of a sender with an arbitrary number
-of recipient processes (known as \emph{global synchronization}) in a
-\emph{compositional} manner.  Crucially, the semantics of a broadcast
-agent cannot suitably be represented using CCS.  If the agent is
-defined as transmitting a signal to each of the recipients
-sequentially, through multiple local synchronizations, then its
-semantics will become non-compositional, because such behaviour
+CCS \cite{milner:ccs} is a process algebra commonly used for
+modelling synchronous communication between two processes, where one
+sends a signal and the other receives it at the same time (a concept
+referred to as \emph{local synchronisation}).  However, it cannot
+directly represent systems involving synchronisation of a sender with
+an arbitrary number of recipient processes (known as \emph{global
+  synchronisation}) in a \emph{compositional} manner.  Crucially, the
+semantics of a broadcast agent cannot suitably be represented using
+CCS.  If the agent is defined as transmitting a signal to each of the
+recipients sequentially, through multiple local synchronisations, then
+its semantics will become non-compositional, because such behaviour
 depends upon the number of recipients.  Each time a new recipient is
 introduced, or one of the existing ones is removed, the semantics will
 have to be changed.
 
-A solution to this deficiency lies in providing a way of determining
-when all possible synchronizations have taken place.  With this
-facility available, the broadcast agent can recurse, transmitting
-signals, until this condition holds. The family of abstract timed
-process calculi (including TPL\cite{hennessy:tpl} and CaSE\cite{CaSE})
-allow this by extending CCS with \emph{abstract clocks}.  These don't
-represent real time, with units such as minutes and seconds, but are
-instead used to form synchronous cycles of internal actions followed
-by clock ticks.  A concept known as \emph{maximal progress} enforces
-the precedence of internal actions over clock ticks, allowing the
-possible synchronizations to be monitored.  When a synchronization
-takes place, it appears to the system as an internal action.  Thus,
-with maximal progress, synchronizations prevent the clock from
-ticking, and a result, the occurrence of a clock tick also indicates
-that there are no possible synchronizations.
+A solution to this deficiency lies in determining when all possible
+synchronisations have taken place.  With this facility available, the
+broadcast agent can recurse, transmitting signals, until this
+condition holds. The family of abstract timed process calculi
+(including TPL\cite{hennessy:tpl} and CaSE\cite{CaSE}) allow this by
+extending CCS with \emph{abstract clocks}.  These don't represent real
+time, with units such as minutes and seconds, but are instead used to
+form synchronous cycles of internal actions followed by clock ticks.
+A concept known as \emph{maximal progress} enforces the precedence of
+internal actions over clock ticks, allowing the possible
+synchronisations to be monitored.  When a synchronisation takes place,
+it appears to the system as an internal action.  Thus, with maximal
+progress, synchronisations prevent the clock from ticking, and as a
+result, the occurrence of a clock tick also indicates that there are
+no possible synchronisations.
 
-However, the timed calculi mentioned above lack any notion of
+However, the timed calculi mentioned above lack any notion of spatial
 distribution or mobility. Thus, while they can adequately represent
-large static systems, involving both local and global synchronization,
+large static systems, involving both local and global synchronisation,
 they fail to model more mobile systems, where the location of a
 process can change during execution.  In contrast, the ambient
 calculus \cite{amb} includes both distribution (via structures known
 as \emph{ambients}) and mobility (by allowing these structures to be
 moved, along with their constituent processes, during execution). But,
 it suffers from similar deficiencies to CCS when modelling global
-synchronization.
+synchronisation.
 
 This report presents the calculus of \emph{Typed Nomadic Time} (TNT)
 \cite{hughes:nt}, which combines the abstract timed calculus, CaSE, with
 notions of distribution and mobility from the ambient calculus and its
-safe variant (\cite{sangiorgi:mobsafeambients}).  This
+variants (\cite{sangiorgi:mobsafeambients,controlledamb02}).  This
 allows the creation of a compositional semantics for mobile
 component-based systems, which utilise the notion of communication
 between arbitrary numbers of processes within a mobile framework.  To

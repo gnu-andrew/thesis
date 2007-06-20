@@ -8,49 +8,8 @@ to both the theoretical aspects (sections \ref{futuretypes} and
 \section{The Type System}
 \label{futuretypes}
 
-The type system presented in \ref{typesys} is still incomplete.
-Specifically, as previously mentioned, it lacks rules for handling
-process mobility and the association between localities and processes.
-
-A possible formalisation of the latter is given in Table
-\ref{tab:futuretype}.  The locality is a member of group $g$, while the
-process is a member of group $g'$.  The two are unified by the
-requirement that $g'$ be a member of the set of groups that can stay in
-localities of group $g$, giving a final typing of $Loc(g')$.
-
-\begin{table}
-  \caption{Types: Linking Processes to Localities}
-  \label{tab:futuretype}
-  \shrule
- \begin{center}
-\begin{tabular}{c}
-     \Rule{Loc}
-     {\Gamma \vdash m : Loc (g),
-     \Gamma \vdash P : Proc (g'),
-     \Gamma \vdash B : BProc,
-     \Gamma \vdash g : G,
-     g' \in \mathscr{S}(G)}
-     {\Gamma \vdash \loc{m}{P}{B}{\vec{\sigma}} : Loc(g')}
-     {}
-\end{tabular}
-  \end{center}
-  \shrule
-\end{table}
-
-The rule also requires that $B$ is a bouncer process.  Absent from the
-rule is the handling of the set of clocks.  Ideally, the restriction
-should be something along the lines of $\{ \Gamma \vdash \sigma : Clock
-\;|\; \sigma \in \vec{\sigma}\}$, stating that every element of the
-vector, $\vec{\sigma}$, is a clock.  But it is presently unclear whether
-this is an appropriate way of handling this requirement.
-
-The task of handling process mobility is more tricky.  Objective
-mobility is the issue, as the process which emits the mobility primitive
-is not the process which moves and thus its type doesn't change either.
-Instead, the process which does move is only recognisable by its
-provision of a corresponding action.  This seems to imply that a more
-complex way of handling actions is required.  Another issue is how
-groups are to be allocated to processes and localities.  It may be
+A simple type system presented in \ref{typesys} has been completed.
+One issue remains; how are groups to be allocated to processes?  It may be
 necessary to add a form of type annotation or a group binder (e.g. ($\nu
 G$); see \ref{ambienttypes}), as in the type systems based on the
 ambient calculus.
@@ -144,7 +103,7 @@ $E$ and $F$ respectively, then the same transition may occur from $E$ to
 $F$.
 
 \begin{table}
-  \caption{Semantics: Summation}
+  \caption{Semantics: Structural Congruence}
   \label{tab:structcong}
   \shrule
  \begin{center}
@@ -187,18 +146,18 @@ literature, models of a similar style have already been applied,
 including Cardelli's brane calculi \cite{brane04} and the membrane
 computing of P systems (see section \ref{psystems}).  This will also be
 an interesting area to consider in terms of diversity, providing a
-pleasant contrast with the more theoretical notions implicit in
+pleasant contrast to the more theoretical notions implicit in
 designing the calculus itself.
 
 One particular case study that is already being considered is that of
-quorum sensing (see section \ref{quorumsensing}).  In brief, this
+quorum sensing (see section \ref{bioapps}).  In brief, this
 focuses on the reactive behaviour of bacteria in relation to the current
 level of concentration of a particular gene.  The multi-party
-synchronization implicit in TNT is likely to be useful in this area.
+synchronisation implicit in TNT is likely to be useful in this area.
 
 In modelling this, it is expected that additions will be made to the
 calculus to allow the use of probabilistic derivation, akin to the use
-of the stochastic $\pi$ calculus and the Gilliespie algorithm in similar
+of the stochastic $\pi$ calculus and the Gillespie algorithm in similar
 studies (see section \ref{bioapps}).  In particular, this will hopefully
 allow simulations to be run and the behaviour of the model to be
 analysed.
@@ -206,4 +165,7 @@ analysed.
 In the longer term, probably outside the scope of this thesis, there may
 be other domains in which TNT will find applicability.  Pervasive
 computing is thought to be one such area, and this may make more
-effective use of the type system than biological modelling.
+effective use of the type system than biological modelling.  In
+addition, its relation to P systems (\ref{psystems}) and the ability to
+encode it using a bigraph (\ref{bigraphs}) would form interesting areas
+of study.
