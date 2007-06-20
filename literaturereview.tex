@@ -994,6 +994,7 @@ using HO$\pi$ comes not from increased expressivity, but from the
 additional ease it provides in modelling certain scenarios.
 
 \subsubsection{The Join Calculus}
+\label{join}
 
 The Join calculus \cite{join} takes the asynchronous $\pi$ calculus as
 its basis, and focuses on providing a formalism better suited as the
@@ -1444,21 +1445,44 @@ processes.  The locality gives the grouping a context, which may change
 during execution of the system, via the movement of the locality or its
 constituent processes.  What follows is a further examination of such
 distributed calculi, including those which have arisen from existing
-non-distributed formalisms, such as the $\pi$ calculus.
+non-distributed formalisms, such as the Join calculus.
 
-\subsubsection{The Distributed $\pi$ Calculus}
+%\subsubsection{The Distributed $\pi$ Calculus}
 
-The distributed $\pi$ calculus, or D$\pi$ \cite{hennessy:dpi98},
+%The distributed $\pi$ calculus, or D$\pi$ \cite{hennessy:dpi98},
 
 \subsubsection{The Distributed Join Calculus}
 
-\cite{djoin} defines a distributed variant of the Join calculus
+By adding localities, \cite{djoin} defines a distributed variant of the
+Join calculus shown in \ref{join}.  The extended syntax is as follows:
 
-\subsubsection{Nomadic Pict}
+\begin{align}
+\label{djoinsyntax}
+  P, Q\ & ::=\ 
+  0\ |\ 
+  \mathtt{def}\ D\ \mathtt{in}\ P\ |\
+  (P\;|\;Q)\ |\ 
+  x\langle \tilde{v} \rangle \\
+  D, E\ & ::=\
+  J \rhd P\ |\
+  D \wedge E\ |\ 
+  \mathbf{T} \pc 
+ a[D : P]
+ \\
+  J,J^\prime\ & ::=\ 
+  x\langle \tilde{v} \rangle\ |\
+  (J\;|\;J^\prime)
+\end{align}
 
-Pawel Wojciechowski defines, in his PhD thesis \cite{wojciechowski:phd},
-an extension to PICT \cite{daveturner:phd} which incorporates
-distribution.
+\noindent with the additional syntax of $a[D : P]$.  $a$ is the name of
+the locality, which is unique to a particular definition.  The syntax
+allows localities to be nested to form a hierarchy.
+
+%\subsubsection{Nomadic Pict}
+
+%Pawel Wojciechowski defines, in his PhD thesis \cite{wojciechowski:phd},
+%an extension to PICT \cite{daveturner:phd} which incorporates
+%distribution.
 
 \subsubsection{The Ambient Calculus}
 \label{ambientcalculus}
@@ -1688,21 +1712,96 @@ of different types of capability.  Take the example process,
 \end{equation}
 
 \noindent in which two reductions can occur that are logically
-different.  While the interferences described above are a
-representation of the kind of race conditions and non-determinism that
-would be expected in any concurrent model, for example, to represent
-competition for resources, grave interferences are usually unexpected.
-This process may perform two radically different reductions,
+different.  While the interferences described above are a representation
+of the kind of race conditions and non-determinism that would be
+expected in any concurrent model, for example, to represent competition
+for resources, grave interferences are usually unexpected and represent
+errors in the model.  This process may perform two radically different
+reductions,
 
 \begin{enumerate}
-\item $\ambopen{n}.\nil \pc n[\ambin{m}.P] \pc m[Q] \rightarrow \nil \pc \ambin{m}.P \pc m[Q]$
-\item $\ambopen{n}.\nil \pc n[\ambin{m}.P] \pc m[Q] \rightarrow \ambopen{n}.\nil \pc m[n[P] \pc Q]$
+\item $\ambopen{n}.\nil \pc n[\ambin{m}.P] \pc m[Q] \rightarrow \nil \pc
+\ambin{m}.P \pc m[Q]$
+\item $\ambopen{n}.\nil \pc n[\ambin{m}.P] \pc m[Q] \rightarrow
+\ambopen{n}.\nil \pc m[n[P] \pc Q]$
 \end{enumerate}
 
 \noindent where either $n$ is destroyed, thus preventing the latter
-movement of $P$ in to $m$ as it has no surrounding ambient, or $n$
-moves inside $m$ and is no longer available to be destroyed by
-$\ambopen{n}.\nil$.
+movement of $P$ in to $m$ as it has no surrounding ambient, or $n$ moves
+inside $m$ and is no longer available to be destroyed by
+$\ambopen{n}.\nil$.  Clearly, only one of these reductions is
+intentional.  
+
+Levi and Sangiorgi's calculus of Mobile Safe Ambients \cite{safeamb00,
+sangiorgi:mobsafeambients} presents a solution to this.  It introduces a
+notion of co-capabilities, which enforce a pairing of mobility
+primitives before a reduction can be made.  The result of this is that
+the ambient being entered, exited or opened is aware of what is taking
+place, and may react accordingly.
+
+With these co-capabilities in place, the reduction rules for the
+calculus run as follows:
+
+\begin{align}
+ n[\ambin{m}.P_1 \pc P_2] \pc m[\sambin{m}.Q_1 \pc Q2]
+\rightarrow
+m[n[P_1 \pc P_2] \pc Q_1 \pc Q_2] \tag{SafeIn}\\
+ m[n[\ambout{m}.P_1 \pc P_2] \pc \sambout{m}.Q_2 \pc Q2]
+\rightarrow
+n[P_1 \pc P_2] \pc m[Q_1 \pc Q_2] \tag{SafeOut}\\
+ \ambopen{n}.P \pc n[\sambopen{n}.Q_1 \pc Q_2]
+\rightarrow
+P \pc Q_1 \pc Q_2 \tag{SafeOpen} 
+\end{align}
+
+\noindent where, in each case, the capability must be able to
+synchronize with a co-capability in the relevant ambient for the
+reduction to take place.  For example, in SafeIn, $\ambin{m}.P_1$ must
+pair up with $\sambin{m}.Q_1$ in the ambient $m$.  As a result, $Q_1$
+can react appropriately to the change in structure, based on the fact
+that it knows the movement has occurred.
+
+The changes in the calculus of safe ambients, though simple, have a
+dramatic effect on the ability to construct an algebraic theory for the
+calculus and prove properties, especially when coupled with an
+appropriate type system\footnote{In this case, the type system ensures
+single-threadedness, where only one process within an ambient may
+exercise a capability.}.  The calculus of controlled ambients
+\cite{controlledamb02} restricts behaviour further, by requiring that a
+co-capability must appear in both the source and the destination.  Thus,
+an $\ambin{m}$ capability requires permission both to leave its current
+location and to enter the destination ambient. This is useful for the
+specific application of the calculus, controlling resources, but is
+excessive in most circumstances.
+
+A further variant of the ambient calculus is the calculus of boxed
+ambients \cite{boxedamb01}.  This removes the $open$ capability
+altogether, replacing it with a form of directed communication inspired
+by \cite{seal}.  Processes remain within their initial ambient
+permanently (hence the term `boxed') and only the structure of the
+ambient topology changes via the $in$ and $out$ capabilities.  Messages
+may be sent locally, upwards or downwards, but not to siblings.
+
+An example process from \cite{boxedamb01} is:
+
+\begin{equation}
+n[(x)^pP \pc p[\langle M \rangle \pc (x)Q \pc q[\langle N
+\rangle^\uparrow ]]]
+\end{equation}
+
+\noindent where $n$, $p$ and $q$ are ambients, $(x)$ is an input and
+$\langle M \rangle$ and $\langle N \rangle$ represent outputs.  $(x)Q$
+may synchronize with either $\langle M \rangle$ locally or the upward
+communication from $\langle N \rangle$.  $(x)^pP$ must synchronize with
+$\langle M \rangle$, as the only output in $p$.
+
+The ideas behind the boxed ambients calculus result in a formalism which
+is more suited to communication-focused modelling, where the destruction
+of locations would be unnatural.  Both it and the original ambient
+calculus have their own particular niche, being suited to particular
+applications.  In contrast, the latter is clearly more suited to
+situations where the removal of a locality corresponds to a similar
+event in the real-world situation being modelled.
 
 \subsubsection{Advantages and Disadvantages of the Ambient Calculus}
 
@@ -1710,32 +1809,32 @@ The most interesting aspect of the ambient calculus is that, while it
 includes no communication primitives, it can encode the asynchronous
 $\pi$ calculus (see \ref{pivariants}).  This seems to imply that it is
 possible to model mobility in a more natural way without losing much of
-the expressivity of the $\pi$ calculus.  This seems a little less
-surprising when we consider that ambient names exhibit the same scope
-extrusion we see with channel names in the $\pi$ calculus.  With this in
-mind, it is not too difficult to see that ambient names could be used to
-mimic channel names, with synchronization being emulated by two
-processes performing some kind of interaction within the same ambient.
+the expressivity of the $\pi$ calculus.  On consideration , this seems a
+little less surprising as ambient names exhibit the same scope extrusion
+seen with channel names in the $\pi$ calculus.  With this in mind, it is
+not too difficult to see that ambient names could be used to mimic
+channel names, with synchronization being emulated by two processes
+performing some kind of interaction within the same ambient.
 
 However, the representation of synchronization illustrated in \cite{amb}
 seems to suggest that the ambient calculus may still have problems
-dealing with the kind of global synchronization needed for the broadcast
-agent we considered earlier in \ref{ccslimit}.  The operation is
-performed by destroying and recreating ambients, as a signal to the
-other process involved in the synchronization.  Extending this would
-seem to require using more ambients, which again leads us into the
+dealing with the kind of global synchronization needed for the
+compositional broadcast agent considered in \ref{ccslimit}.  The
+operation is performed by destroying and recreating ambients, as a
+signal to the other process involved in the synchronization.  Extending
+this would seem to require using more ambients, which again leads to the
 problem of enumerating the number of entities who wish to synchronize.
-As we saw before, this is possible but not compositional; every time we
-need to perform the synchronization with a different number of agents,
-we need to recreate the semantics for the process.
+As before, this is possible but not compositional; every time
+synchronization is performed with a different number of agents, the
+semantics of the process must be recreated.
 
 Thus, the ambient calculus and the $\pi$ calculus have more in common
 than is initially apparent, and the choice between the two seems to be
-largely based on whichever is most natural for a particular task.
+largely based on the most natural formalism for a particular task.
 
-\subsubsection{The Seal Calculus}
+%\subsubsection{The Seal Calculus}
 
-The seal calculus \cite{seal}
+%The seal calculus \cite{seal}
 
 \subsubsection{P Systems}
 \label{psystems}
@@ -1746,19 +1845,104 @@ The seal calculus \cite{seal}
 \section{Typed Calculi}
 \label{typedcalculi}
 
+A common addition to a process calculus is a type system, especially in
+recent literature which attempts to use such calculi as the basis for a
+programming language or a distributed system.  Type systems can be used
+to restrict the calculus in ways that aren't always possible via mere
+manipulation of the syntax and semantics.  Adding a type system can be
+as simple as formalising implicit notions, such as the use of $ambin{m}$
+as a capability and not as part of a path \cite{ambienttypes} or the
+fact that the $x$ in $x(y)$ should be represent a link and not a mere
+value \cite{sangiorgi:types-or}.  It may also provide more complex
+intuitions, by distinguishing individual entities, controlling mobility
+\cite{sangiorgi:mobsafeambients, ambienttypes} or resources
+\cite{hennessy:dpi98} or even providing a full subtyping relation
+\cite{boxedamb02}.  This section considers a few examples of such type
+systems for both the $\pi$ calculus (\ref{pitypes}) and the ambient
+calculus (\ref{ambienttypes}).
+
 \subsection{Type Systems for the $\pi$ Calculus}
+\label{pitypes}
 
 \subsubsection{Sorts}
 \subsubsection{Typing for Termination}
-\subsubsection{The Type System of the Distributed $\pi$ Calculus}
+%\subsubsection{The Type System of the Distributed $\pi$ Calculus}
 
 \subsection{Type Systems for the Ambient Calculus}
 \label{ambienttypes}
 
-\subsubsection{Groups}
-\label{ambientgroups}
+Early work \cite{commtypesamb} on providing a type system for the
+ambient calculus focused on typing the derived communication primitives
+and specifically the values being exchanged.  While interesting, this
+doesn't really relate to the focus of the calculus, spatial mobility.
+In \cite{cardelli:typesforambients, cardelli:ambienttypes}, a first
+attempt is made at providing types for mobility, via mobility and locking
+annotations.  Mobility annotations are used to mark an ambient as mobile
+($\underline{\vee}$) or immobile ($\curvearrowright$), where mobile
+ambients may be involved in movement operations using the capabilities
+$in$ and $out$.  Locking annotations control the use of $open$; locked
+ambients ($\bullet$) may not be the target of an $open$ capability,
+while unlocked ambients ($\circ$) may.
 
-\subsubsection{Single Threadedness}
+A more general theory is given in \cite{ambienttypes} with the
+introduction of \emph{groups}.  Rather than simply specifying whether or
+not an ambient can move or be destroyed, the type system is more
+specific as to which ambients may effect others.  To avoid dependent
+types \cite{deptypes}, where the types are dependent on the values being
+typed, an intermeditary notion of a group is introduced.  This is also
+advantageous in that it allows a series of ambients to have the same
+typing, while typing in relation to a single ambient is still possible
+by having a group with only one member.
+
+For example, given two ambients $m$ and $n$, the types should express
+that $n$ can enter $m$.  A dependent formalisation would say that $n$
+has the type $CanEnter(m)$, while, using groups, $m$ is given the type
+$G$ (where $G$ is a group) and $n$ is typed as $CanEnter(G)$.  Within
+the type system itself, ambients are allocated to groups via the use of
+a group binder, $(\nu G)$.  Just like the ambient binder, $(\nu n)$,
+the scope of this may extrude outwards.  However, the type system
+prevents it from ever encapsulating ambients which did not form part of
+its initial scope (i.e. it only tracks the movements of ambients that
+are a member of that group).  Within the paper, groups are used to
+assign properties to its members, such as the type of communication
+possible and the control of crossing or opening ambients.
+
+The types of messages or \emph{exchanges} may specify either no
+communication ($Shh$) or a tuple of partners for the communication:
+
+\begin{equation}
+S, T ::= Shh \pc W_1 \times \dots \times W_k
+\end{equation}
+
+\noindent For example, in the simplest form of the calculus,
+$Agent[Shh]$ represents a group called $Agent$, the members of which may
+not exchange values.  Nesting is possible, so $Place[Agent[Shh]]]$
+represents a $Place$ where groups of $Agent$s may stay and continue to
+be silent.
+
+The full type system, given in \cite{ambienttypes}, includes these
+exchange types along with types to control the opening and crossing of
+ambients.  Groups are parameterised over $F$,
+
+\begin{equation}
+F ::= ^\curvearrowright \mathbf{G}, ^\circ \mathbf{H}, T
+\end{equation}
+
+\noindent with the final form of ambient type being $G^\curvearrowright
+\mathbf{G'}[F]$.  $\mathbf{G'}$ represents the groups that the ambient
+may cross via objective moves (introduced in the same paper), while
+$\mathbf{G}$ includes the groups that the ambient may cross via standard
+subjective movement.  Finally, $\mathbf{H}$ distinguishes the groups
+whose ambients may be $open$e, while $T$ is as defined above.
+
+A similar system is adopted in \cite{m3}, but, as this refers to boxed
+ambients (see \ref{ambvariants}), no control of $open$ is required.  It
+does introduce a new set of groups, however, to handle the lightweight
+process mobility presented.  In both cases, the type systems has a
+positive effect on the calculus.  Not only does it allieviate some of
+the syntax ambiguity, but it also allows a more fine-grained notion of
+mobility, where specific ambients can be made immobile or unable to
+cross a particular ambient.
 
 \section{Biological Applications}
 \label{bioapps}

@@ -1,1 +1,209 @@
 \chapter{Future Work}
+\label{futurework}
+
+This chapter briefly discusses future work on the calculus, with regard
+to both the theoretical aspects (sections \ref{futuretypes} and
+\ref{futureequiv}) and its applications (section \ref{futureapp}).
+
+\section{The Type System}
+\label{futuretypes}
+
+The type system presented in \ref{typesys} is still incomplete.
+Specifically, as previously mentioned, it lacks rules for handling
+process mobility and the association between localities and processes.
+
+A possible formalisation of the latter is given in Table
+\ref{tab:futuretype}.  The locality is a member of group $g$, while the
+process is a member of group $g'$.  The two are unified by the
+requirement that $g'$ be a member of the set of groups that can stay in
+localities of group $g$, giving a final typing of $Loc(g')$.
+
+\begin{table}
+  \caption{Types: Linking Processes to Localities}
+  \label{tab:futuretype}
+  \shrule
+ \begin{center}
+\begin{tabular}{c}
+     \Rule{Loc}
+     {\Gamma \vdash m : Loc (g),
+     \Gamma \vdash P : Proc (g'),
+     \Gamma \vdash B : BProc,
+     \Gamma \vdash g : G,
+     g' \in \mathscr{S}(G)}
+     {\Gamma \vdash \loc{m}{P}{B}{\vec{\sigma}} : Loc(g')}
+     {}
+\end{tabular}
+  \end{center}
+  \shrule
+\end{table}
+
+The rule also requires that $B$ is a bouncer process.  Absent from the
+rule is the handling of the set of clocks.  Ideally, the restriction
+should be something along the lines of $\{ \Gamma \vdash \sigma : Clock
+\;|\; \sigma \in \vec{\sigma}\}$, stating that every element of the
+vector, $\vec{\sigma}$, is a clock.  But it is presently unclear whether
+this is an appropriate way of handling this requirement.
+
+The task of handling process mobility is more tricky.  Objective
+mobility is the issue, as the process which emits the mobility primitive
+is not the process which moves and thus its type doesn't change either.
+Instead, the process which does move is only recognisable by its
+provision of a corresponding action.  This seems to imply that a more
+complex way of handling actions is required.  Another issue is how
+groups are to be allocated to processes and localities.  It may be
+necessary to add a form of type annotation or a group binder (e.g. ($\nu
+G$); see \ref{ambienttypes}), as in the type systems based on the
+ambient calculus.
+
+On a more general note, it would be interesting to consider further the
+typing of both actions and clocks.  At present, they just have the
+simplest of types, but this could be extended to provide more
+interesting behaviour.  Similarly, bouncers only have rudimentary types
+and may possibly be changed to include more detail.
+
+\section{Equivalence}
+\label{futureequiv}
+
+The main element lacking in the current version of TNT is some notion of
+equivalence.  An equivalence notion is necessary to be able to compare
+processes, with the additional benefit of being able to reduce them to a
+simpler form.
+
+Equivalence falls under two areas.  The first is structural congruence
+(\ref{structcong}), which is present in many distributed calculi such as
+the $\pi$ calculus and the ambient calculus.  The second area is
+bisimulation (\ref{bisimulation}) and specifically, the extension of the
+temporal observation bisimulation congruence given for CaSE.
+
+\subsection{Structural Congruence}
+\label{structcong}
+
+The semantics of TNT, specifically those in Table \ref{tab:casesubset}
+in section \ref{tntsemantics}, may benefit from a notion of structural
+congruence.  A structural congruence relationship allows the
+rearrangement of the structure of a process by deeming the two to be
+equivalent.  A clear example of where this would be advantageous with
+the current semantics is the rules for summation given in Table
+\ref{tab:summation}.  
+
+\begin{table}
+  \caption{Semantics: Summation}
+  \label{tab:summation}
+  \shrule
+ \begin{center}
+ \begin{tabular}{rc}
+     \Rule{Sum1}
+     {E \derives{\alpha} E^\prime}
+     {E + F \derives{\alpha} E^\prime}
+     {}
+     &
+     \Rule{Sum2}
+     {F \derives{\alpha} F^\prime}
+     {E + F \derives{\alpha} F^\prime}
+     {}
+     \\[3ex]
+ \end{tabular}
+  \end{center}
+  \shrule
+\end{table}
+
+The only difference between the two rules is the side of the summation
+on which the $\alpha$ transition occurs.  A structural congruence rule
+along the lines of:
+
+\begin{equation}
+E + F \equiv E + F
+\end{equation}
+
+\noindent would remove the need for one of these rules and make clear
+the commutative nature of the operator.  The same is true of the
+parallel composition operator, which again has two rules, $Par1$ and
+$Par2$.
+
+Another common role for structural congruence is to remove unneeded
+elements.  In many calculi, $\nil$ is removed in this way.  For example,
+the ambient calculus has a structural congruence rule of the form
+
+\begin{equation}
+E \pc \nil \equiv E
+\end{equation}
+
+\noindent which removes the superfluous $\nil$.  However, as was
+discussed in \ref{addingmob}, this is more problematic in CaSE and TNT,
+where $\nil$ is not without behaviour (or, more specifically,
+transitions).  Such a rule would however be very useful, as many of the
+examples in the previous chapter run in to problems with superfluous
+$\nil$ processes appearing.
+
+Any structural congruence relationship defined needs to integrate with
+the existing semantics to be useful.  Table \ref{tab:structcong} gives
+an additional rule which shows how the structural congruence interacts
+with transitions.  If a process $E'$ can perform any action, $\gamma$,
+and become $F'$, while both $E'$ and $F'$ are structurally congruent to
+$E$ and $F$ respectively, then the same transition may occur from $E$ to
+$F$.
+
+\begin{table}
+  \caption{Semantics: Summation}
+  \label{tab:structcong}
+  \shrule
+ \begin{center}
+ \begin{tabular}{c}
+     \Rule{SCong\ }
+     {E \equiv E', E' \derives{\gamma} F', F' \equiv F}
+     {E \derives{\gamma} F}
+     {}
+ \end{tabular}
+  \end{center}
+  \shrule
+\end{table}
+
+\subsection{Bisimulation}
+\label{bisimulation}
+
+Any bisimulation theory for TNT will be based on the labelled transition
+system defined by the semantics.  In particular, the semantics share a
+lot in common with those of CaSE, for which a form of bisimulation-based
+equivalence (temporal observation congruence) already exists.  With
+respect to the changes involved in TNT, the additional transitions
+provided by the mobility primitives are all silent actions, which are
+discarded by an observation-based congruence.  As a result, it is
+unclear what changes will actually be necessary to provide the same
+behavioural theory for TNT as is defined by this congruence for CaSE.
+
+Mobility affects the topology of the process, and thus the difference
+between two processes which exhibit mobility is much clearer via a
+structural comparison.  Hence, structural congruence may end up being
+more important with respect to the addition of mobility.
+
+\section{Applications}
+\label{futureapp}
+
+The primary application of TNT will be biological modelling.  This is an
+area where physical location is important and mobility is realised as
+shifts in topological composition.  Nested structures are important,
+being clearly present in, for example, cell membranes.  Within the
+literature, models of a similar style have already been applied,
+including Cardelli's brane calculi \cite{brane04} and the membrane
+computing of P systems (see section \ref{psystems}).  This will also be
+an interesting area to consider in terms of diversity, providing a
+pleasant contrast with the more theoretical notions implicit in
+designing the calculus itself.
+
+One particular case study that is already being considered is that of
+quorum sensing (see section \ref{quorumsensing}).  In brief, this
+focuses on the reactive behaviour of bacteria in relation to the current
+level of concentration of a particular gene.  The multi-party
+synchronization implicit in TNT is likely to be useful in this area.
+
+In modelling this, it is expected that additions will be made to the
+calculus to allow the use of probabilistic derivation, akin to the use
+of the stochastic $\pi$ calculus and the Gilliespie algorithm in similar
+studies (see section \ref{bioapps}).  In particular, this will hopefully
+allow simulations to be run and the behaviour of the model to be
+analysed.
+
+In the longer term, probably outside the scope of this thesis, there may
+be other domains in which TNT will find applicability.  Pervasive
+computing is thought to be one such area, and this may make more
+effective use of the type system than biological modelling.
