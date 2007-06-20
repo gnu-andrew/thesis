@@ -1,0 +1,37 @@
+% Transfer Report
+% Author: Andrew Hughes
+
+\documentclass{report}
+
+\usepackage{amsmath}
+
+\hyphenation{deter-min-istic}
+
+% From Simon
+\newcommand{\derives}[1]{\stackrel{#1}{\rightarrow}}
+\newcommand{\lderives}[1]{\stackrel{#1}{\longrightarrow}}
+\newcommand{\nderives}[1]{\stackrel{#1}{\nrightarrow}}
+\newcommand{\obsderives}[1]{\stackrel{#1}{\Rightarrow}}    
+
+\title{Global Synchronization in a Mobile Context \\ Transfer Report}
+\author{Andrew~Hughes}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\include{introduction}
+
+\include{literaturereview}
+
+\include{currentwork}
+
+\include{futurework}
+
+\addcontentsline{toc}{section}{Bibliography}
+\bibliography{transferreport}
+\bibliographystyle{acm}
+
+\end{document}

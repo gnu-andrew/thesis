@@ -1,0 +1,519 @@
+\chapter{Literature Review}
+Concurrency is an inherent part of the real world.  Multiple events take
+place simultaneously, and each of these events can interact and affect
+others.  Early computational models, however, take a simpler idealised
+view, where events occur sequentially and in isolation.  Both universal
+Turing machines \cite{turing:36} and Church's $\lambda$ calculus
+\cite{church:41} have proven to be Turing complete; they are capable of
+simulating all recursive functions.  However, neither directly models
+concurrent execution.
+
+So, if these models can have this level of computational power without
+attempting to represent this particular aspect, why do we need to model
+concurrency at all?  Even though a method of modelling phenomena exists,
+and has a certain level of expressivity, it doesn't imply that it is the
+most appropriate for a particular context.  The existence of both Turing
+machines and the lambda calculus already demonstrate this point.  While
+both have proven equivalent in power, they take different approaches to
+achieving this.
+
+To see the effect of concurrency on computation, we can take a simple
+prototypical example, as demonstrated by Milner \cite{milner:lecture}.
+Observe the following programs,
+
+\begin{align*}
+\mathtt{x} & \mathtt{= 2;}\tag{P1} \\
+\\
+\mathtt{x} & \mathtt{= 1;}\notag \\
+\mathtt{x} & \mathtt{= x + 1;}\tag{P2}
+\end{align*}
+
+\noindent where we assume that each line is an atomic action.
+
+In a sequential system, such as that modelled by a Turing machine or the
+$\lambda$ calculus, both these programs set \texttt{x} to 2.  In such a
+system, there is only a single flow of control, so nothing else can
+modify the value of \texttt{x}.
+
+However, in a concurrent system, we have to deal with multiple control
+flows or processes, each running in parallel with the others.  With P1,
+\texttt{x} will always be equal to two immediately after execution, as
+the assignment takes place within a single atomic action.  However, in
+P2, another process is free to modify \texttt{x} in the gap between the
+assignment of the value 1 and the later summation which makes \texttt{x}
+2.
+
+Thus, if P2 is run in parallel with a third program,
+
+\begin{equation}
+\mathtt{x = 3;} \tag{P3}
+\end{equation}
+
+\noindent then \texttt{x} may end up being either 2, 3 or 4, depending
+on whether P3 executes before the first line, after the completion of
+P2, or after the first line respectively.  With P1 and P3, only 2 or 3
+can result (which one depends on the order the two programs are run).
+This is known as a \emph{race condition}, as the final value of
+\texttt{x} depends on the timing of the various modifications of its
+value by the two programs.  The solution to this problem is to require
+each program to obtain exclusive access to \texttt{x} (a lock) for the
+extent of its use.
+
+This example demonstrates that modelling concurrency is not so much
+about multiple programs executing at the same time, but instead concerns
+how they interact.  If each program exists in its own isolated
+environment, then no interactions will take place and a sequential model
+for each would be suitable.  Indeed, this is the way most operating
+systems handle running multiple programs.  Thus, it follows that we can
+see sequential models not as something distinct from concurrent models,
+but as a subset where this additional restriction of isolation applies.
+
+Dijkstra's \cite{dijkstra:philosophers} classic `Dining Philosophers'
+problem illustrates further problems which may arise in a situation
+where multiple processes must interact to achieve their goal.  In this
+scenario, five philosophers are seated around a table, each with a plate
+of spaghetti and a fork.  The philosophers divide their time between
+thinking and eating.  In order to eat, a philosopher must obtain the use
+of two forks, necessitating some form of interaction.  This is a common
+situation in concurrency, where multiple parallel processes (the
+philosophers) need to gain access to a limited resource (the forks).
+
+In cases where things go awry, \emph{deadlock} or \emph{starvation} may
+result.  For example, if each philosopher simultaneously picks up the
+fork on their left, then none of them will be able to eat; they will all
+end up waiting on a fork held by another philosopher.  The system is
+said to be \emph{deadlocked}, as none of the processes can obtain a lock
+on the resource it needs, as a lock is already held by one of the other
+processes\footnote{The solution to breaking this deadlock is to break
+the symmetry; if the fifth philosopher tries to take the fork on their
+right first, they will be unable to proceed, but the first philosopher
+will, using the fifth philosopher's left fork.}.  Alternatively,
+\emph{starvation} may result if one of the philosophers never stops
+eating and releases the forks; the resources are unfairly distributed to
+the deficit of one of the processes.
+
+As can be seen from these examples, concurrency raises issues outside
+the reach of traditional sequential models of computation.  Thus, just
+as we have models for sequential computation, we also need models that
+can represent these phenomena.  This is even more relevant today, as
+hardware advances make more machines capable of true concurrency (via
+dual-core processors and beyond) and distributed computing paradigms,
+such as services, become more prevalent.  If we are to adequately work
+with these systems, we need appropriate models which can represent them
+and highlight flaws.  Many such models have been developed, and we will
+now consider a subset of these.
+
+\section{Algebraic Process Calculi}
+
+Algebraic process calculi model the interaction of concurrent processes
+using a (usually small) set of algebraic operators, rather than in the
+graphical style associated with Petri nets \cite{petri:phd},
+Mazurkiewicz trace theory \cite{maz:trace} or Hewitt's Actor model
+\cite{hewitt:actor}.  Interaction between processes is via
+message-passing, rather than via shared memory\footnote{Although shared
+memory and message-passing are not orthogonal; a shared memory space may
+be represented as a communicating resource in a message-passing system,
+while message queues can be implemented in shared memory.} or a tuple
+space \cite{linda}.
+
+The foundational calculi in this field are Hoare's CSP \cite{hoare:csp78},
+Milner's CCS \cite{ccs} and Bergstra and Klop's ACP \cite{acp}, all of
+which were first developed in the late 1970s to early 1980s.  CSP was
+originally developed as a programming language, with a relatively large
+syntax, and later given a theoretical basis, following Milner's work on
+CCS.  Both calculi have influenced each other, while starting out from
+different perspectives (Milner's being more of a theoretical one).  ACP
+also shares much of the ideas of CCS, and can be regarded as an
+`alternative formulation' \cite{acp}, using a similar set of operators
+to achieve a different goal.
+
+Here, we concentrate on CCS, as it forms the basis for most of the other
+calculi we will consider, including the $\pi$ calculus
+\cite{picalctutorial} and CaSE \cite{CaSE}.  Of the three, CCS has the
+most minimal syntax with additional features such as failure
+(represented in both CSP and ACP) needing to be derived from or added to
+this core set.  From a theoretical perspective, this is advantageous, as
+it makes reasoning over the calculus a simpler process, and, as will be
+seen, adding further syntax to represent more features is a relatively
+simple process.
+
+\subsection{CCS}
+
+In CCS, we model processes as terms ranged over by $E, F$.  These
+process terms have the following syntax:
+
+\begin{equation}
+  E, F\ ::=\ 
+  0\ |\ 
+  \alpha.E\ |\ 
+  E\backslash\ a\ |\ 
+  E\ +\ F\ |\ 
+  (E\ |\ F)\ |\ 
+  X\ |\ 
+  \mu X.E\ |\ 
+  E[f] 
+\end{equation}
+
+\noindent where $\alpha$ and $f$ are explained below.
+
+Communication between processes is via the sending and receiving of
+signals.  We abstract from the internal behaviour of the processes,
+representing this simply by the silent action $\tau$.  The full set of
+actions, $Act$, is used to describe the behaviour of the concurrent
+system.
+
+We formally define $Act$ as $\mathcal{N} \cup \overline{\mathcal{N}}
+\cup \{\tau\}$.  $\mathcal{N}$ is an infinite set of names, and
+$\overline{\mathcal{N}}$ is the corresponding set of co-names,
+$\{\overline{a} | a \in \mathcal{N}\}$.  These names are used to
+represent \emph{channels}, which the processes use to communicate.
+Thus, $a.E$, where $a \in \mathcal{N}$ represents an input on the
+channel $a$, whereas $\overline{a}.E$, where $\overline{a} \in
+\overline{\mathcal{N}}$ represents an output on $a$.  
+
+The behaviour of a single process is thus defined as a sequence of
+inputs, outputs and silent actions. This can be seen in the above
+grammar, where $0$ represents the empty process, which exhibits no
+behaviour, and $\alpha.E$ is the action prefix used for the limited
+sequential composition of actions, where $\alpha \in Act$.
+
+For communication to actually take place, two processes must
+\emph{synchronize}; they must emit corresponding actions on the same
+channel at the same time.  For this to occur, the two processes must be
+running in parallel.  Parallel composition in CCS is represented by the
+$|$ operator.  When two processes are composed in this way, they may
+both perform their corresponding input and output actions
+simultaneously, resulting in a $\tau$ action being emitted.
+
+For instance, if we consider $E$ to be $a.0$ and $F$ to be
+$\overline{a}.0$, then the process formed by the composition of these
+two processes, $E|F$ may initially perform one of three actions, $a$,
+$\overline{a}$ and $\tau$, to give three possible derivations:
+
+\begin{enumerate}
+\item $E\ |\ F \derives{a} 0|F$
+\item $E\ |\ F \derives{\overline{a}} E|0$
+\item $E\ |\ F \derives{\tau} 0|0$
+\end{enumerate}
+
+This is illustrated in [Fig :graph a.0|a'.0] (a' representing
+$\overline{a}$).  If we wish to make the derivation of $E|F$
+deterministic, we can restrict the scope of $a$.  In CCS, an input or
+output can be paired with any corresponding action which is within the
+scope of the channel.  If we want to force the input of $E$ to be paired
+with the output of $F$, then we must limit $a$'s scope to only include
+our two processes, $E$ and $F$.  This is handled by another operator in
+the core syntax, $\backslash$.  The right operand of this is the name of
+a channel whose scope is restricted to that of the left operand.  In our
+case, $(E|F)\backslash a$ appropriately limits the possible derivations
+to just $\derives{\tau}$.
+
+The remaining binary operator within CCS is $+$, which provides
+non-deterministic choice between two processes.  Once a derivation is
+made from one process, the option of performing the actions of the other
+is lost.  This contrasts with the parallel composition operator, where
+the other process remains running in parallel.  Choice thus effectively
+corresponds to the familiar idea of branching found in sequential
+models.  To use our two exemplar processes again, $E + F$ may derive as
+follows:
+
+\begin{enumerate}
+\item $E\ +\ F \derives{a} 0$
+\item $E\ +\ F \derives{\overline{a}} 0$
+\end{enumerate}
+
+Again, this is illustrated in [Fig :graph a.0+a'.0].  There are clearly
+similarities between the two sets of possible derivations, but note
+that, with choice, the option of then executing the remaining process is
+lost and there is no possibility of synchronization.
+
+The remaining operators in CCS handle recursion and relabelling.  $\mu
+X.E$ binds X with the value of $E$, so that later occurrences of $X$ are
+replaced with $E$.  The function, $f$, in $E[f]$ has the type $Act
+\rightarrow Act$ and converts actions, while preserving $\tau$ and
+complementation.
+
+\subsection{The Dining Philosophers in CCS}
+
+To complete our exploration of CCS, we look again at the dining
+philosophers example.  How can we model this using the language?  To
+consider this, we need to first discover what our processes will be
+within this `system'.  Clearly, each philosopher plays a part in the
+system so they should be represented by a process.  Returning to our
+original definition of the problem, each philosopher may choose to eat
+or think.  We can define this in CCS as:
+
+\begin{equation}
+Philosopher = \mu X.(EatingPhilosopher.X\ +\ ThinkingPhilosopher.X)
+\end{equation}
+
+\noindent where the philosopher is recursively defined as making the
+choice between becoming an $EatingPhilosopher$ process or a
+$ThinkingPhilosopher$ process.  Defining the latter is simple; we assume
+thinking to be an internal process:
+
+\begin{equation}
+ThinkingPhilosopher = \tau
+\end{equation}
+
+The focus of the problem is on the eating process, which requires access
+to the system's shared resource: the forks.  To model this, we need a
+protocol whereby the philosopher must interact with the resource in
+order to obtain access to it.  This requires that we also model the fork
+as a process:
+
+\begin{equation}
+Fork = \mu X.takeFork.putDownFork.X
+\end{equation}
+
+\noindent with two communication channels, $takeFork$ and $putDownFork$.
+The fork begins its life on the table from where it can be taken,
+represented here by receiving an input on the $takeFork$ channel.  Once
+this has occurred, the process becomes $Fork^\prime$,
+
+\begin{equation}
+Fork^\prime = putDownFork.X
+\end{equation}
+
+\noindent which we use to represent the state where the fork is in use by a
+philosopher.  The fork can't be used again until it has received an
+input on $putDownFork$, which causes $X$ to be expanded and the fork to
+wait for input on $takeFork$ again.
+
+This is more clearly seen if we now define the final process, that of
+the $EatingPhilosopher$:
+
+\begin{equation}
+EatingPhilosopher = \overline{takeFork}.\overline{takeFork}.\tau.\overline{putDownFork}.\overline{putDownFork}
+\end{equation}
+
+\noindent which needs to synchronize with two available $Fork$ processes
+to be able to eat (represented by $\tau$) and then release the forks.
+The system as a whole is modelled by running a number of philosophers
+and forks concurrently with each other, and restricting the scope of the
+fork channels in order to enforce synchronization.
+
+Note that our CCS representation of this problem only models what we
+already saw in the narrative version of the problem above.  We don't
+attempt to resolve any of the competition problems here, and there is
+still a strong element of non-determinism as to which philosopher gets
+which fork.  What it does allow us to do is represent the problem
+formally and to test the effects of varying the relative numbers of
+philosophers and forks.
+
+[Include diagrammatic of this here]
+
+We can modify this slightly in order to obtain a model that corresponds
+exactly to a specified number of philosophers and forks, $n$.  From our
+definitions above, we generate multiple variants, so that each
+philosopher and fork process has a unique subscript.  For example,
+$Philosopher$ becomes $Philosopher_i$, where $i = 1\dots n$.  The same
+subscripting also applies to the $takeFork$ and $putDownFork$ channels,
+so that they correspond to a specific fork.  We can then model our
+original solution as the case where each philosopher, $i$, initially
+performs the action $takeFork_i$ (to take the left fork) and then
+$takeFork_{i-1}$ (with the exception that when $i-1 = 0$, we use $n$)
+\footnote{We recall from our earlier discussion that this may result in
+deadlock; our solution there is modelled by reversing the actions of
+$Philosopher_5$}.
+
+This model restricts which fork is taken by which philosopher (limiting
+the possible actions, and thus removing some non-determinism), but we
+are still prone to the effects of non-deterministic choice (some
+philosophers may arbitrarily choose to think instead) and the fairness
+with regards to action performance (if the actions are performed in a
+depth-first manner, only one philosopher may end up eating).  We regard
+these as implementational aspects of our model; we can represent all
+these phenomena, but we don't choose one particular path in our
+abstraction.
+
+\subsection{Advantages and Limitations of CCS}
+
+We have seen how CCS can be used to model a concurrent problem.  From
+its syntax, it is also clear that CCS can model sequential behaviour
+using sequential composition ($\alpha.E$) and non-deterministic choice
+($+$).  This further confirms our intuition that sequential programs are
+a subset of the larger set of concurrent programs.  This is also clear
+from our earlier discussion of the $+$ operator, which we observed as
+returning a smaller set of possible derivations, from the same initial
+pair of processes, when compared with parallel composition ($|$).  We
+can also use these sequential operators to convert a set of
+parallel-composed processes into their equivalent interleavings.
+
+So, we have a calculus which can model both sequential and concurrent
+programs, while still maintaining a minimal syntax.  However, CCS is not
+Turing-complete; we are more limited in what we can express.  As we
+discussed earlier, Turing completeness does not necessarily guarantee
+the suitability of a model for a particular task. Likewise, the lack of
+such completeness doesn't imply that the model is unsuitable.  We have
+already found that we can appropriately model the Dining Philosophers
+problem without Turing completeness, and so the lack of this in CCS is
+not necessarily a problem.  It may even be an advantage in some cases,
+where this lack of expressivity simplifies the formal reasoning over the
+model.
+
+One fairly obvious limitation, and one that is relevant when discussing
+Turing completeness, is that there is no data in the model.  The
+processes we have talked about so far don't communicate anything when
+they send or receive signals.  Instead, behaviour arises purely from
+synchronization.  It is possible to extend CCS to represent this by
+adding the concept of value passing between processes.  A host of other
+process calculi have been based on such a variant of CCS, and we will
+consider these in more detail as part of section \ref{mobility}.
+
+CCS models are also relatively static.  Our model of the Dining
+Philosophers is initially created with a specific set of processes
+(i.e. some combination of forks and philosophers), and while the number
+of processes can change (e.g. some may become $0$, others may branch
+using parallel composition), the communication structure doesn't.
+Notably, if a process, $E$ knows about the channels $x$ and $y$
+initially, while $F$ only knows about $x$ (due to restriction on $y$),
+this status can not change during the course of the various transitions
+inherent in the system.
+
+The effect of restriction is more generally known as \emph{scoping} and
+occurs frequently with reference to variables in programming languages.
+CCS doesn't allow us to model dynamic changes in the scoping of
+channels.  Instead, scoping is fixed to the static arrangement provided
+by the initial system prior to any transitions.  The addition of dynamic
+scoping, often referred to as mobility, is the major contribution of the
+$\pi$ calculus, a language based on CCS which we will cover in
+\ref{scopemobility}.
+
+Changing the scope of channels is not the only method of modelling
+dynamic behaviour.  The concept of \emph{mobility} implies the physical
+movement of processes, but this is not what actually happens in the
+$\pi$ calculus, to which this term is most frequently applied.  A number
+of other calculi do model this, both by passing actual processes around
+the system (as in higher-order variants of the $\pi$ calculus) and by
+introducing the concept of \emph{locality}.
+
+We used the term \emph{localities} to refer generally to a higher-level
+form of grouping, above that of processes.  These have variously been
+used to represent physical sites, administrative or security domains and
+biological cells, but can theoretically be applied in any context where
+the grouping of processes is useful.  Primarily, localities were used to
+distinguish between processes in order to provide further equivalence
+theories (see \ref{localities}), but now they are more commonly used in
+the modelling of a further form of mobility, commonly known as
+\emph{migration} which we cover in \ref{migration}.
+
+These concepts are all absent from the form of CCS we detail above, and
+provide ways of modelling different phenomena, while not necessarily
+expanding the completeness of the language.  Again, the reason for these
+changes is more focused on providing the most suitable model, rather
+than on gaining a level of expressivity.
+
+We conclude by considering another limitation of CCS which is less to do
+with a particular concept being absent from the language, but instead
+focuses more on the central aspect of CCS: \textbf{synchronization}.
+The problem here lies in the \emph{compositionality}\footnote{The
+principle of compositionality states that the meaning of the whole
+should be derived from the meaning of the parts together with the rules
+used to combine them.  As later composition takes place, the same
+semantics should still be usable in order to represent a term} of
+processes.  While the structure of a CCS system remains compositional,
+as the result of parallel composition is the behaviour of the composed
+processes together with the rules of the $|$ operator, this is not true
+of the synchronization of multiple processes.
+
+[* Re-write the following more generally, not specific to the CaSE example]
+[Two solutions: enumerated definition (not compositional) or recursive
+(doesn't work without clocks, as we need some way to stop)]
+
+Consider a system where we want to distribute a signal from a single
+source to multiple destinations, as demonstrated in the example given by
+\cite{CaSE}.  We derive the additional syntax, $\overline{o};E$, to
+which we give the semantics: transmit $o$ to all inputs $i_k$, where $k
+= 1\dots n$, before $E$ occurs.  To model this behaviour, we assume that
+a single wire connects $o$ to each of the inputs, $i_k$, and model this
+as an additional process.  Thus, $\overline{o};E =_{df}
+\overline{o}.f_o.E$, where $f_o$ is an additional channel used to
+receive an acknowledgement that the signal has been delivered so that
+$E$ does not pre--empt the delivery.
+
+Ideally, we would then have a new system component, the wire, which can
+be reused in further distribution of an output to multiple sources.
+However, problems arise with CCS when we try to define the wire in such
+a way that later changes in composition can take place.  Within CCS,
+synchronization is limited to two parties; the sender and the receiver.
+Thus, distributing the signal to multiple inputs, where $n > 1$, must be
+achieved by multiple disparate synchronizations.  As a result, the
+definition of the wire is dependent on $n$ and must be recreated
+everytime $n$ changes.  The wire is non-compositional; simply adding
+another input process into the system won't give us the semantics for
+the case of $n + 1$.  Instead, we must recreate the definition of the
+wire from scratch on each composition change, limiting the reusability
+of our semantics.
+
+The solution to this problem is to enable some form of \emph{global
+synchronization}.  To do this, we need an entity separate from the
+processes involved in the communication which can be used to co-ordinate
+the synchronization process between an arbitrary number of processes.
+We will now consider a branch of process calculi that provide this
+facility.
+
+\section{Timed Calculi}
+\label{timing}
+
+Initially, the use of the word `timed', within the context of the
+calculi we will now consider, is a bit of a misnomer.  When we think of
+time, we tend to think of values in terms of units such as minutes and
+seconds.  Real-time process calculi, such as those described in
+\cite{tccs, satoh:phd, satoh:distrib, lee:realtime, aceto:timing,
+beaten:timing, brics:lee}, attempt
+to model this.  Instead, we focus on a series of discrete timed calculi
+which focus on time and \emph{clocks} for the primary purpose of global
+synchronization (as described above).
+
+\begin{itemize}
+\item Describe TPL -- single clock, relaxed prefixing, maximal progress
+\item Describe CaSE (addition of multiple clocks, time stop, hiding, hierarchy)
+with reference to PMC (multiple clocks, but insistent) and CSA (multiple
+clocks, localised maximal progress, no hiding)
+\item Include example above reworked with clocks
+\item Quick reference to use of discrete time in other places (constraint-based)
+\item Remaining limitations of CCS still apply
+\end{itemize}
+\section{Localities}
+\label{localities}
+
+\begin{itemize}
+\item Overview of localities and use in location bisimulation
+\item Derive LCCS
+\end{itemize}
+
+\section{Mobility}
+\label{mobility}
+
+\begin{itemize}
+\item Brief introduction setting up two strands below
+\end{itemize}
+
+\subsection{Scope Mobility}
+\label{scopemobility}
+
+\begin{itemize}
+\item Value-passing CCS
+\item Pi calculus, variants (notably asynchronous, polyadic)
+\item Brief discussion of CHOCS and HOPI
+\item Introduction to Join + Pi1 + Tyco (original extensions of below)
+\end{itemize}
+
+\subsection{Migration}
+\label{migration}
+
+\begin{itemize}
+\item Distributed variants of Pi - DPi, Pi1l, Join, M, Kells, DiTyco
+\item Ambient and variants - boxed, secure
+\item Seal calculus
+\item Mobile Resources
+\item P-systems
+\end{itemize}
+
+\section{Existing Implementations}
+
+\begin{itemize}
+\item Languages based on the above -- Pict, NPict, Facile, PiDuce
+\item Mach?
+\end{itemize}
