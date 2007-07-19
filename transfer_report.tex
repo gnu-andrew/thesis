@@ -6,7 +6,13 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
+% Needed for: \varovee, etc
+\usepackage{stmaryrd}
+
+% Needed for: \mathscr{}
 \usepackage{mathrsfs}
+
+% Needed for xy
 \usepackage[all]{xy}
 \xyoption{arc}
 
@@ -15,6 +21,7 @@
 % From Simon
 \newcommand{\derives}[1]{\stackrel{#1}{\rightarrow}}
 \newcommand{\lderives}[1]{\stackrel{#1}{\longrightarrow}}
+\newcommand{\xderives}[1]{\xrightarrow{#1}}
 \newcommand{\nderives}[1]{\stackrel{#1}{\nrightarrow}}
 \newcommand{\obsderives}[1]{\stackrel{#1}{\Rightarrow}}    
 
@@ -31,12 +38,17 @@
 \newcommand{\exprb}{\text{$\mathcal{F}$}}
 \newcommand{\ambop}{\text{$\mathcal{M}$}}
 \newcommand{\bambop}{\text{$\mathcal{N}$}}
-\newcommand{\proc}{\text{$\mathcal{P}$}}
-\newcommand{\act}{\text{$\mathcal{A}$}}
 \newcommand{\timers}{\text{$\mathcal{T}$}}
-\newcommand{\localities}{\text{$\mathcal{L}$}}
-\newcommand{\actions}{\text{$\mathcal{N}$}}
-\newcommand{\coactions}{\overline{\actions}}
+\newcommand{\bouncer}{\text{$\mathcal{F}$}}
+\newcommand{\procs}{\text{$\mathcal{P}$}}
+\newcommand{\labels}{\text{$\mathcal{L}$}}
+\newcommand{\names}{\text{$\mathcal{N}$}}
+\newcommand{\lowpris}{\text{$\mathcal{C}$}}
+\newcommand{\highpris}{\text{$\mathcal{H}$}}
+\newcommand{\independent}{\text{$\mathcal{U}$}}
+\newcommand{\conames}{\text{$\overline{\names}$}}
+\newcommand{\actions}{\text{$\mathcal{A}$}}
+\newcommand{\symbols}{\text{$\mathcal{S}$}}
 
 \newcommand{\nil}{\textbf{0}}
 \newcommand{\pref}{\,.\,}
@@ -66,6 +78,7 @@
  
 \newcommand{\Rule}[4]{\makebox[\lrulename]{{\rm #1}\hfill}
                       $\displaystyle\frac{#2}{#3}\,{#4}$}
+\newcommand{\Rulea}[4]{{#1}\quad$\displaystyle\frac{#2}{#3}\,{#4}$}
 
 % Locality
 
@@ -73,6 +86,7 @@
 \newcommand{\locv}[4]{{#1}[ #2 ]^{#3}_{#4}}
 \newcommand{\nloc}[3]{{#1}[ #2 ]^{#3}}
 \newcommand{\lcloc}[3]{{#1}[ #2 ]_{\{#3\}}}
+\newcommand{\lclocv}[3]{{#1}[ #2 ]_{#3}}
 \newcommand{\lncloc}[2]{{#1}[ #2 ]}
 %% misc macros
 
@@ -92,18 +106,33 @@
 \newcommand{\ambin}[1]{in\ #1}
 \newcommand{\ambout}[1]{out\ #1}
 \newcommand{\ambopen}[1]{open\ #1}
+\newcommand{\sprocin}[2]{\tntin{#1}\ {#2}}
+\newcommand{\sprocout}[2]{\tntout{#1}\ {#2}}
 \newcommand{\sambin}[1]{\overline{in}\ #1}
 \newcommand{\sambout}[1]{\overline{out}\ #1}
 \newcommand{\sambopen}[1]{\overline{open}\ #1}
-\newcommand{\procin}[2]{on\ #1\ in\ #2}
-\newcommand{\procout}[2]{on\ #1\ out\ #2}
-\newcommand{\bin}{\overline{in}}
-\newcommand{\bout}{\overline{out}}
-\newcommand{\bopen}{\overline{open}}
+\newcommand{\procin}[2]{on\ #1 \tntin{#2}}
+\newcommand{\procout}[2]{on\ #1 \tntout{#2}}
+\newcommand{\bin}{\overline{\varovee}}
+\newcommand{\bout}{\overline{\varowedge}}
+\newcommand{\bopen}{\overline{\varoast}}
+\newcommand{\tntin}[1]{\tin #1}
+\newcommand{\tntout}[1]{\tout #1}
+\newcommand{\tntopen}[1]{\topen #1}
+\newcommand{\tin}{\varovee}
+\newcommand{\tout}{\varowedge}
+\newcommand{\topen}{\varoast}
+\newcommand{\mobprim}{\text{$\{ \tin, \tout , \topen\}$}}
 
 \newcommand{\pc}{\;|\;}
 
-\title{Global Synchronization in a Mobile Context \\ Transfer Report}
+\newtheorem{proposition}{Proposition}{\bfseries}{\itshape}
+\def\squareforqed{\hbox{\rlap{$\sqcap$}$\sqcup$}}
+\def\qed{\ifmmode\squareforqed\else{\unskip\nobreak\hfil
+\penalty50\hskip1em\null\nobreak\hfil\squareforqed
+\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+
+\title{Timed Mobile Systems}
 \author{Andrew~Hughes}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
