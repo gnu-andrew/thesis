@@ -556,7 +556,7 @@ earlier recursive solution
 works because the synchronisations of the input processes with the
 output of the broadcast agent generate silent actions and thus invoke
 maximal progress.  While there is a choice between a silent action
-(due to the broadcasting agent synchronizing with an input) and a
+(due to the broadcasting agent synchronising with an input) and a
 clock tick, the silent action always takes precedence and thus every
 possible synchronisation occurs.  Once no more synchronisations are
 possible, the clock is allowed to tick and the recursion stops.
@@ -822,7 +822,7 @@ synchronisation, which is fine, but $z$ may then receive whichever of
 these two remains instead of the second element in the tuple.  This
 happens because there is no link between the two synchronisations.
 Thus, each subsequent transmission results in a new competition
-between the two processes as to who actually synchronizes with the
+between the two processes as to who actually synchronises with the
 receiver.
 
 The solution to this problem is to make use of a \emph{private
@@ -1092,7 +1092,7 @@ this join calculus example in the $\pi$ calculus is:
 
 \noindent where the scope of $x$ is restricted to the $\mathtt{def}$
 expression and the inputs are replicated, so as to be always
-available.  Thus, a channel $x$ is always \emph{localized} to a
+available.  Thus, a channel $x$ is always \emph{localised} to a
 particular set of emitters and receptors.
 
 Clearly, the join calculus, as a reformulation of the asynchronous

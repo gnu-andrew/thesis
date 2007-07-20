@@ -100,7 +100,7 @@ clock tick.  In the general scenario,
 \noindent $F$ will act if $E$ fails to, prior to a clock tick.  If $E$
 can perform a $\tau$ action, then this will prevent the clock tick and
 $E$ will evolve. Both operators in CaSE maintain this core behaviour,
-which is central to the concept of global synchronization explained
+which is central to the concept of global synchronisation explained
 earlier.
 
 The difference between the two operators in CaSE lies in their
@@ -238,7 +238,7 @@ two hierarchical concepts by effectively localising CaSE.  The notion of
 components and encapsulation is explicitly realised by an
 \emph{environ}, which also handles the hiding of clocks.  As a result,
 the clock hiding operator from CaSE disappears, being replaced by a new
-operator which allows the creation of localities.  The bounds of the
+operator which allows the creation of environs.  The bounds of the
 environ define both a new group and the scope of the clock hiding.  The
 syntax for localised CaSE is thus:
 \begin{equation}
@@ -258,13 +258,13 @@ syntax for localised CaSE is thus:
     \lclocv{m}{\expr}{\vec{\sigma}}
   \end{aligned}
 \end{equation}
-where $m$ represents an arbitrary locality name\footnote{Note
-that although names are added to the localities here, this is not really
+where $m$ represents an arbitrary environ name\footnote{Note
+that although names are added to the environs here, this is not really
 necessary at this stage; they provide nothing more than a way to refer
-to localities in talking about a system.  However, they are necessary
+to environs in talking about a system.  However, they are necessary
 for providing migration as discussed in \ref{migration}}.  In
 particular, $m$ may be equal to the empty string, $\epsilon$, thus
-facilitating the use of anonymous localities.  This allows the semantics
+facilitating the use of anonymous environs.  This allows the semantics
 of CaSE's clock hiding to be encoded:
 
 \begin{equation}
@@ -321,7 +321,7 @@ Localised CaSE makes the notion of components and encapsulation clearer
 than in the original calculus, by allowing them to be given explicit
 names.  However, it doesn't provide a great deal of extra
 functionality\footnote{Although the semantics could be adapted so as to
-use the localities for bisimulation, as in \ref{migration}.}.  The most
+use the environs for bisimulation, as in \ref{migration}.}.  The most
 natural progression from this stage is to add mobility.  For this, the
 primitives of the ambient calculus are adopted, as they provide a very
 natural and simplistic formalism, which builds on the component-oriented
@@ -404,7 +404,7 @@ following process:
 \begin{equation}
 a.P \pc \lcloc{m}{\overline{a}.Q}{\sigma}
 \end{equation}
-synchronization between the two processes is not permitted as
+synchronisation between the two processes is not permitted as
 they lie on either side of a environ boundary.  This is not an issue,
 as the presence of mobility allows processes to move into a situation
 where the co-action is in scope.  In addition, TNT (at present) does not
@@ -498,7 +498,7 @@ $\rho$.  The ticks of $\sigma$ were converted to silent actions by the
 environ barrier.  Following the dissolution of the environ, $n$, these
 ticks become visible to $E$.  So, the $open$ capability in TNT not only
 changes the environ hierarchy, but also the clock context within the
-parent locality.
+parent environ.
 
 Just as in the ambient calculus, the reduction of capabilities is
 subject to the availability of applicable environs, thus allowing for
@@ -536,7 +536,7 @@ In TNT, the mobility prefix is further extended as follows:
 While the location mobility described above is \emph{subjective} (the
 process who requests the move does the move), process mobility, in this form,
 is \emph{objective}.  The process which emits one of the two new
-capabilities synchronizes with a partner process on the given action,
+capabilities synchronises with a partner process on the given action,
 and it is this partner which actually moves.  The partner will be a
 process in the same environ, due to the scoping of actions described
 above.
@@ -641,7 +641,7 @@ With the addition of bouncers, this becomes:
 \end{equation}
 where, again, a syntactic abbreviation of $\nloc{m}{E}{F}$ for
 $\loc{m}{E}{F}{}$ is used when the clock context is empty. $m$ has
-$\Omega$ as its bouncer, as no movement affects that locality.  The
+$\Omega$ as its bouncer, as no movement affects that environ.  The
 bouncer for $n$ is defined as $\bin.\Omega$, which allows the movement
 of $m$ in to $n$ to occur:
 \begin{equation}
@@ -651,7 +651,7 @@ of $m$ in to $n$ to occur:
 \end{equation}
 but any subsequent behaviour is disallowed, as the bouncer of $n$ has
 now evolved to also be $\Omega$.  Note that the transition is labelled
-with a $\tin$ to represent the synchronization.  This is a member of a
+with a $\tin$ to represent the synchronisation.  This is a member of a
 set of \emph{high priority transitions} (denoted $\highpris$), which
 includes $\tau$ and the mobility transitions, $\tin$, $\tout$ and
 $\topen$.  If a process may emit a transition in $\highpris$, then
@@ -659,7 +659,7 @@ low-priority transitions are prevented from occurring.  This also
 applies in CaSE, where $\highpris$ is simply $\{ \tau \}$.  
 
 There is a distinct advantage to using a high priority label here.  It
-allows movements to be treated in the same way as synchronizations
+allows movements to be treated in the same way as synchronisations
 (which emit $\tau$), so that they also form part of the synchronous
 clock cycles, via \emph{maximal progress}, allowing them to be used for
 broadcasting in the same compositional style demonstrated in
@@ -676,7 +676,7 @@ bouncer:
 \end{equation}
 allows two entities to enter, but two must then leave before
 another can enter.  On the subject of exiting an environ, the
-synchronization with $\bout$ works in the same way as $\bin$:
+synchronisation with $\bout$ works in the same way as $\bin$:
 \begin{equation}
 \nloc{n}{\nloc{m}{\tntout{n}.E^{\prime \prime}}{\Omega} \pc \nil}{\bout.\Omega}
  \derives{\tout}
@@ -692,7 +692,7 @@ it may be endowed with bouncers to give:
 \begin{equation}
 \loc{m}{\tntopen{n}.E^\prime \pc \loc{n}{F}{\bopen.\Omega}{\sigma}}{\Omega}{\rho}
 \end{equation}
-This allows the following synchronization to occur:
+This allows the following synchronisation to occur:
 \begin{equation}
 \loc{m}{\tntopen{n}.E^\prime \pc \loc{n}{F}{\bopen.\Omega}{\sigma}}{\Omega}{\rho}
 \derives{\topen}
@@ -787,7 +787,7 @@ and $Par3$ represent the passage of time over these two operators.  Note
 that time must be able to pass on both sides, and that the restriction
 $E \mid F \nderives{h}$ enforces prioritisation.
 
-$Par2$ encapsulates synchronization; when one of the processes can
+$Par2$ encapsulates synchronisation; when one of the processes can
 perform an action and the other can perform the matching co-action, a
 silent action is performed and both evolve.  $FTO1$ and $STO1$ are
 identical, allowing the dissolution of the timeout via a tick of the
@@ -801,13 +801,16 @@ other than $\sigma$ may tick, but the timeout stays in place.  $STO2$
 handles the removal of the stable timeout, due to an action performed by
 $E$.
 
-Rule $LHd1$ provides the conversion of ticks emitted by the hidden
-clocks to silent actions: if $E$ can perform a $\sigma$ transition, then
-it performs a $\tau$ transition in any context where $\sigma$ is hidden.
-Also included in the table is the rule $SCong$, which links the
-structural congruence rules to the labelled transition system, and rules
-which allow the mobility prefix, $\ambop$, to evolve, thus completing
-the semantics for expressions.
+Recursion is provided by $Rec$, which performs substitution of $X$ for
+the body of the recursion as soon as any transition, $\gamma$, occurs.
+The $Res$ rules defines restriction, which disallows any transitions for
+the given name.  Rule $LHd1$ provides the conversion of ticks emitted by
+the hidden clocks to silent actions: if $E$ can perform a $\sigma$
+transition, then it performs a $\tau$ transition in any context where
+$\sigma$ is hidden.  Also included in the table is the rule $SCong$,
+which links the structural congruence rules to the labelled transition
+system, and rules which allow the mobility prefix, $\ambop$, to evolve,
+thus completing the semantics for expressions.
 
 \begin{table}
   \caption{Semantics}
@@ -934,6 +937,28 @@ the semantics for expressions.
   \shrule
 \end{table}
 
+The remaining semantics in Table \ref{tab:mobsubset} focus on mobility.
+$InEnv$ allows a $\tin$ transition to occur and $n$ to move into $m$ if
+matching $\tntin{m}$ and $\bin$ transitions are available from the
+process $\tntin{m}.E$ and bouncer, $B_1$.  Conversely, $OutEnv$ concerns
+the interaction between $\tntout{m}.E$ and $\bout$, allowing a $\tout$
+transition to occur and $n$ to move outside $m$.  Likewise,
+$\tntopen{m}$ causes a $\topen$ transition to occur when both an
+$\tntopen{m}$ and an $\bopen$ transition are available.  The named
+environ, $m$, is destroyed and the two clock contexts unified.
+
+Finally, $ProcIn$ and $ProcOut$ describe the movement of processes
+between environs.  In both rules, $E$ moves due to a mobility primitive
+which is part of $F$.  This occurs if an $a$ transition takes place in
+the presence of matching $\procin{a}{m}$ and $\bin$, or $\procout{a}{m}$
+and $\bout$, actions.  An appropriate mobility transition ($\tin$ or
+$\tout$) is emitted as a result of this three-way synchronisation.
+Process mobility, in this form, is \emph{objective}.  The process which
+emits the mobility primitive synchronises with a partner process, and it
+is this partner which actually moves.  The partner is necessarily a
+process in the same environ, due to the scoping of actions described
+above.
+
 \begin{table}
   \caption{Mobility Semantics}
  \label{tab:mobsubset}
@@ -999,37 +1024,11 @@ the semantics for expressions.
   \shrule
 \end{table}
 
-
-
-Finally, $Rec$ provides recursion, performing substitution of $X$ for
-the body of the recursion as soon as any transition, $\gamma$, occurs
-and $Res$ defines restriction, which disallows any transitions for the
-given action.
-
-
-The rules are quite simple.  $LHd1$ provides the conversion of the ticks
-of the hidden clocks to silent actions; if $E$ can perform a $\sigma$
-transition, then it performs a $\tau$ transition in a context where
-$\sigma$ is one of the hidden clocks.  $LHd2$ and $LHd3$ simply allow
-the remaining actions and clock transitions respectively, to occur
-normally.  $Cap$ allows the mobility capabilities and co-capabilities to
-emit a transition, but the process itself can only evolve in the context
-of movement.
-
-On that subject, Table \ref{tab:locmobsubset} gives the rules required
-for location mobility.  $InLoc$ allows a $\tau$ transition to occur and
-$n$ to move into $m$ if both an $\ambin{m}$ and an $\bin$ transition
-are available from the process $\ambin{m}.E$ and the bouncer, $B_1$,
-respectively.  $OutLoc$ is basically the same thing, but for
-$\ambout{m}.E$ and $\bout$.
-
-
 \section{A Simple Example}
 \label{example}
 
 Consider the familiar children's game of musical chairs.  The conduct of
 the game can be divided into the following stages:
-
 \begin{enumerate}
 \item The players begin the game standing.  The number of players is
 initially equal to the number of chairs.
@@ -1041,19 +1040,17 @@ initially equal to the number of chairs.
 \item The music restarts.  Any players who are still in the game leave
   their chairs and the next round begins (from stage three).
 \end{enumerate}
-
-\noindent The winner is the last player left in the game.  A model of
+The winner is the last player left in the game.  A model of
 this game can be created using the TNT process calculus.
 
-The game environment is represented using localities.  In the musical
-chairs scenario, each chair is represented by a locality, as is the `sin
+The game environment is represented using environs.  In the musical
+chairs scenario, each chair is represented by a environ, as is the `sin
 bin', to which players are moved when they are no longer in the game.
-These localities are all nested inside a further locality which
-represents the room itself.  This is not a necessity, but makes for a
-cleaner solution; it allows multiple instances of the system to be
-nested inside some larger system, each performing its own internal
-interactions and entering into the synchronization cycle of the larger
-system.
+These environs are all nested inside a further environ which represents
+the room itself.  This is not a necessity, but makes for a cleaner
+solution; it allows multiple instances of the system to be nested inside
+some context, each performing its own internal interactions and entering
+into the synchronisation cycle of the larger system.
 
 \begin{figure}  
   \centering
@@ -1062,23 +1059,21 @@ system.
   \label{fig:gameenv}
 \end{figure}
 
-The locality structure is represented graphically by Fig. \ref{fig:gameenv}
+The environ structure is represented graphically by Fig. \ref{fig:gameenv}
 and in the calculus by the equation shown below.
-
 \begin{equation}
 \loc{room}{\nloc{chair}{\nil}{CB} \pc \nloc{chair}{\nil}{CB}
 \pc \nloc{sin bin}{\nil}{SB} \pc P \pc P \pc GM}{\Omega}{\sigma}
 \end{equation}
-
-\noindent where $\nloc{m}{E}{F}$ is abbreviated from
-$\loc{m}{E}{F}{\{\}}$.  The players themselves are represented by
-\emph{processes}.  This allows them both to interact and to move between
-localities.  A gamesmaster process is also introduced.  This doesn't
-play an active role in the game itself, but is instead responsible for
-performing the administrative duties of removing chairs from the game
-and controlling player movement.  The process definitions are summarised
-in Table \ref{tab:musicalchairs}, and make use of the derived syntax for
-a clock prefix, $\sigma.P$, shown in \ref{clockcontrol}.
+where $\nloc{m}{E}{F}$ is abbreviated from $\loc{m}{E}{F}{}$.  The
+players themselves are represented by \emph{processes}.  This allows
+them both to interact and to move between environs.  A gamesmaster
+process is also introduced.  This doesn't play an active role in the
+game itself, but is instead responsible for performing the
+administrative duties of removing chairs from the game and controlling
+player movement.  The process definitions are summarised in Table
+\ref{tab:musicalchairs}, and make use of the derived syntax for a clock
+prefix, $\sigma.P$, shown in \ref{clockcontrol}.
 
 \begin{table}[h]
   \caption{Summary of Processes and Derived Syntax for Musical Chairs}
@@ -1087,16 +1082,16 @@ a clock prefix, $\sigma.P$, shown in \ref{clockcontrol}.
   \begin{align}
    CB &
     \eqdef 
-    \mu X.(\overline{in}.\overline{out}.X + \overline{open}.\Omega) \label{chairb} \\
+    \mu X.(\bin.\bout.X + \bopen.\Omega) \label{chairb} \\
    SB &
     \eqdef 
-    \mu X.\overline{in}.X \label{sinb} \\
+    \mu X.\bin.X \label{sinb} \\
    GM1 &
     \eqdef 
     \sigma.GM2 \label{gmstage2} \\
     GM2 &
     \eqdef 
-    open\ chair.GM3 \label{gmstage3} \\
+    \tntopen{chair}.GM3 \label{gmstage3} \\
    GM3 &
    \eqdef
    \sigma.GM4 \label{gmstage4} \\
@@ -1129,10 +1124,10 @@ The presence of music is signified by the ticks of a clock, $\sigma$.  A
 tick from $\sigma$ is also used to represent the implicit
 acknowledgement that everyone who can obtain a chair has done so, and
 that the remaining player left in the room has lost.  With regard to the
-bouncers of the localities, the room locality is not prone to either
-destruction or the entry or exit of other localities, having a bouncer
+bouncers of the environs, the room environ is not prone to either
+destruction or the entry or exit of other environs, having a bouncer
 simply equal to $\Omega$.  This retains the encapsulation of the model
-as a single room locality, and prevents other processes or localities
+as a single room environ, and prevents other processes or environs
 from interfering with its behaviour.
 
 The definition of appropriate bouncers is essential for the chairs
@@ -1142,7 +1137,7 @@ chair at any one time, while the sin bin bouncer prevents players
 leaving the sin bin once they have entered.
 
 To model stage one of the game, $n$ player processes and $n$ chair
-locations are placed in the room.  The advantage of using TNT for this
+environs are placed in the room.  The advantage of using TNT for this
 model is that the actual number of players or chairs is irrelevant.
 They only have to be equal at the start to accurately model the game.
 The calculus allows the creation of a compositional semantics, as
@@ -1150,13 +1145,11 @@ discussed in chapter \ref{introduction}, which works with any $n$.
 
 For the purposes of demonstration, $n$ is assumed to be two to give the
 following starting state:
-
 \begin{equation}
   \loc{room}{\nloc{chair}{\nil}{CB} \pc \nloc{chair}{\nil}{CB} \pc 
-   Pr \pc P \pc GM1}{\Omega}{\sigma}.
+   P \pc P \pc GM1}{\Omega}{\sigma}.
 \end{equation}
-
-\noindent The room and chairs appear as shown earlier.  The player
+The room and chairs appear as shown earlier.  The player
 processes (\ref{player}) simply wait until two clock
 cycles have passed, the end of each being signalled by a tick from
 $\sigma$.  The intermittent period between the ticks (the second clock
@@ -1164,7 +1157,6 @@ cycle) represents the playing of the music.
 
 Stage two, where the music is started, is thus represented simply by the
 first tick of $\sigma$,
-
 \begin{equation}
 \begin{aligned}
   & \loc{room}{\nloc{chair}{\nil}{CB} \pc \nloc{chair}{\nil}{CB} \pc 
@@ -1175,26 +1167,24 @@ first tick of $\sigma$,
    GM2}{\Omega}{\sigma}
 \end{aligned}
 \end{equation}
-
-\noindent which the gamesmaster ($GM1$ (\ref{gmstage2})) also waits for,
-before evolving into $GM2$ (\ref{gmstage3}).  The second cycle, prior
-to the music stopping, is used to remove a chair from the game.  Maximal
+which the gamesmaster ($GM1$ (\ref{gmstage2})) also waits for, before
+evolving into $GM2$ (\ref{gmstage3}).  The second cycle, prior to the
+music stopping, is used to remove a chair from the game.  Maximal
 progress, as explained in section \ref{introduction}, ensures that this
-occurs before the next clock tick, as the removal emits a silent action.
-The transition from stage three to stage four is thus as follows:
-
+occurs before the next clock tick, as the removal emits a high priority
+action, $\topen$.  The transition from stage three to stage four is thus
+as follows:
 \begin{equation}
 \begin{aligned}
 & \loc{room}{\nloc{chair}{\nil}{CB} \pc \nloc{chair}{\nil}{CB} \pc 
    \sigma.MP \pc \sigma.MP \pc
    GM2}{\Omega}{\sigma} \\
- \lderives{\tau}\ & \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
+ \lderives{\topen}\ & \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
    \sigma.MP \pc \sigma.MP \pc
    GM3}{\Omega}{\sigma}
 \end{aligned}
 \end{equation}
-
-\noindent with one of the two chairs being chosen non-deterministically.
+with one of the two chairs being chosen non-deterministically.
 The second tick then occurs, leading in to stage five and the most
 interesting part of the model.
 
@@ -1210,43 +1200,41 @@ interesting part of the model.
 \end{equation}
 
 The aim of stage five is to get as many player processes as possible
-inside chair localities.  This is handled by again relying on maximal
+inside chair environs.  This is handled by again relying on maximal
 progress to essentially perform a form of broadcast that centres on
 mobile actions, as briefly mentioned in \ref{procmob}.  Rather than
 sending a signal to a number of recipients, a request to move into a
 chair (see (\ref{gmstage5}) and (\ref{mplayer})) is delivered instead.
 
 If a chair is available, then a player process will enter it (the actual
-chair and player chosen is non-deterministic).  This will cause an
-internal action to occur, which takes precedence over the clock tick.
+chair and player chosen is non-deterministic).  This will cause a high
+priority action to occur, which takes precedence over the clock tick.
 Thus, when the clock eventually does tick, it is clear that no more
 players can enter chairs. Using clocks in this manner makes the system
 \emph{compositional}; in contrast to other models, players and chairs
 can be added without requiring changes to the process definitions.  In
 this running example, there are two players, but only one chair, which
-results in a single $\tau$ transition:
-
+results in a single $\tin$ transition:
 \begin{equation}
 \begin{aligned}
 & \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
    MP \pc MP \pc
    GM4}{\Omega}{\sigma} \\
-\lderives{\tau}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc PIC}{\overline{out}.CB} \pc 
+\lderives{\tin}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc PIC}{\bout.CB} \pc 
    MP \pc
    GM4}{\Omega}{\sigma} \\
 \end{aligned}
 \end{equation}
-
-\noindent that causes one of the $MP$ processes to move in to a
+that causes one of the $MP$ processes to move in to a
 chair, and become a $PIC$ process.  This is followed by the
 $\sigma$ transition, which marks the move to stage six.
 
 \begin{equation}
 \begin{aligned}
-&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc PIC}{\overline{out}.CB} \pc 
+&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc PIC}{\bout.CB} \pc 
    MP \pc
    GM4}{\Omega}{\sigma} \\
-\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\overline{out}.CB} \pc 
+\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc 
    L \pc
    GM5}{\Omega}{\sigma} \\
 \end{aligned}
@@ -1258,118 +1246,132 @@ players (see (\ref{gmstage6}) and (\ref{loser})).  The difference is
 that stage six demonstrates something which wouldn't be possible without
 mobility: the broadcast is limited to those player processes which
 remain in the room.  As communication between processes in different
-localities is disallowed in TNT, an implicit scoping of the broadcast
-occurs.  In the example, stage six again sees just one $\tau$
+environs is disallowed in TNT, an implicit scoping of the broadcast
+occurs.  In the example, stage six again sees just one $\topen$
 transition:
-
 \begin{equation}
 \begin{aligned}
-&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\overline{out}.CB} \pc 
+&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc 
    L \pc
    GM5}{\Omega}{\sigma} \\
-\lderives{\tau}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\overline{out}.CB} \pc
+\lderives{\topen}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc
    GM5}{\Omega}{\sigma} \\
 \end{aligned}
 \end{equation}
-
-\noindent which results in the remaining $MP$ (now a losing
-process, $L$) moving to the sin bin.  Due to space constraints, the sin bin
-locality is not shown in the above derivations.  It may be factored in
-to the above as follows:
-
+which results in the remaining $MP$ (now a losing process, $L$) moving
+to the sin bin.  Due to space constraints, the sin bin environ is not
+shown in the above derivations.  It may be factored in to the above as
+follows:
 \begin{equation}
 \begin{aligned}
 & \nloc{sinbin}{\nil}{SB} \pc L \pc GM5 \\
-\lderives{\tau} & \nloc{sinbin}{\nil \pc \nil}{SB} \pc GM5
+\lderives{\tin} & \nloc{sinbin}{\nil \pc \nil}{SB} \pc GM5
 \end{aligned}
 \end{equation}
-
-\noindent where the $L$ process evolves to become a simple $\nil$
+ where the $L$ process evolves to become a simple $\nil$
 process.  The broadcast is again terminated by a tick from $\sigma$,
-
 \begin{equation}
 \begin{aligned}
-&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\overline{out}.CB} \pc
+&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc
    GM5}{\Omega}{\sigma} \\
-\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc PLC}{\overline{out}.CB} \pc
+\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc PLC}{\bout.CB} \pc
    GM1}{\Omega}{\sigma} 
 \end{aligned}
 \end{equation}
-
-\noindent which, in this case, also signifies the music starting up again.  The
+which, in this case, also signifies the music starting up again.  The
 remaining players leave their chairs:
-
 \begin{equation}
 \begin{aligned}
-& \loc{room}{\nil \pc \nloc{chair}{\nil \pc PLC}{\overline{out}.CB} \pc
+& \loc{room}{\nil \pc \nloc{chair}{\nil \pc PLC}{\bout.CB} \pc
    GM1}{\Omega}{\sigma}   \\
-\lderives{\tau}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \nil}{CB} \pc
+\lderives{\tout}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \nil}{CB} \pc
    GM1 \pc P}{\Omega}{\sigma} 
 \end{aligned}
 \end{equation}
-
-\noindent and the system essentially returns to the beginning, with $n -
+and the system essentially returns to the beginning, with $n -
 1$ chairs and $n - 1$ players.
 
 \section{The Type System}
 \label{typesys}
 
-This final section focuses on the specification of a simple type
-system for the calculus, which fulfills two goals:
+In this final section, we consider the specification of a simple type
+system for the calculus, which fulfils two main goals:
 
 \begin{enumerate}
-\item Ensures the sanity of a given TNT construction, which is
+\item It ensures the sanity of a given TNT construction, which is
   implicit in the examples above.  This is primarily achieved by
   ensuring that normal process primitives and the primitives used by
   bouncers remain distinct.  For example,
-  $\ambin{n}.\overline{in}.\nil$ should not be a valid bouncer,
-  especially as $\ambin{n}$ suggests that the bouncer (and its locality)
+  $\tntin{n}.\bin.\nil$ should not be a valid bouncer,
+  especially as $\tntin{n}$ suggests that the bouncer (and its environ)
   should move inside $n$.
-\item Restrict mobility by type in addition to cardinality.  With the
-  syntax and semantics alone, movement control is limited to how many
-  times a locality may entered or exited.  With the addition of a type
-  system, these operations can be restricted to processes whose type
-  allows the action to take place.
+\item It extends and refines our control over mobility by adding a
+      secondary mechanism orthogonal to the use of bouncers.
 \end{enumerate}
 
-The concepts behind this are based on the type systems presented for
-the ambient calculus (see \ref{ambienttypes}), specifically the
-notion of groups presented in \cite{ambienttypes} and \cite{m3}.
+Our rudimentary type system is inspired in part by those given for the
+ambient calculus (see \ref{ambienttypes}), specifically the notion of
+groups presented in \cite{ambienttypes} and \cite{m3}.  Each process is
+assigned a group type, which determines the use of the mobility
+primitives.  Each group is a tuple comprising four sets of environ
+names\footnote{Each group $g$ is defined abstractly to be of kind
+$Group$.}:
 
-Each process is a member of a group, which determines the use of the
-mobility primitives.  Each group has a type\footnote{Or, more
-  accurately, as groups are types themselves, it essentially has a
-  type of a type or a \emph{kind}} composed of the following sets of
-locality names:
-
-\begin{itemize}
-\item $\mathscr{R}$ -- Localities which may be \emph{resided} in
-\item $\mathscr{O}$ -- Localities which may be \emph{opened}
-\item $\mathscr{L}$ -- Localities which may be \emph{left}
-\item $\mathscr{E}$ -- Localities which may be \emph{entered}
-\end{itemize}
+\begin{tabular}{rlcl}
+$\quad \bullet$ & $\mathscr{R}$ & -- & Environs in which the process may
+ \emph{reside} \\
+$\bullet$ & $\mathscr{O}$ & -- & Environs which it may \emph{open} \\
+$\bullet$ & $\mathscr{L}$ & -- & Environs which it may \emph{leave} \\
+$\bullet$ & $\mathscr{E}$ & -- & Environs which it may \emph{enter}
+\end{tabular}
 
 $\mathscr{L}$ and $\mathscr{E}$ form subsets of $\mathscr{R}$, as
-clearly, if a process may enter or leave a locality, it must also be
-able to reside within it.  As an example, consider the group
-$(\{n\},\emptyset, \emptyset,\{n\})$.  Processes which are members of
-this group may enter and reside in $n$, but, once in $n$, they may not
-leave.  They also lack the ability to destroy $n$.
+clearly, if a process may enter or leave a environ, it must also be able
+to reside within it.  As an example, consider the group
+$(\{n\},\emptyset, \emptyset,\{n\})$.  Processes of this type may enter
+and reside in $n$, but, once there, they may not leave.  They also lack
+the ability to destroy $n$.  We write $g(\mathscr{R})$,
+$g(\mathscr{O})$, $g(\mathscr{L})$ and $g(\mathscr{E})$ for the
+components of the group $g$.
 
-Table \ref{tab:basictypes} presents the basic rules and the rudimentary
-types used for the basic parts of the syntax, such as $\nil$.  As is
-standard in the literature, the types are defined with respect to a type
-environment, $\Gamma$.  On this note, the rule $Env$ simply states that
-if $\xi$ of type $T$ is a member of $\Gamma$, then a typing derivation
-$\vdash \xi : T$ may be made in the context of $\Gamma$.  This forms the
-basis of all later rules.
+The type system is presented in Table \ref{tab:basictypes}; the general
+syntax for a type $T$ is given by
+
+\begin{equation*}\begin{aligned}
+T \mathrel{::=} & \quad P \mid Act \mid Clock \mid Name \mid Bouncer \mid
+ Environ \\
+P \mathrel{::=} & \quad g \mid P \oplus P \mid P \otimes P \mid \pi_L P \mid
+ \pi_R P \\
+                & \quad \text{where $g \colon Group$ ranges over group types.}
+\end{aligned}
+\end{equation*}
+
+The rule $Env$ states that if $\xi$ of type $T$ is a member of
+$\Gamma$, then a typing derivation $\vdash \xi : T$ may be made in the
+context of $\Gamma$.  This forms the basis of all later rules.  Notice
+that our system is naturally polymorphic; both $\nil$ and $\Delta$ can
+have any group type $g$.  In contrast, $\Omega$ can only be typed as a
+$Bouncer$, thus distinguishing it from the behaviourally equivalent
+process, $\Delta$.  
+
+The remaining rules allow types to be applied in accordance with the
+various operators present in the calculus.  Notice that $Stall$ requires
+that $\sigma$ is typeable as a clock, another restriction which makes
+explicit a number of issues implied in the syntax.  Similarly, $Act$
+requires $\alpha$ to be an action ($Act$) and $Res$ requires the $a$ to
+be a $Name$.  When handing the binary operators, we use the rules $SumC$
+and $ParC$ to construct appropriate composite types that maintain the
+groups used on either side.  The rules $SumL$ and $SumR$ then allow the
+appropriate type to be recovered when one of the processes in a
+summation evolves.  Notice that no construct is available (none is
+needed) for recovering the components of a product type in this system.
 
 \begin{table}
-  \caption{Types: Basics}
+  \caption{Types}
   \label{tab:basictypes}
   \shrule
  \begin{center}
- \begin{tabular}{rc}
+ \begin{tabular}{rlrl}
      \Rule{Env}
      {\xi : T \in \Gamma}
      {\Gamma \vdash \xi : T}
@@ -1396,215 +1398,120 @@ basis of all later rules.
      {}
      &
      \Rule{Act}
-     {\Gamma \vdash \alpha : Lab, P : g : Group}
-     {\Gamma \vdash \alpha . P : g}
+     {\Gamma \vdash \alpha : Act, E : g : Group}
+     {\Gamma \vdash \alpha . E : g}
      {}
   \\[3ex]
      \Rule{Rec}
-     {\Gamma \vdash P : g : Group}
-     {\Gamma \vdash \mu X.P : g}
+     {\Gamma \vdash E : g : Group}
+     {\Gamma \vdash \mu X.E : g}
      {}
      &
      \Rule{Res}
-     {\Gamma \vdash a : Act, P : g : Group}
-     {\Gamma \vdash P \setminus a : g}
+     {\Gamma \vdash a : Name, E : g : Group}
+     {\Gamma \vdash E \res{a} : g}
      {}
+  \\[3ex]
+   \Rule{SumC}
+   {\Gamma \vdash E : g : Group, F : g' : Group}
+   {\Gamma \vdash E + F : g \oplus g'}
+   {}
+   &
+   \Rule{ParC}
+   {\Gamma \vdash E : g : Group, F : g' : Group}
+   {\Gamma \vdash E \pc F : g \otimes g'}
+   {}
+   \\[3ex]
+   \Rule{SumL}
+   {\Gamma \vdash E + F : g : Group}
+   {\Gamma \vdash E' : \pi_{L} g}
+   {(E \derives{\kappa} E')}
+   &
+   \Rule{SumR}
+   {\Gamma \vdash E + F : g : Group}
+   {\Gamma \vdash F' : \pi_{R} g}
+   {(F \derives{\kappa} F')}
+   \\[3ex]
  \end{tabular}
   \end{center}
   \shrule
 \end{table}
 
-The remaining rules in Table \ref {tab:basictypes} provide types for
-the processes.  Via $Nil$ and $Stop$, both $\nil$ and $\Delta$ are
-given a type of $g$, where $g$ is a group.  The only precondition for
-these derivations is that $g$ is typeable as a $Group$ in the
-environment, $Gamma$.  Likewise, $\Omega$ can be typed as a $Bouncer$,
-thus distinguishing it from the normal processes, such as $\nil$.
-
-The other rules are also relatively simple.  $Stall$ simply says that
-$\Delta_{\sigma}$ may be typed as a process of group $g$ if $\sigma$
-is a clock.  $Act$ states that $\alpha.P$ is a process in $g$ if
-$\alpha$ is typeable as a label ($Lab$, which includes actions,
-co-actions and $\tau$) and $P$ is also typeable as a process in the
-same group.  In the same vein, $Rec$ and $Res$ type recursive and
-restricted processes respectively, if the constituent process, $P$, is
-already typeable as a process.  In the case of $Res$, $a$ must be an
-action ($Act$) if the process is to be successfully typed.
-
-In Table \ref{tab:operatortypes}, types are given to the composition of
-processes using the binary operators for summation, parallel composition
-and timeout.  All four are mostly identical, providing a type for the
-process resulting from the combination of the operator with two other
-processes, $P$ and $P^\prime$.  Each process is given a type, which must
-be equivalent groups within the union of the two environments, $\Gamma$
-and $\Gamma^\prime$.
-
+Table \ref{tab:totypes} shows the rules for timeouts.  These follow much
+the same design as the rules for the summation operator, except that
+they include the additional requirement that $\sigma$ must be typeable
+as a clock.  The $STOS$ rule handles the additional eventuality that the
+process may evolve with the timeout still in place when using the stable
+timeout operator.
+ 
 \begin{table}
-  \caption{Types: Operators}
-  \label{tab:operatortypes}
+  \caption{Timeout Types}
+  \label{tab:totypes}
   \shrule
  \begin{center}
- \begin{tabular}{c}
-     \Rule{Sum}
-     {\Gamma \vdash P : g,
-      \Gamma^\prime \vdash P^\prime : g^\prime,
-      \Gamma \cup \Gamma^\prime \vdash g = g^\prime : Group}
-     {\Gamma \cup \Gamma^prime \vdash P + P^\prime : g}
-     {}
-     \\[3ex]
-     \Rule{Par}
-     {\Gamma \vdash P : g,
-      \Gamma^\prime \vdash P^\prime : g^\prime,
-      \Gamma \cup \Gamma^\prime \vdash g = g^\prime : Group}
-     {\Gamma \cup \Gamma^prime \vdash P \mid P^\prime : g}
-     {}
-     \\[3ex]
-     \Rule{FTO}
-     {\Gamma \vdash P : g,
-      \Gamma^\prime \vdash P^\prime : g^\prime,
-      \Gamma \cup \Gamma^\prime \vdash \sigma : Clock,
-      \Gamma \cup \Gamma^\prime \vdash g = g^\prime : Group}
-     {\Gamma \cup \Gamma^\prime \vdash \timeout{P}{\sigma}{P^\prime} : g}
-     {}
+ \begin{tabular}{rlrl}
+  \multicolumn{4}{c}{
+   \Rulea{FTOC}
+   {\Gamma \vdash E : g : Group, F : g' : Group, \sigma : Clock}
+   {\Gamma \vdash \timeout{E}{\sigma}{F} : g \oplus g'}
+   {}}
+   \\[3ex]
+  \multicolumn{4}{c}{
+   \Rulea{STOC}
+   {\Gamma \vdash E : g : Group, F : g' : Group, \sigma : Clock}
+   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g \oplus g'}
+   {}}
+   \\[3ex]
+  \multicolumn{4}{c}{
+   \Rulea{FTOL}
+   {\Gamma \vdash \timeout{E}{\sigma}{F} : g : Group}
+   {\Gamma \vdash E' : \pi_{L} g}
+   {(E \derives{\gamma} E', \gamma \ne \sigma)}
+}
+   \\[3ex]
+  \multicolumn{4}{c}{
+   \Rulea{FTOR}
+   {\Gamma \vdash \timeout{E}{\sigma}{F} : g : Group}
+   {\Gamma \vdash F : \pi_{R} g}
+   {}}
+   \\[3ex]
+  \multicolumn{4}{c}{
+   \Rulea{STOL}
+   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g : Group}
+   {\Gamma \vdash E' : \pi_{L} g}
+   {(E \derives{\kappa} E')}
+  }\\[3ex]
+  \multicolumn{4}{c}{
+   \Rulea{STOR}
+   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g : Group}
+   {\Gamma \vdash F : \pi_{R} g}
+   {}}
+   \\[3ex]
+  \multicolumn{4}{c}{
+  \Rulea{STOS}
+   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g : Group}
+   {\Gamma \vdash \stimeout{E'}{\sigma}{F} : g}
+   {(E \derives{\rho} E', \rho \ne \sigma)}
+  }
   \\[3ex]
-  \Rule{STO}
-     {\Gamma \vdash P : g,
-      \Gamma^\prime \vdash P^\prime : g^\prime,
-      \Gamma \cup \Gamma^\prime \vdash \sigma : Clock,
-      \Gamma \cup \Gamma^\prime \vdash g = g^\prime : Group}
-     {\Gamma \cup \Gamma^\prime \vdash \stimeout{P}{\sigma}{P^\prime} : g}
-     {}
-     \\[3ex]
-     \Rule{BSum}
-     {\Gamma \cup \Gamma^\prime \vdash B : Bouncer,
-      \Gamma \cup \Gamma^\prime  \vdash B^\prime : Bouncer}
-     {\Gamma \cup \Gamma^\prime \vdash B + B^\prime : Bouncer}
-     {}
  \end{tabular}
   \end{center}
   \shrule
 \end{table}
 
-The only other issue worthy of note with respect to these rules is that
-$FTO$ and $STO$ also require that $\sigma$ is typeable as a clock,
-another restriction which simply makes explicit a number of issues
-implied in the syntax.  Table \ref{tab:operatortypes} also includes
-a summation rule for bouncers, which simply requires that each bouncer
-is typeable as a $Bouncer$ under the union of the two type environments,
-$\Gamma$ and $\Gamma^\prime$.
-
-The types in Tables \ref{tab:basictypes} and \ref{tab:operatortypes}
-provide the basis for the mobility types presented in Table
-\ref{tab:mobilitytypes}, which form the focus of this type system.
-$g(\mathscr{R})$, $g(\mathscr{O})$, $g(\mathscr{L})$ and
-$g(\mathscr{E})$ represent the sets of locality names that form the
-group, $g$.
+The rules for the bouncers are shown in Table \ref{tab:botypes}, where
+$BRec$ allows recursive bouncers to be defined, while $BIn$, $BOut$ and
+$BOpen$ allow an existing bouncer, $B$, to be prefixed with one of the
+three bouncer primitives ($\bin$, $\bout$ and $\bopen$).  $BSum$ simply
+allows the result of composing two bouncers with the summation operator,
+$+$ to be typeable as well.
 
 \begin{table}
-  \caption{Types: Mobility}
-  \label{tab:mobilitytypes}
+  \caption{Bouncer Types}
+  \label{tab:botypes}
   \shrule
  \begin{center}
- \begin{tabular}{c}
-     \Rule{Loc}
-     {\Gamma \vdash m : Locality,
-     \Gamma \vdash P : g : Group,
-     \Gamma \vdash B : Bouncer,
-     m \in g(\mathscr{R})}
-     {\Gamma \vdash \loc{m}{P}{B}{\vec{\sigma}} : g}
-     {}
-  \\[3ex]
-     \Rule{LocIn}
-     {\Gamma \vdash m : Locality,
-  \Gamma \vdash P : g : Group,
-  m \in g(\mathscr{E})}
-     {\Gamma \vdash \ambin{m}.P : g}
-     {}
-     \\[3ex]
-     \Rule{LocOut\ \ }
-     {\Gamma \vdash \loc{n}{\loc{m}{P}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group,
-  m \in g(\mathscr{L}),
-  n \in g(\mathscr{E})}
-     {\Gamma \vdash \ambout{m}.P : g}
-     {}
-     \\[3ex]
-     \Rule{Open}
-     {\Gamma \vdash \loc{n}{P}{B_1}{\vec{\sigma}} : g : Group,
-  \Gamma \vdash \loc{m}{Q}{B}{\vec{\sigma}} : h : Group,
-  m \in g(\mathscr{O}),
-  n \in h(\mathscr{E})}
-     {\Gamma \vdash \ambopen{m}.P : g}
-     {}
-  \\[3ex]
-     \Rule{AmbIn\ \ }
-  {\Gamma \vdash a : Act,
-  \Gamma \vdash \loc{n}{P \mid Q \mid \loc{n}{\nil}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group, 
-  m \in g(\mathscr{E})}
-     {\loc{n}{\procin{a}{m}.P \mid a.Q \mid \loc{n}{\nil}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group}
-     {}  
-  \\[3ex]
-     \Rule{AmbOut\ \ \ \ }
-  {\Gamma \vdash a : Act,
-  \Gamma \vdash \loc{n}{\loc{m}{P \mid Q}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group, 
-  m \in g(\mathscr{L}),
-  n \in g(\mathscr{E})}
-     {\Gamma \vdash \loc{n}{\loc{m}{\procout{a}{m}.P \mid a.Q}{B}{\vec{\sigma}}}{B_2}{\vec{\rho}} :
-  g}
-     {}  
- \end{tabular}
-  \end{center}
-  \shrule
-\end{table}
-
-$Loc$ is a fundamental rule, which links localities, bouncers, clocks
-and processes.  If $m$ is a locality name ($Locality$), $P$ is a process
-of type $g$ (where $g$ is a $Group$) and $B$ is a $Bouncer$, then the
-process $P$ may be typed as $g$ while encapsulated within the locality
-$m$, with its bouncer $B$.  The later rules rely on this to provide a
-type for the existing localities.
-
-$LocIn$, $LocOut$ and $Open$ are fairly similar, all relating to whether
-a particular location movement is typeable, based on the groups of the
-processes within them.  $LocIn$ states that if $m$ is a locality name,
-and $P$ is a process typed with the group, $g$, then $P$ may be prefixed
-with the $\ambin{m}$ capability if m is an element of the set
-$g(\mathscr{E})$, where $g(\mathscr{E})$ is the set of locality names which
-members of group $g$ may enter.
-
-The $LocOut$ rules differs from $LocIn$ in that it provides a context
-for the movement which will occur when $\ambout{m}$ is performed.  This
-is necessary because, not only must the resulting process,
-$\ambout{m}.P$, be able to leave $m$, but it also must be able to enter
-the locality above, $n$.  This is unnecessary in $LocIn$ as $P$ does not
-leave the locality above.  These restrictions are enforced by requiring
-that the group of $P$, $g$, has $m$ as an element of $g(\mathscr{L})$ (so
-$P$ can leave $m$) and $n$ as an element of $g(\mathscr{E})$ (so $P$ can
-enter $n$).
-
-$LocOpen$ has similar requirements.  $P$ is the process that performs
-the capability, $\ambopen{m}$, which requires its group, $g$, to contain
-$m$ in the set of locality names which may be opened.  However, the
-destruction of $m$ also has an effect on processes located in $m$,
-represented as $Q$.  As a result, $Q$ must have an appropriate group,
-$h$, such that $Q$ can reside in the parent locality, $n$, after $m$ is
-opened.  $AmbIn$ and $AmbOut$ are nearly identical to $LocIn$ and
-$LocOut$; the main difference is that they must provide additional
-contextual information (as well as requiring the typeability of the
-action, $a$) in order to handle the involvement of two processes rather
-than simply one.
-
-The final table, \ref{tab:bouncertypes}, adds some simple rules to
-complete the typing of the bouncers.  $BRec$ allows recursive bouncers
-to be defined, while $BIn$, $BOut$ and $BOpen$ allow an existing
-bouncer, $B$, to be prefixed with one of the three co-capabilities
-($\bin$, $\bout$ and $\bopen$).
-
-\begin{table}
-  \caption{Types: Bouncers}
-  \label{tab:bouncertypes}
-  \shrule
- \begin{center}
- \begin{tabular}{rc}
+ \begin{tabular}{rlrl}
   \Rule{BRec}
   {\Gamma \vdash B : Bouncer}
   {\Gamma \vdash \mu X.B : Bouncer}
@@ -1620,11 +1527,100 @@ bouncer, $B$, to be prefixed with one of the three co-capabilities
   {\Gamma \vdash \bout .B : Bouncer}
   {}
   &
-  \Rule{BOpen\ }
+  \Rule{BOpen}
   {\Gamma \vdash B : Bouncer}
   {\Gamma \vdash \bopen .B : Bouncer}
   {}
-  \end{tabular}
+  \\[3ex]
+  \multicolumn{4}{c}{
+   \Rulea{BSum}
+   {\Gamma \cup \Gamma^\prime \vdash B : Bouncer,
+   \Gamma \cup \Gamma^\prime  \vdash B^\prime : Bouncer}
+   {\Gamma \cup \Gamma^\prime \vdash B + B^\prime : Bouncer}
+   {}
+  }
+ \end{tabular}
   \end{center}
   \shrule
 \end{table}
+ 
+The mobility types in Table \ref{tab:motypes} form the remaining focus
+of our type system; the type $g$ of an environ
+$\locv{m}{E}{B}{\vec{\sigma}}$ is that of its encapsulated process $E$,
+subject to the constraint $m \in g(\mathscr{R})$. Similar sanity checks
+are performed in the other rules. For example, in $Open$, $E$ is the
+process that performs the mobility primitive, $\tntopen{m}$ (subject to
+the constraint $m \in g(\mathscr{O})$).  However, the destruction of $m$
+also has an effect on its process ($F$).  As a result, $F$ must have an
+appropriate type, $h$, such that $F$ can reside in the parent environ,
+$n$, after $m$ is removed.
+
+\begin{table}
+  \caption{Mobility Types}
+  \label{tab:motypes}
+  \shrule
+ \begin{center}
+ \begin{tabular}{rlrl}
+  \multicolumn{4}{c}{
+     \Rulea{Environ}
+     {\Gamma \vdash m : Environ,
+     \Gamma \vdash E : g : Group,
+     \Gamma \vdash B : Bouncer,
+     m \in g(\mathscr{R})}
+     {\Gamma \vdash \loc{m}{E}{B}{\vec{\sigma}} : g}
+     {}
+  }
+  \\[3ex]
+  \multicolumn{4}{c}{
+     \Rulea{EnvIn}
+     {\Gamma \vdash m : Environ,
+  \Gamma \vdash E : g : Group,
+  m \in g(\mathscr{E})}
+     {\Gamma \vdash \tntin{m}.E : g}
+     {}
+  }
+     \\[3ex]
+  \multicolumn{4}{c}{
+     \Rulea{EnvOut}
+     {\Gamma \vdash \loc{n}{\loc{m}{E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group,
+  m \in g(\mathscr{L}),
+  n \in g(\mathscr{E})}
+     {\Gamma \vdash \tntout{m}.E : g}
+     {}
+  }
+     \\[3ex]
+  \multicolumn{4}{c}{
+     \Rulea{Open}
+     {\Gamma \vdash \loc{n}{E}{B_1}{\vec{\sigma}} : g : Group,
+  \Gamma \vdash \loc{m}{F}{B}{\vec{\sigma}} : h : Group,
+  m \in g(\mathscr{O}),
+  n \in h(\mathscr{E})}
+     {\Gamma \vdash \tntopen{m}.E : g}
+     {}
+  }
+  \\[3ex]
+  \multicolumn{4}{c}{
+     \Rulea{ProcIn}
+  {\Gamma \vdash a : Name,
+  \Gamma \vdash \loc{n}{E \mid F \mid \loc{m}{\nil}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group, 
+  m \in g(\mathscr{E})}
+     {\loc{n}{\procin{a}{m}.E \mid a.F \mid \loc{m}{\nil}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group}
+     {}  
+  }
+  \\[3ex]
+  \multicolumn{4}{c}{
+     \Rulea{ProcOut}
+  {\Gamma \vdash a : Name,
+  \Gamma \vdash \locv{n}{\loc{m}{E \mid F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group, 
+  m \in g(\mathscr{L}),
+  n \in g(\mathscr{E})}
+     {\Gamma \vdash \locv{n}{\loc{m}{\procout{a}{m}.E \mid a.F}{B}{\vec{\sigma}}}{B_2}{\vec{\rho}} :
+  g}
+     {}
+  }
+ \end{tabular}
+  \end{center}
+  \shrule
+\end{table}
+
+

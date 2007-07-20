@@ -1,20 +1,30 @@
 \chapter{Introduction}
 \label{introduction}
 
-CCS \cite{milner:ccs} is a process algebra commonly used for
-modelling synchronous communication between two processes, where one
-sends a signal and the other receives it at the same time (a concept
-referred to as \emph{local synchronisation}).  However, it cannot
-directly represent systems involving synchronisation of a sender with
-an arbitrary number of recipient processes (known as \emph{global
-  synchronisation}) in a \emph{compositional} manner.  Crucially, the
-semantics of a broadcast agent cannot suitably be represented using
-CCS.  If the agent is defined as transmitting a signal to each of the
-recipients sequentially, through multiple local synchronisations, then
-its semantics will become non-compositional, because such behaviour
-depends upon the number of recipients.  Each time a new recipient is
-introduced, or one of the existing ones is removed, the semantics will
-have to be changed.
+A standard feature of concurrent systems modelling is the use of
+\emph{synchronisation} to model \emph{interaction}. Indeed, this is the
+defining concept of CCS \cite{milner:ccs}, a process algebra commonly
+used for modelling synchronous communication between two processes,
+where one sends a signal and the other receives it at the same time (a
+concept referred to as \emph{local synchronisation}).  However, it
+cannot directly represent systems involving synchronisation of a sender
+with an arbitrary number of recipient processes (known as \emph{global
+synchronisation}) in a \emph{compositional} manner.  
+
+For example, consider an environment inhabited by the members of a
+factory team. The team receives a series of tasks to execute, which
+require the team members to communicate with one another. At some point,
+the first task is completed and the team moves on to the next. Modelling
+this in a setting where the number of workers cannot be predicted
+typically requires the use, either of \emph{global} synchronisation, or
+else (which we reject) of an infinite set of defining equations.
+Crucially, this means that the semantics of a broadcast agent cannot
+suitably be represented using CCS.  If the agent is defined as
+transmitting a signal to each of the recipients sequentially, through
+multiple local synchronisations, then its semantics will become
+non-compositional, because such behaviour depends upon the number of
+recipients.  Each time a new recipient is introduced, or one of the
+existing ones is removed, the semantics will have to be changed.
 
 A solution to this deficiency lies in determining when all possible
 synchronisations have taken place.  With this facility available, the
@@ -35,25 +45,31 @@ no possible synchronisations.
 However, the timed calculi mentioned above lack any notion of spatial
 distribution or mobility. Thus, while they can adequately represent
 large static systems, involving both local and global synchronisation,
-they fail to model more mobile systems, where the location of a
-process can change during execution.  In contrast, the ambient
-calculus \cite{amb} includes both distribution (via structures known
-as \emph{ambients}) and mobility (by allowing these structures to be
-moved, along with their constituent processes, during execution). But,
-it suffers from similar deficiencies to CCS when modelling global
-synchronisation.
+they fail to model the ability of a system to change its topological
+structure unilaterally. In contrast, the ambient calculus \cite{amb} and
+its analogues are well positioned to model distributed systems (via
+structures known as \emph{ambients}) in which resources can migrate from
+one location to another. But, it suffers from similar deficiencies to
+CCS when modelling global synchronisation.
 
-This report presents the calculus of \emph{Typed Nomadic Time} (TNT)
-\cite{hughes:nt}, which combines the abstract timed calculus, CaSE, with
-notions of distribution and mobility from the ambient calculus and its
-variants (\cite{sangiorgi:mobsafeambients,controlledamb02}).  This
-allows the creation of a compositional semantics for mobile
-component-based systems, which utilise the notion of communication
-between arbitrary numbers of processes within a mobile framework.  To
-extend the example of a broadcast agent given above, this extension
-allow broadcasts to be localised to a particular group of processes,
-which can change during execution.  Current work on TNT is discussed in
-chapter \ref{currentwork}, while chapter \ref{literaturereview} contains
-a review of the existing literature in this area.  Finally, chapter
-\ref{futurework} discusses the future development of the calculus,
-including possible case studies.
+This report presents the formal theory of the calculus of \emph{Typed
+Nomadic Time} (TNT) \cite{hughes:nt}, which combines the abstract timed
+calculus, CaSE, with notions of distribution and mobility from the
+ambient calculus and its variants
+(\cite{sangiorgi:mobsafeambients,controlledamb02}).  This allows the
+creation of a compositional semantics for mobile component-based
+systems, which utilise the notion of communication between arbitrary
+numbers of processes within a mobile framework.  To extend the example
+of a broadcast agent given above, this extension allow broadcasts to be
+localised to a particular group of processes, which can change during
+execution.  Current work on TNT is discussed in chapter
+\ref{currentwork}, while chapter \ref{literaturereview} contains a
+review of the existing literature in this area.  
+
+Our long term aim is to leverage TNT as a foundation for creating
+concurrent systems within a programmatic context. This will allow the
+specification of system interactions to be shifted directly from the
+theoretical domain into an implementation backed by a formal
+methodology, helping in turn to improve industrial adoption of
+concurrent techniques.  This is discussed along with future development
+of the calculus in chapter \ref{futurework}.

@@ -46,7 +46,21 @@ more important with respect to the addition of mobility.
 \section{Applications}
 \label{futureapp}
 
-The primary application of TNT will be biological modelling.  This is an
+\subsection{DynamiTE}
+We have begun development of a tool, DynamiTE (\emph{Dynamic Theory
+Execution}), which will allow both the simulation of TNT processes and a
+mapping of these onto Java\footnote{While a functional programming
+language like Haskell may provide a simpler theoretical framework, we
+consider Java to be industrially more relevant, and to provide greater
+opportunity for less theoretically inclined developers.  It is also much
+more mature and well tested for use in distributed concurrent contexts.}
+and its underlying concurrency model.  This will allow TNT to be used as
+a framework for creating concurrent applications within the Java
+programming language by using individual constructs, represented by
+appropriate classes, as building blocks.
+
+\subsection{Biology}
+Another possible application area of TNT is biological modelling.  This is an
 area where physical location is important and mobility is realised as
 shifts in topological composition.  Nested structures are important,
 being clearly present in, for example, cell membranes.  Within the
