@@ -1,5 +1,5 @@
 LATEX=latex
-TEX=transfer_report
+TEX=thesis
 
 all: $(TEX)
 
@@ -17,4 +17,4 @@ all: $(TEX)
 #	ps2ascii $*.ps| wc -w
 
 clean:
-	rm *.{aux,blg,log,out,pdf}
+	rm -vf *.{aux,blg,log,out,pdf,dvi,lof,lot,bbl,ps,toc}
