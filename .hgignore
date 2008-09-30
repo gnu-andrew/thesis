@@ -1,0 +1,12 @@
+syntax: glob
+
+*.pdf
+*.ps
+*.aux
+*.log
+*.bbl
+*.blg
+*.dvi
+*.lof
+*.lot
+*.toc
