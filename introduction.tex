@@ -4,21 +4,34 @@
 \section{Rationale}
 
 Recent changes in the direction of computer hardware development have
-created an impasse in the domain of software engineering.  Over the past
-few years, new microprocessors have not seen the same increase in clock
-speed that has prevailed over the previous decades.  Instead, the use of
-multiple `cores' has become common, due largely to physical limitations
-which prevent the individual elements of a single processor core
-becoming any smaller.
+created an impasse in the domain of software engineering.  Over the
+past few years, new microprocessors have not seen the same increase in
+clock speed that has prevailed over previous decades.  Instead, the
+use of multiple `cores' has become common, due largely to physical
+limitations which prevent the individual elements of a single
+processor core becoming any smaller.  As a result, the performance
+benefits of these new processors arise not from being able to execute
+a single task faster than before, but from the parallel execution of
+many tasks.
 
-However, this leads to a problem.  The existing dominant means of
-designing software systems are inherently sequential.  The design of
-current imperative and object-oriented programming languages are,
-at their core, still founded on the principles of early computational
-models.  These take a idealised view of events whereby they always
-occur sequentially and in isolation.  Both universal
-Turing machines \cite{turing:36} and Church's $\lambda$ calculus
-\cite{church:41}
+However, this leads to a problem.  The existing dominant methods for
+designing software systems are inherently sequential.  Current
+imperative and object-oriented programming languages are still founded
+on the principles of early computational models, such as the Turing
+machine \cite{turing:36}.  These take a idealised view of events
+whereby they always occur sequentially and in isolation.  Programs are
+thus still effectively written as a sequence of reads and writes to a
+form of memory.  The problem with this approach is that it runs into
+major issues when the execution of other programs may cause changes to
+memory outside the remit of the program.  Imagine Turing's model but
+with multiple heads, each running separate programs yet still sharing
+the same tape -- what happens if more than one head writes to the same
+area of the tape?
+
+Concurrency is nothing new.  The concept of executing multiple
+programs at once has been in use since multiprogramming was first
+introduced back in the 1960s.  But the same underlying model has
+remained.
 
 \section{Purpose of the Thesis}
 

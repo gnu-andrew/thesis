@@ -10,10 +10,10 @@ all: $(TEX)
 	$(LATEX) $<
 	$(LATEX) $<
 	dvips -Ppdf -G0 $@.dvi -o $@.ps
-	#$(LATEX) titlepage
-	#dvips -Ppdf -G0 titlepage.dvi -o titlepage.ps
+#$(LATEX) titlepage
+#dvips -Ppdf -G0 titlepage.dvi -o titlepage.ps
 	ps2pdf -dPDFsettings=/prepress -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode $@.ps $@.pdf
-	#ps2pdf -dPDFsettings=/prepress -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode titlepage.ps titlepage.pdf
+#ps2pdf -dPDFsettings=/prepress -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode titlepage.ps titlepage.pdf
 #	ps2ascii $*.ps| wc -w
 
 clean:
