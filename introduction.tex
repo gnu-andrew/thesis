@@ -30,6 +30,8 @@ area of the tape?
 
 \subsection{The Current Status Quo}
 
+\subsubsection{Multiprogramming}
+
 Concurrency is nothing new.  The concept of executing multiple
 programs at once has been in use since \emph{multiprogramming} was
 first introduced back in the 1960s.  But the same underlying model has
@@ -73,9 +75,26 @@ provided memory protection, which prevented a process from accessing
 data outside its own memory space and they remained largely oblivious
 to the fact that their execution was effectively being paused and then
 resumed later.  The effect of such operation was only noticeable if
-the running time of the process was recorded; such results were now
+the running time of the process was recorded, as such results were now
 dependent on factors such as system load and the arbitrary choices of
 the scheduler.
+
+Over time, schedulers have been extended so as to also switch when a
+quantum of time allocated to a process has been depleted.  This
+ensures a greater degree of fairness; a processor-intensive task which
+rarely blocks can no longer become overly dominant.  This wasn't of
+great important for batch systems, as users submitted a job and then
+collected the results later on.  In this context, just utilising the
+time when a process was blocked had a significant impact on perceived
+performance.  However, with a move towards first time sharing and then
+personal computer systems, it became necessary to ensure that each
+process was given time to execute on a regular basis, so the system
+remained responsive.
+
+\subsubsection{Interprocess Communication}
+
+
+
 
 \section{Purpose of the Thesis}
 
