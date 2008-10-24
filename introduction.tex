@@ -28,6 +28,29 @@ with multiple heads, each running separate programs yet still sharing
 the same tape -- what happens if more than one head writes to the same
 area of the tape?
 
+In this thesis, we advocate a move towards systems where the focus is
+on interaction between minimal sequential subsystems.  Rather than
+building huge monolithic structures, development should result in a
+number of smaller components, running in parallel.  Such a design has
+been suggested in varying forms of the years, but due to the perceived
+future evolution of the microprocessor, this is now an essential
+requirement, rather than a design ideal or optimisation.  We also
+provide a formal grounding for such designs, based on academic
+research which has been largely overlooked in the industrial sector.
+Security also forms an inherent part of both the design and formal
+model, allowing restrictions to be established between individual
+components.
+
+In the remainder of this chapter, we provide a brief overview of the
+evolution of concurrent processing, highlighting current issues
+arising from the flawed approach of maintaining a sequential design
+which is becoming more and more distant from reality.  We also look at
+how restricted mutability and an emphasis on intercommunication better
+smaller, more specific processes can provide a better solution, and
+how this approach has been adopted in the past with varying results.
+We close with a summary of the novelty of this work, and an overview
+of how this will be covered in the later chapters of this thesis.
+
 \subsection{The Current Status Quo}
 
 \subsubsection{Multiprogramming}
@@ -60,8 +83,8 @@ each job to completion before attempting the next, the system read in
 multiple jobs to begin with, each forming a \emph{process} in memory.
 These processes consisted not only of the code being executed, but
 also included contextual information, such as the current instruction
-being executed (the \emph{program counter}) and the location of any
-operating data (the \emph{stack pointer}).
+being executed (the \emph{program counter}) and environmental data
+(e.g. open file handles).
 
 If a process being run by the system reached a point where it had to
 wait for an I/O operation, the scheduler would move the process into a
@@ -89,12 +112,80 @@ time when a process was blocked had a significant impact on perceived
 performance.  However, with a move towards first time sharing and then
 personal computer systems, it became necessary to ensure that each
 process was given time to execute on a regular basis, so the system
-remained responsive.
+remained responsive.  This concept is referred to as \emph{preemption}.
 
 \subsubsection{Interprocess Communication}
 
+Concurrency issues arise on such systems as, although the processes
+have their own memory space in which to operate, the functionality
+provided by the underlying operating system is shared by them all.  An
+obvious example is the filesystem.  What happens if more than one
+process tries to access a file at the same time?  The result is
+inconsistent data, either being read from the file or written to it,
+and the reason for this is \emph{race conditions}.
 
+Imagine that a print spooler operates by reading a list of files to
+print from a shared file.  When a process wants to add a new job to
+the queue, it writes its name as a new entry at the end of the file:
 
+\begin{verbatim}
+int fd = open("/var/spool/print_jobs");
+seek(fd, END_OF_FILE);
+write(fd, "my_print_job");
+\end{verbatim}
+
+Problems occur because such an operation is \emph{non-atomic}; it is
+possible that the process may be stopped by the scheduler while adding
+a job to the list (e.g. after the \texttt{seek} function above).  If
+this happens, there is a possibility that whichever other process is
+scheduled in its place could also choose to alter the queue.  The
+result of such a collision is that one of the jobs will be scheduled
+and the other will be lost, depending on which process writes to the
+file last.
+
+The solution to these sort of problems is to ensure a process has
+exclusive access to a resource.  This has the effect of making the
+action seemingly atomic; although the process can still be
+interrupted, no other process can interfere by beginning an equivalent
+transaction.  Instead, such a process is blocked until the original
+process relinquishes control.
+
+The usual method for implementing exclusive access is via a lock of
+some form.  The process of acquiring such a luck must itself be
+atomic, so as to avoid the same kind of problems with acquiring the
+lock that the addition of the lock itself was designed to avoid.  Our
+above example would be modified as follows:
+
+\begin{verbatim}
+int fd = open("/var/spool/print_jobs");
+flock(fd, LOCK_EX);
+seek(fd, END_OF_FILE);
+write(fd, "my_print_job");
+flock(fd, LOCK_UN);
+\end{verbatim}
+
+The first call to \texttt{flock} acquires an exclusive lock
+(\texttt{LOCK_EX}) on the file referenced by \texttt{fd} (the file
+descriptor returned by the operation which opens the file).  Let's
+assume that this process is stopped by the scheduler after the
+\texttt{seek} function executes and another process is allowed to run.
+This second process executes the same program.  While it can
+successfully acquire a file descriptor for the file through the
+\texttt{open} function, the \texttt{flock} function will block trying
+to obtain an exclusive lock.  This is because the lock is still held
+by the original process which has been descheduled but has not yet
+relinquished the lock.  When the original process is chosen again by
+the scheduler, it can continue to write to the file, safe in the
+knowledge that no other process has altered its contents in the
+interim.  The final call to \texttt{flock} releases the lock so the
+second process may now proceed.
+
+But there are inherent problems with locking itself.  A successful
+strategy requires placing acquisition and release calls in all
+affected locations and is extremely prone to error.  Suppose the first
+process above never relinquishes the lock.  The second process (and
+any future processes running the same program) will be blocked
+indefinitely waiting for the lock.
 
 \section{Purpose of the Thesis}
 
