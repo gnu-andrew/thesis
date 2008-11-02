@@ -88,9 +88,10 @@ being executed (the \emph{program counter}) and environmental data
 
 If a process being run by the system reached a point where it had to
 wait for an I/O operation, the scheduler would move the process into a
-\emph{blocked} state and begin the execution of another.  Once the I/O
-operation was complete, the blocked process would be reassigned to a
-\emph{ready} state, making it again eligible for execution.
+\emph{blocked} state and perform a \emph{context switch} to begin the
+execution of another.  Once the I/O operation was complete, the
+blocked process would be reassigned to a \emph{ready} state, making it
+again eligible for execution.
 
 All this remained completely invisible to the running processes, each
 of which appeared to be running in complete isolation.  The hardware
@@ -114,7 +115,7 @@ personal computer systems, it became necessary to ensure that each
 process was given time to execute on a regular basis, so the system
 remained responsive.  This concept is referred to as \emph{preemption}.
 
-\subsubsection{Interprocess Communication}
+\subsubsection{Resource Contention}
 
 Concurrency issues arise on such systems as, although the processes
 have their own memory space in which to operate, the functionality
@@ -153,8 +154,10 @@ process relinquishes control.
 The usual method for implementing exclusive access is via a lock of
 some form.  The process of acquiring such a luck must itself be
 atomic, so as to avoid the same kind of problems with acquiring the
-lock that the addition of the lock itself was designed to avoid.  Our
-above example would be modified as follows:
+lock that the addition of the lock itself was designed to avoid.  If
+acquistion can not be interrupted, a lock will always be in one of two
+known states: held by a process or unheld.  Our above example would be
+modified as follows:
 
 \begin{verbatim}
 int fd = open("/var/spool/print_jobs");
@@ -165,7 +168,7 @@ flock(fd, LOCK_UN);
 \end{verbatim}
 
 The first call to \texttt{flock} acquires an exclusive lock
-(\texttt{LOCK_EX}) on the file referenced by \texttt{fd} (the file
+(\texttt{LOCK\_EX}) on the file referenced by \texttt{fd} (the file
 descriptor returned by the operation which opens the file).  Let's
 assume that this process is stopped by the scheduler after the
 \texttt{seek} function executes and another process is allowed to run.
@@ -185,7 +188,122 @@ strategy requires placing acquisition and release calls in all
 affected locations and is extremely prone to error.  Suppose the first
 process above never relinquishes the lock.  The second process (and
 any future processes running the same program) will be blocked
-indefinitely waiting for the lock.
+indefinitely waiting for the lock.  Similarly, it takes only one
+program accessing the file without first acquiring the lock to make
+the whole process of locking redundant.
+
+Locks don't scale well either.  The above example deals with only
+acquiring one resource, but most programs will need to make use of
+several.  In such a situation, ordering also becomes important.  If
+locks are acquired in the wrong order, deadlock can occur.  Processes
+deadlock when each process is trying to obtain a lock on a resource
+held by the other process.  Take two processes, A and B, both of whom
+are trying to acquire a lock on the two files, \texttt{/etc/passwd}
+and \texttt{/etc/shadow} in order to add a new user to the system.  If
+both processes acquire the locks in the same order, then all is well.
+If they don't, a deadlock may occur.
+
+Let's assume process A runs first.  It acquires a lock on
+\texttt{/etc/passwd}.  At this point, A has used its allocated quantum
+of CPU time and so is descheduled.  A context switch occurs and
+process B begins to run.  If B begins by trying to acquire a lock on
+\texttt{/etc/passwd}, then it will simply block as A already holds
+this lock.  If, however, it tries to acquire a lock on
+\texttt{/etc/shadow} first, this will succeed.  We then get stuck; B
+blocks trying to acquire the lock on \texttt{/etc/passwd} held by A,
+which will never be relinquished because A will be blocked trying to
+acquire the lock on \texttt{/etc/shadow} held by B.  Such problems
+occur simply through two program statements occurring in the wrong
+order.
+
+Such examples are frequent.  Take the classic readers and writers
+problem.  Here, we again have a scenario with a single shared resource
+(a database) and contention from multiple processes, which can result
+in data corruption.  The simplest solution is to do the same as we did
+above; have each reader or writer acquire a lock on the database when
+it wants to use it and relinquish it afterwards.  The problem with
+this approach is that it makes use of the database sequential.
+Multiple processes in parallel gives us the possibility of a
+substantial performance gain, but we sacrifice this to retain the same
+design and behaviour we are used to when working with a single process
+and no possibility of interference.
+
+Things can be made a little better by exploiting the fact that
+processes either read from the database (\emph{readers}) or write to
+it (\emph{writers}).  It clearly doesn't matter if several readers are
+accessing the database at once, but a writer needs exclusive access.
+If two or more writers are altering the database at the same time,
+corruption may result.  Similarly, if readers are trying to use the
+database while it is being used, they may obtain inconsistent results.
+
+This results in the following conditions for access to the database:
+\begin{itemize}
+\item For a reader to access the database, there must be no writers
+  using the database.
+\item For a writer to alter the database, there must be no readers or
+  writers using the database.
+\end{itemize}
+One possible solution uses two controlled resources.  The first of
+these is a count, which enumerates the number of readers currently
+accessing the database.  Only when this count is zero may a writer
+gain access to the database.  The second resource is simply a binary
+flag which is used to indicate when a writer is active, making
+modifications.  Both readers and writers may not access the database
+if this flag is set.
+
+Both resources must be modified atomically.  \emph{Semaphores} provide
+an apt solution for this. TODO
+
+Clearly, this process can quickly become complex and even more error
+prone when multiple resources are involved.  One attempt at
+simplifying this process is the use of \emph{monitors}.  TODO
+
+Ideally, we need to limit the need for such locks altogether by
+reducing the number of shared resources and the amount of mutability
+inherent in our designs.  In the future, we want to be able to utilise
+the advantages of massively parallel systems and this can only be
+achieved by reducing the need for resource contention.
+
+\subsubsection{Interprocess Communication}
+
+To achieve this, we need to focus on more short-lived processes which
+interact directly with each other, rather than via the means of shared
+resources.  This is nothing new.  However, it has never achieved
+universal usage as a design paradigm because having to deal with
+concurrency issues, as outlined above, has been avoidable while the
+majority of systems have remained based on a single thread of control.
+This is no longer the case.
+
+For a long time, UNIX systems have included the notion of pipelines
+between processes.  For example, the command \texttt{du}, which
+calculates disk usage, doesn't include an option to sort the results.
+This is because there also exists a command, \texttt{sort} which can
+order an arbitrary block of text in a number of ways.  As such, there
+is no point adding duplicate functionality to \texttt{du} when its
+output can just be fed in as input to \texttt{sort} for those who want
+sorting.
+
+A pipeline is created in the shell by separating the two programs with
+a \texttt{|} symbol.  For our example, \texttt{du -h | sort -n} would
+do the job of outputting disk usage in human-readable form
+(\texttt{-h}) and then sorting it numerically (\texttt{-n}).  A simple
+solution can be applied programatically using system calls such as
+\texttt{pipe}, \texttt{fork} and \texttt{execve}.  The pipe allows the
+output of one program (\texttt{du}) to become the input of another
+(\texttt{sort}).  Neither of the individual programs needs to be aware
+that this is happening.  As far as \texttt{du} is concerned, it is
+still sending output on its standard output channel.  The difference
+is that this channel has been changed externally so as to instead feed
+into a pipe, the other end of which forms \texttt{sort}'s standard
+input channel.
+
+This is a very simple solution, yet it elegantly solves the problem of
+sharing the data between the two processes.  If a pipe was not used,
+\textt{du} would have to store its results somewhere for \texttt{sort}
+to access.  This could then result in contention between the two
+processes for access to the resource.  Instead, here the two are
+working together rather than against each other by synchronising the
+passage of data between them.
 
 \section{Purpose of the Thesis}
 
