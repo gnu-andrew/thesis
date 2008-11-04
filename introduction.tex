@@ -299,11 +299,60 @@ input channel.
 
 This is a very simple solution, yet it elegantly solves the problem of
 sharing the data between the two processes.  If a pipe was not used,
-\textt{du} would have to store its results somewhere for \texttt{sort}
+\texttt{du} would have to store its results somewhere for \texttt{sort}
 to access.  This could then result in contention between the two
 processes for access to the resource.  Instead, here the two are
 working together rather than against each other by synchronising the
 passage of data between them.
+
+A similar design tactic has been used in numerous areas.
+\emph{Microkernels} such as Mach\cite{mach}, MINIX 3\cite{minix3} and
+the GNU HURD\cite{hurd} also utilise this idea of synchronous
+communication over a monolithic design based around shared resources.
+In this context, it provides an essential stability and security
+advantage; many services, such as drivers, file systems and network
+protocols, can operate at the same level (or close to) as user-level
+processes.
+
+Some elements of the kernel must interact with the CPU at a very low
+level.  This can only be achieved in the assembly language of the
+processor and in a special \emph{protected} mode of operation.
+However, it is not necessary for the entire kernel to function under
+these conditions.  Device drivers are particularly notorious for
+causing system instability by doing so.  Through running as part of a
+monolithic kernel and assuming complete control, a buggy device driver
+can cause the entire system to crash.
+
+Instead, in MINIX 3, device drivers operate as separate privileged
+processes.  Unlike normal user-level processes, they have the ability
+to request direct access to hardware but such access is achieved
+through message passing to the underlying core of the kernel.  The
+majority of the driver's operation takes place in userspace and any
+low-level access can be monitored and potentially prohibited.
+
+The Mach and GNU HURD kernels (the former currently forming the basis
+for the latter) take a similar approach.  The central mantra behind
+this design is one of multiple servers, which provide different
+functionality such as a file system or network service.  Apple also
+adopted this design for XNU, the Mac OS X kernel, but, while basing it
+on Mach, they largely reduced the design to a single server running a
+monolithic BSD-based kernel.
+
+The traditional objection against such designs has been performance.
+Designs based on intercommunication have always tended to be more
+elegant, but their usage has tended to be restricted to distributed
+systems such as web services.  In these circumstances, any design
+approach nesisitates utilising a potentially slow connection to
+another system and having a central resource upon which all others
+rely becomes disadvantageous, due to the potential for failure.
+
+We believe it is time to reevaluate the benefits of systems focused on
+intercommunication between specialised components.  With modern
+systems, the potential performance disadvantage is becoming outweighed
+by the benefits of a cleaner and more sustainable design.  With the
+increasing prevalance of truly concurrent systems, more monolithic
+systems will face a clear disadvantage, as the potential for
+parallelism is severly reduced by contention for shared resources.
 
 \section{Purpose of the Thesis}
 
@@ -312,14 +361,15 @@ passage of data between them.
 \section{Structure of the Thesis}
 
 A standard feature of concurrent systems modelling is the use of
-\emph{synchronisation} to model \emph{interaction}. Indeed, this is the
-defining concept of CCS \cite{milner:ccs}, a process algebra commonly
-used for modelling synchronous communication between two processes,
-where one sends a signal and the other receives it at the same time (a
-concept referred to as \emph{local synchronisation}).  However, it
-cannot directly represent systems involving synchronisation of a sender
-with an arbitrary number of recipient processes (known as \emph{global
-synchronisation}) in a \emph{compositional} manner.  
+\emph{synchronisation} to model \emph{interaction}. Indeed, this is
+the defining concept of CCS \cite{milner:ccs}, a process algebra
+commonly used for modelling synchronous communication between two
+processes, where one sends a signal and the other receives it at the
+same time (a concept referred to as \emph{local synchronisation}).
+However, it cannot directly represent systems involving
+synchronisation of a sender with an arbitrary number of recipient
+processes (known as \emph{global synchronisation}) in a
+\emph{compositional} manner.
 
 For example, consider an environment inhabited by the members of a
 factory team. The team receives a series of tasks to execute, which
