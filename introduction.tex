@@ -354,82 +354,42 @@ increasing prevalance of truly concurrent systems, more monolithic
 systems will face a clear disadvantage, as the potential for
 parallelism is severly reduced by contention for shared resources.
 
-\section{Purpose of the Thesis}
-
 \section{Contributions to Knowledge}
+
+Through this thesis, we present the following contributions to
+knowledge which we believe to be novel:
+
+\begin{enumerate}
+\item The development of an algebraic process calculus (\ref{apc})
+  with compositional global synchronisation (\ref{globsync}), mobility
+  (\ref{mobility}) and security provision via the notion of `bouncers'
+  -- see \ref{nt}.
+\item The addition of a type system to the calculus which provides
+  movement restriction via the group membership of processes -- see
+  \ref{tnt}.
+\item The addition of explicit data provision to the calculus via the
+  use of typed channels -- see \ref{tnted}.
+\item The realisation of the calculus as a design metholodogy through
+  the implementation of its constructs as programmatic elements in the
+  Java programming language -- see \ref{dynamite}.  This will allow
+  the specification of system interactions to be shifted directly from
+  the theoretical domain into an implementation backed by a formal
+  methodology, helping in turn to improve industrial adoption of
+  concurrent techniques.
+\end{enumerate}
 
 \section{Structure of the Thesis}
 
-A standard feature of concurrent systems modelling is the use of
-\emph{synchronisation} to model \emph{interaction}. Indeed, this is
-the defining concept of CCS \cite{milner:ccs}, a process algebra
-commonly used for modelling synchronous communication between two
-processes, where one sends a signal and the other receives it at the
-same time (a concept referred to as \emph{local synchronisation}).
-However, it cannot directly represent systems involving
-synchronisation of a sender with an arbitrary number of recipient
-processes (known as \emph{global synchronisation}) in a
-\emph{compositional} manner.
-
-For example, consider an environment inhabited by the members of a
-factory team. The team receives a series of tasks to execute, which
-require the team members to communicate with one another. At some point,
-the first task is completed and the team moves on to the next. Modelling
-this in a setting where the number of workers cannot be predicted
-typically requires the use, either of \emph{global} synchronisation, or
-else (which we reject) of an infinite set of defining equations.
-Crucially, this means that the semantics of a broadcast agent cannot
-suitably be represented using CCS.  If the agent is defined as
-transmitting a signal to each of the recipients sequentially, through
-multiple local synchronisations, then its semantics will become
-non-compositional, because such behaviour depends upon the number of
-recipients.  Each time a new recipient is introduced, or one of the
-existing ones is removed, the semantics will have to be changed.
-
-A solution to this deficiency lies in determining when all possible
-synchronisations have taken place.  With this facility available, the
-broadcast agent can recurse, transmitting signals, until this
-condition holds. The family of abstract timed process calculi
-(including TPL\cite{hennessy:tpl} and CaSE\cite{CaSE}) allow this by
-extending CCS with \emph{abstract clocks}.  These don't represent real
-time, with units such as minutes and seconds, but are instead used to
-form synchronous cycles of internal actions followed by clock ticks.
-A concept known as \emph{maximal progress} enforces the precedence of
-internal actions over clock ticks, allowing the possible
-synchronisations to be monitored.  When a synchronisation takes place,
-it appears to the system as an internal action.  Thus, with maximal
-progress, synchronisations prevent the clock from ticking, and as a
-result, the occurrence of a clock tick also indicates that there are
-no possible synchronisations.
-
-However, the timed calculi mentioned above lack any notion of spatial
-distribution or mobility. Thus, while they can adequately represent
-large static systems, involving both local and global synchronisation,
-they fail to model the ability of a system to change its topological
-structure unilaterally. In contrast, the ambient calculus \cite{amb} and
-its analogues are well positioned to model distributed systems (via
-structures known as \emph{ambients}) in which resources can migrate from
-one location to another. But, it suffers from similar deficiencies to
-CCS when modelling global synchronisation.
-
-This report presents the formal theory of the calculus of \emph{Typed
-Nomadic Time} (TNT) \cite{hughes:nt}, which combines the abstract timed
-calculus, CaSE, with notions of distribution and mobility from the
-ambient calculus and its variants
-(\cite{sangiorgi:mobsafeambients,controlledamb02}).  This allows the
-creation of a compositional semantics for mobile component-based
-systems, which utilise the notion of communication between arbitrary
-numbers of processes within a mobile framework.  To extend the example
-of a broadcast agent given above, this extension allow broadcasts to be
-localised to a particular group of processes, which can change during
-execution.  Current work on TNT is discussed in chapter
-\ref{currentwork}, while chapter \ref{literaturereview} contains a
-review of the existing literature in this area.  
-
-Our long term aim is to leverage TNT as a foundation for creating
-concurrent systems within a programmatic context. This will allow the
-specification of system interactions to be shifted directly from the
-theoretical domain into an implementation backed by a formal
-methodology, helping in turn to improve industrial adoption of
-concurrent techniques.  This is discussed along with future development
-of the calculus in chapter \ref{futurework}.
+In the next chapter, we introduce existing research in to the area of
+algrebriac process calculi through an exploration of the Calculus of
+Concurrent Systems (CCS) \cite{milner:ccs}.  The following two
+chapters focus on specific issues: global synchronisation
+(\ref{globsync}) and mobility (\ref{mobility}).  In chapter \ref{nt},
+we introduce our own research in the form of the Nomadic Time process
+calculus.  The following chapter extends this with a type system to
+create TNT (Typed Nomadic Time).  Chapter \ref{tnted} describes an
+optional data extension to the calculus which allows channels to also
+be typed.  The second part of our research is covered in chapter
+\ref{dynamite} with the development of the DynamiTE (Dynamic Theory
+Execution) framework.  We close with suggestions for future work in
+chapter \ref{futurework}.
