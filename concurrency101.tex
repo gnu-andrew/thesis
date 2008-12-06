@@ -2,24 +2,25 @@
 % Author: Andrew Hughes
 
 \chapter{Algebraic Process Calculi}
-\label{concurrency101}
+\label{apc}
 
-Concurrency is an inherent part of the real world.  Multiple events
-take place simultaneously, and each of these events can interact and
-affect others.  Early computational models, however, take a simpler
-idealised view, where events occur sequentially and in isolation.
-Universal Turing machines \cite{turing:36} have proven to be
-computationally complete; they are capable of simulating all recursive
-functions.  However, they do not directly model concurrent execution.
+In this chapter, we focus on concurrency from a theoretical
+perspective and introduce one of the main algebraic models for
+modelling concurrent systems.  Early computational models took a
+simple idealised view of the world, where events occur sequentially
+and in isolation.  Such a model is the universal Turing machine
+\cite{turing:36} which has proven to be computationally complete; it
+is capable of simulating all recursive functions.  However, it does
+not directly model concurrent execution.
 
-So, if these models can have this level of computational power without
-attempting to represent this particular aspect, why is it necessary to model
-concurrency at all?  Even though a method of modelling phenomena exists,
-and has a certain level of expressivity, it doesn't imply that it is the
-most appropriate for a particular context.  The existence of both Turing
-machines and the $\lambda$ calculus already demonstrates this point.  While
-both have proven equivalent in power, they take different approaches to
-achieving this.
+If a model can have this level of computational power without
+attempting to represent concurrent behaviour, why is it necessary to
+model concurrency at all?  Even though a method of modelling phenomena
+exists, and has a certain level of expressivity, it doesn't imply that
+it is the most appropriate for a particular context.  The existence of
+both Turing machines and the $\lambda$ calculus already demonstrates
+this point.  While both have proven equivalent in power, they take
+different approaches to achieving this.
 
 To see the effect of concurrency on computation, consider a simple
 prototypical example, as demonstrated by Milner \cite{milner:lecture}.
@@ -32,7 +33,10 @@ Observe the following programs,
 \mathtt{x} & \mathtt{= x + 1;}\tag{P2}
 \end{align*}
 
-\noindent where we assume that each line is an atomic action.
+\noindent where we assume that each line is an atomic
+action\footnote{This is a simplification; for example, \texttt{x = x +
+    1} actually involves three atomic actions - reading the value of
+  x, computing the value of x plus one and writing the result to x}.
 
 In a sequential system, such as may be modelled by a Turing machine or the
 $\lambda$ calculus, both these programs set \texttt{x} to 2.  In such a
@@ -43,10 +47,10 @@ However, in a concurrent system, multiple control flows or processes
 exist, each running in parallel with the others.  With P1, the value
 of \texttt{x} will always be equal to two immediately after execution,
 as the assignment takes place within a single atomic action.  However,
-in P2, another process is free to modify \texttt{x} in the
-gap\footnote{Assuming \texttt{x} is accessible by more than one
-  process.} between the assignment of the value 1 and the later
-summation which makes \texttt{x} 2.
+in P2, another process is free to modify \texttt{x} \footnote{Assuming
+  \texttt{x} is accessible by more than one process.} between the
+assignment of the value 1 and the later summation which makes
+\texttt{x} 2.
 
 Thus, if P2 is run in parallel with a third program,
 
@@ -67,12 +71,12 @@ extent of its use.
 This example demonstrates that modelling concurrency is not so much
 about multiple programs executing at the same time, but instead
 concerns how they interact.  If each program exists in its own
-isolated environment, then no interactions will take place and a
-sequential model for each would be suitable.  Indeed, this is the way
-most operating systems handle running multiple programs.  Thus, it
-follows that sequential models are not distinct from concurrent
-models, but a subset where this additional restriction of isolation
-applies.
+isolated environment and doesn't access any common resources, then no
+interactions will take place and a sequential model for each would be
+suitable.  Indeed, this is the way most operating systems handle
+running multiple programs.  Thus, it follows that sequential models
+are not distinct from concurrent models, but a subset where this
+additional restriction of isolation applies.
 
 Dijkstra's classic `Dining Philosophers' problem
 \cite{dijkstra:philosophers} illustrates further issues which may
@@ -85,17 +89,18 @@ interaction.  This is a common situation in concurrency, where
 multiple parallel processes (the philosophers) need to gain access to
 a limited resource (the forks).
 
-In cases where things go awry, \emph{deadlock} or \emph{starvation} may
-result.  For example, if the philosophers simultaneously pick up the
-forks on their left, then none of them will be able to eat; they will all
-end up waiting on a fork held by another philosopher.  The system is
-said to be \emph{deadlocked}, as none of the processes can obtain a lock
-on the resource it needs, as a lock is already held by one of the other
-processes\footnote{The solution to breaking this deadlock is to break
-the symmetry; if the fifth philosopher tries to take the fork on the
-right first, he or she will be unable to proceed, but the first philosopher
-will, using the fifth philosopher's left fork.}.  Alternatively,
-\emph{starvation} may result if one of the philosophers never stops
+In cases where things go awry, \emph{deadlock} or \emph{starvation}
+may result.  For example, if all the philosophers simultaneously pick
+up the forks on their left, then none of them will be able to eat;
+they will all end up waiting on a fork held by another philosopher.
+The system is said to be \emph{deadlocked}, as none of the processes
+can obtain a lock on the resource it needs, as a lock is already held
+by one of the other processes\footnote{The solution to breaking this
+  deadlock is to break the symmetry; if the fifth philosopher tries to
+  take the fork on the right first, he or she will be unable to
+  proceed, but the first philosopher will, using the fifth
+  philosopher's left fork.}.  Alternatively, \emph{starvation} may
+result (literally in this case) if one of the philosophers never stops
 eating and consequently never releases the forks; the resources are
 unfairly distributed to the deficit of one of the processes.
 
@@ -108,10 +113,10 @@ of true concurrency (via dual-core processors and beyond) and
 distributed computing paradigms, such as services, become more
 prevalent.  To adequately work with these systems, appropriate formal
 models are needed to represent them and highlight their flaws.  Many
-such models have been developed, and we will now consider a subset of
-these.
+such models have been developed, and over the next three chapters, we
+will consider a subset of these.
 
-\section{Algebraic Process Calculi}
+\section{The Calculus of Communicating Systems (CCS)}
 
 Algebraic process calculi model the interaction of concurrent
 processes using a (usually small) set of algebraic operators, as
