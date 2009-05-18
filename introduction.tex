@@ -12,7 +12,7 @@ limitations which prevent the individual elements of a single
 processor core becoming any smaller.  As a result, the performance
 benefits of these new processors arise not from being able to execute
 a single task faster than before, but from the parallel execution of
-many tasks.
+many such tasks.
 
 However, this leads to a problem.  The existing dominant methods for
 designing software systems are inherently sequential.  Current
@@ -30,26 +30,27 @@ area of the tape?
 
 In this thesis, we advocate a move towards systems where the focus is
 on interaction between minimal sequential subsystems.  Rather than
-building huge monolithic structures, development should result in a
-number of smaller components, running in parallel.  Such a design has
-been suggested in varying forms of the years, but due to the perceived
-future evolution of the microprocessor, this is now an essential
-requirement, rather than a design ideal or optimisation.  We also
-provide a formal grounding for such designs, based on academic
+building huge monolithic structures, the same result can be achieved
+using a number of smaller components, running in parallel.  Such a
+design has been suggested in varying forms over the years, but due to
+the perceived future evolution of the microprocessor, this is now an
+essential requirement, rather than a design ideal or optimisation.  We
+also provide a formal grounding for such designs, based on academic
 research which has been largely overlooked in the industrial sector.
 Security also forms an inherent part of both the design and formal
-model, allowing restrictions to be established between individual
-components.
+model by allowing restrictions to be imposed on the communication
+between individual components.
 
 In the remainder of this chapter, we provide a brief overview of the
 evolution of concurrent processing, highlighting current issues
 arising from the flawed approach of maintaining a sequential design
 which is becoming more and more distant from reality.  We also look at
-how restricted mutability and an emphasis on intercommunication better
-smaller, more specific processes can provide a better solution, and
-how this approach has been adopted in the past with varying results.
-We close with a summary of the novelty of this work, and an overview
-of how this will be covered in the later chapters of this thesis.
+how restricted mutability and an emphasis on intercommunication
+between smaller, more specific processes can provide a better
+solution, and how this approach has been adopted in the past with
+varying results.  We close with a summary of the novelty of this work,
+and an overview of how this will be covered in the later chapters of
+this thesis.
 
 \subsection{The Current Status Quo}
 
@@ -69,15 +70,16 @@ Multiprogramming was introduced as an efficiency measure.  At the
 time, machines were available only on a per-institution rather than
 per-user level, so a batch of \emph{jobs} were submitted to the
 machine, each consisting of the program to run and any associated data
-it needed to do so.  The machine would take each job in turn and
-execute a series of commands written in a batch job language.  Such
+it needed to do so.  The machine ran a relatively simple
+\emph{operating system}, which would take each job in turn and execute
+a specified series of commands written in a batch job language.  Such
 jobs would usually consist of reading in the program, compiling it if
-necessary, and then executing it, which would probably involve reading
-in some data and outputting the results.
+necessary, and then executing it.  During execution, data was read in
+and the results of computation output for the user to later digest.
 
 It soon become clear that having an expensive processor sit idle while
-I/O operations took place was a waste.  To solve this problem, a new
-generation of machines were introduced which provided a
+input/output (I/O) operations took place was wasteful.  To solve this
+problem, a new generation of machines were introduced which provided a
 \emph{scheduler} as part of the operating system.  Instead of running
 each job to completion before attempting the next, the system read in
 multiple jobs to begin with, each forming a \emph{process} in memory.
@@ -107,44 +109,83 @@ Over time, schedulers have been extended so as to also switch when a
 quantum of time allocated to a process has been depleted.  This
 ensures a greater degree of fairness; a processor-intensive task which
 rarely blocks can no longer become overly dominant.  This wasn't of
-great important for batch systems, as users submitted a job and then
+great importance for batch systems, as users submitted a job and then
 collected the results later on.  In this context, just utilising the
 time when a process was blocked had a significant impact on perceived
 performance.  However, with a move towards first time sharing and then
 personal computer systems, it became necessary to ensure that each
 process was given time to execute on a regular basis, so the system
-remained responsive.  This concept is referred to as \emph{preemption}.
+remained responsive.  This concept is referred to as
+\emph{preemption}.
 
 \subsubsection{Resource Contention}
 
 Concurrency issues arise on such systems as, although the processes
-have their own memory space in which to operate, the functionality
-provided by the underlying operating system is shared by them all.  An
-obvious example is the filesystem.  What happens if more than one
-process tries to access a file at the same time?  The result is
-inconsistent data, either being read from the file or written to it,
-and the reason for this is \emph{race conditions}.
+have their own memory space in which to operate, the resources
+provided by the underlying operating system are shared by them all.
+An obvious example is the filesystem.  What happens if more than one
+process tries to access a file at the same time?  Unless only reads
+occur, the possibility of data corruption arises.
 
-Imagine that a print spooler operates by reading a list of files to
-print from a shared file.  When a process wants to add a new job to
-the queue, it writes its name as a new entry at the end of the file:
+Such bugs, known as \emph{race conditions}, are difficult to reproduce
+as they are heavily dependent on timing.  This is especially true of
+single processor systems, where concurrency is merely simulated by the
+scheduler switching between processes.  Whether or not file corruption
+occurs depends on the choices made by the scheduler, which in turn
+depends on a number of factors, such as system load.  If many
+processes are competing for the processor, then there is less chance
+of one which accesses the same file being picked.
+
+A print spooler is a program which allows a printer (another shared
+resource) to be used by many processes while maintaining separation
+between individual jobs.  Without such a mechanism, one program may
+write a few lines to the printer, and then be suspended by the
+scheduler.  The program which is allowed to run next may then also
+write to the printer, causing the user to end up with output from
+different jobs mixed together.
+
+Instead, the spooler tackles this concurrency problem by acting as an
+mediator between the programs and the printer.  However, such an
+application must be carefully designed to ensure it doesn't fall foul
+to the same issue.  Imagine the spooler operates by reading a list of
+files to print from a shared file.  When a process wants to add a new
+job to the queue, it writes the filename as a new entry at the end of
+the file:
 
 \begin{verbatim}
 int fd = open("/var/spool/print_jobs");
 seek(fd, END_OF_FILE);
 write(fd, "my_print_job");
+close(fd);
 \end{verbatim}
 
-Problems occur because such an operation is \emph{non-atomic}; it is
+Problems arise because such an operation is \emph{non-atomic}; it is
 possible that the process may be stopped by the scheduler while adding
-a job to the list (e.g. after the \texttt{seek} function above).  If
-this happens, there is a possibility that whichever other process is
-scheduled in its place could also choose to alter the queue.  The
-result of such a collision is that one of the jobs will be scheduled
-and the other will be lost, depending on which process writes to the
-file last.
+a job to the list (e.g. after the \texttt{seek} function above), just
+as it may be stopped while writing to the printer.  If this happens,
+there is a possibility that whichever other process is scheduled in
+its place could also choose to alter the queue.  The result of such a
+collision depends on the timing:
 
-The solution to these sort of problems is to ensure a process has
+\begin{enumerate}
+\item If the first program only opened the file, or was just about to
+  close it, then there will be no consequence.  In the first case, the
+  first program will move to the end of the (now longer) file when it
+  resumes and write its entry.  In the latter case, closing the file
+  is just a matter of freeing resources and has no effect on the file
+  itself.
+\item If the first program seeked to the current end of the file, then
+  on resumption, it will overwrite any data added in the meantime.  If
+  the new data is longer than the older data, then the old data will
+  simply be lost.  If it is shorter, the file will be corrupted.
+\end{enumerate}
+
+The solution to these sort of problems is to limit access to a
+resource, so that a process is forced to wait its turn.
+
+\subsubsubsection{Semaphores}
+
+ensure a process has
 exclusive access to a resource.  This has the effect of making the
 action seemingly atomic; although the process can still be
 interrupted, no other process can interfere by beginning an equivalent
