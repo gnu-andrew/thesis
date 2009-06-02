@@ -118,14 +118,25 @@ process was given time to execute on a regular basis, so the system
 remained responsive.  This concept is referred to as
 \emph{preemption}.
 
+Finally, further performance enhancements were made possible by
+allowing processes to have multiple threads of control and extending
+the scheduler to enable switching between the individual threads
+within a process.  The advantage of such threading is that the threads
+share the same memory space and thus may interoperate more easily and
+more efficiently.  The disadvantage is that it makes the possibility
+of contention much more likely.
+
 \subsubsection{Resource Contention}
 
-Concurrency issues arise on such systems as, although the processes
-have their own memory space in which to operate, the resources
-provided by the underlying operating system are shared by them all.
-An obvious example is the filesystem.  What happens if more than one
-process tries to access a file at the same time?  Unless only reads
-occur, the possibility of data corruption arises.
+Concurrency issues arise when a resource is accessed by multiple
+processes or threads at the same time.  With threads, this is a
+frequent occurrence as they run the same code and access the same
+variables.  It also occurs with processes; although they have their
+own memory space in which to operate, the resources provided by the
+underlying operating system are shared by them all.  An obvious
+example is the filesystem.  What happens if more than one process
+tries to access a file at the same time?  Unless only reads occur, the
+possibility of data corruption arises.
 
 Such bugs, known as \emph{race conditions}, are difficult to reproduce
 as they are heavily dependent on timing.  This is especially true of
@@ -185,20 +196,42 @@ resource, so that a process is forced to wait its turn.
 
 \subsubsubsection{Semaphores}
 
-ensure a process has
-exclusive access to a resource.  This has the effect of making the
-action seemingly atomic; although the process can still be
-interrupted, no other process can interfere by beginning an equivalent
-transaction.  Instead, such a process is blocked until the original
-process relinquishes control.
+Such access limitations can be imposed by a \emph{semaphore}, a
+solution first proposed by Dijkstra\cite{semaphore}.  A semaphore
+maintains an integer count which is manipulated by two operations:
+\emph{up} and \emph{down}.  The count can be used to limit the number
+of threads of control active in a particular region.  In effect, this
+is akin to the scenario where a gate requires a token in order to
+allow someone (a thread) to pass through, but the number of such
+tokens is limited.  When a thread wants to pass through the gate, it
+attempts to acquire a token by executing the down operation.  If the
+count maintained by the semaphore is greater than zero, then it will
+be decremented and the thread can proceed through the gate.  However,
+if it is zero, there are no tokens left so the thread is forced to
+wait until one of the existing tokens is returned.  Tokens are
+returned by executing the up operation.
 
-The usual method for implementing exclusive access is via a lock of
-some form.  The process of acquiring such a luck must itself be
-atomic, so as to avoid the same kind of problems with acquiring the
-lock that the addition of the lock itself was designed to avoid.  If
-acquistion can not be interrupted, a lock will always be in one of two
-known states: held by a process or unheld.  Our above example would be
-modified as follows:
+The up and down operations must be atomic; it should not be possible
+for such an operation to be interrupted.  If they can, then the whole
+purpose of the semaphore is defeated; a further solution would be
+needed to resolve the possible concurrency issues that may occur
+inside the semaphore itself.  Most operating systems provide such
+atomicity by using support available at the processor level.
+
+An example of where semaphores are necessary is in implementing a
+bounded buffer, which is fed by a number of producer threads and
+emptied by a number of consumers.  A semaphore with a count of one can
+be used to make modifications to the buffer appear atomic; a thread
+wanting to operate on the buffer needs to first acquire the token and
+will be unable to do so if another thread has already taken it.  Such
+\emph{binary semaphores} are very common, and are available in a more
+simplified form known as a \emph{mutex}.  Rather than maintaining a
+count, a mutex is simply locked or unlocked.  Just as with a binary
+semaphore, a thread first locks the mutex, does its work and then
+unlocks the mutex to allow others access.
+
+Such locks can also be implemented at the file level, and thus provide
+a solution to the problem we encountered in the previous section:
 
 \begin{verbatim}
 int fd = open("/var/spool/print_jobs");
@@ -223,6 +256,26 @@ the scheduler, it can continue to write to the file, safe in the
 knowledge that no other process has altered its contents in the
 interim.  The final call to \texttt{flock} releases the lock so the
 second process may now proceed.
+
+The advantage of semaphores is that they also have signalling
+capabilities (waiting threads are awoken when an up occurs) and so, in
+our buffer scenario, we can make further use of them to monitor the
+state of the buffer.
+
+  ensure a process has exclusive access to a resource.  This has the
+  effect of making the action seemingly atomic; although the process
+  can still be interrupted, no other process can interfere by
+  beginning an equivalent transaction.  Instead, such a process is
+  blocked until the original process relinquishes control.
+
+The usual method for implementing exclusive access is via a lock of
+some form.  The process of acquiring such a luck must itself be
+atomic, so as to avoid the same kind of problems with acquiring the
+lock that the addition of the lock itself was designed to avoid.  If
+acquistion can not be interrupted, a lock will always be in one of two
+known states: held by a process or unheld.  Our above example would be
+modified as follows:
+
 
 But there are inherent problems with locking itself.  A successful
 strategy requires placing acquisition and release calls in all
