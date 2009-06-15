@@ -218,20 +218,18 @@ needed to resolve the possible concurrency issues that may occur
 inside the semaphore itself.  Most operating systems provide such
 atomicity by using support available at the processor level.
 
-An example of where semaphores are necessary is in implementing a
-bounded buffer, which is fed by a number of producer threads and
-emptied by a number of consumers.  A semaphore with a count of one can
-be used to make modifications to the buffer appear atomic; a thread
-wanting to operate on the buffer needs to first acquire the token and
-will be unable to do so if another thread has already taken it.  Such
-\emph{binary semaphores} are very common, and are available in a more
-simplified form known as a \emph{mutex}.  Rather than maintaining a
-count, a mutex is simply locked or unlocked.  Just as with a binary
-semaphore, a thread first locks the mutex, does its work and then
-unlocks the mutex to allow others access.
+\emph{Binary semaphores}, where the count is either zero or one, are
+very common.  Such semaphores can be implemented in a more simplified
+form known as a \emph{mutex}, which maintains a binary state
+(locked/unlocked) rather than a count.  Locking a mutex is equivalent
+to decrementing the count to zero via a down operation, and unlocking
+it is the same as performing an up to return its value to one.  The
+usage pattern is the same for both: a thread first locks the mutex,
+does its work and then unlocks the mutex to allow others access.
 
-Such locks can also be implemented at the file level, and thus provide
-a solution to the problem we encountered in the previous section:
+Mutexs can also be implemented at the file level as file locks,
+providing a solution to the problem we encountered in the previous
+section:
 
 \begin{verbatim}
 int fd = open("/var/spool/print_jobs");
@@ -239,6 +237,7 @@ flock(fd, LOCK_EX);
 seek(fd, END_OF_FILE);
 write(fd, "my_print_job");
 flock(fd, LOCK_UN);
+close(fd);
 \end{verbatim}
 
 The first call to \texttt{flock} acquires an exclusive lock
@@ -257,11 +256,45 @@ knowledge that no other process has altered its contents in the
 interim.  The final call to \texttt{flock} releases the lock so the
 second process may now proceed.
 
-The advantage of semaphores is that they also have signalling
-capabilities (waiting threads are awoken when an up occurs) and so, in
-our buffer scenario, we can make further use of them to monitor the
-state of the buffer.
+Semaphores also have signalling capabilities; threads waiting to
+perform a down operation are woken when an up occurs on the same
+semaphore.  Suppose we want to implement a bounded buffer, which is
+fed by a number of producer threads and emptied by a number of
+consumers.  We need to use semaphores both to prevent possible race
+conditions when modifications are made to the buffer, and to stall
+threads when the buffer is full (in the case of a producer) or empty
+(for consumers).
 
+As in our previous example, a binary semaphore or mutex can be used to
+make modifications to the buffer appear atomic; a thread wanting to
+operate on the buffer needs to first acquire the token and will be
+unable to do so if another thread has already taken it.  Semaphores
+can also be used to monitor the state of the buffer, and provide
+notifications to the producer and consumer threads when the buffer
+empties or fills up, respectively.
+
+\begin{verbatim}
+produce()
+{
+  item = produce_item();
+  down(empty);
+  down(mutex);
+  add_item_to_buffer(item);
+  up(mutex);
+  up(full);
+}
+
+consume()
+{
+  down(full);
+  down(mutex);
+  item = remove_item_from_buffer();
+  up(mutex);
+  up(empty);
+  consume_item(item);
+}
+\end{verbatim}
+ 
   ensure a process has exclusive access to a resource.  This has the
   effect of making the action seemingly atomic; although the process
   can still be interrupted, no other process can interfere by
