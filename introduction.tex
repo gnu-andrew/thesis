@@ -194,7 +194,7 @@ collision depends on the timing:
 The solution to these sort of problems is to limit access to a
 resource, so that a process is forced to wait its turn.
 
-\subsubsubsection{Semaphores}
+\subsubsection{Semaphores and Monitors}
 
 Such access limitations can be imposed by a \emph{semaphore}, a
 solution first proposed by Dijkstra\cite{semaphore}.  A semaphore
@@ -227,7 +227,7 @@ it is the same as performing an up to return its value to one.  The
 usage pattern is the same for both: a thread first locks the mutex,
 does its work and then unlocks the mutex to allow others access.
 
-Mutexs can also be implemented at the file level as file locks,
+Mutexes can also be implemented at the file level as file locks,
 providing a solution to the problem we encountered in the previous
 section:
 
@@ -258,12 +258,19 @@ second process may now proceed.
 
 Semaphores also have signalling capabilities; threads waiting to
 perform a down operation are woken when an up occurs on the same
-semaphore.  Suppose we want to implement a bounded buffer, which is
-fed by a number of producer threads and emptied by a number of
-consumers.  We need to use semaphores both to prevent possible race
-conditions when modifications are made to the buffer, and to stall
-threads when the buffer is full (in the case of a producer) or empty
-(for consumers).
+semaphore.  They can then retry the down operation again and return,
+having decremented the value of the semaphore, should the operation
+succeed on this attempt.  Given that there may be multiple waiting
+threads, there is no guarantee that a thread will do so; for each up
+operation, only one down operation will be successful and any other
+threads will again be forced to wait.  Again, this race is why it is
+essential that the down operation itself is atomic.
+
+Suppose we want to implement a bounded buffer which is accessed by
+multiple threads.  We need to use semaphores both to prevent possible
+race conditions when modifications are made to the buffer, and to
+stall threads when the buffer is full (in the case of adding a new
+item) or empty (when retrieving an item).
 
 As in our previous example, a binary semaphore or mutex can be used to
 make modifications to the buffer appear atomic; a thread wanting to
@@ -294,41 +301,80 @@ consume()
   consume_item(item);
 }
 \end{verbatim}
- 
-  ensure a process has exclusive access to a resource.  This has the
-  effect of making the action seemingly atomic; although the process
-  can still be interrupted, no other process can interfere by
-  beginning an equivalent transaction.  Instead, such a process is
-  blocked until the original process relinquishes control.
 
-The usual method for implementing exclusive access is via a lock of
-some form.  The process of acquiring such a luck must itself be
-atomic, so as to avoid the same kind of problems with acquiring the
-lock that the addition of the lock itself was designed to avoid.  If
-acquistion can not be interrupted, a lock will always be in one of two
-known states: held by a process or unheld.  Our above example would be
-modified as follows:
+The above example provides an example implementation of such a buffer,
+using three semaphores: \texttt{mutex}, \texttt{empty} and
+\texttt{full}.  The \texttt{mutex} semaphore is a binary semaphore,
+which ensures a thread has exclusive access to the buffer by making
+modifications to the buffer appear atomic; although the thread can
+still be interrupted, any other threads trying to execute
+\texttt{down(mutex)} will be blocked until the original thread
+relinquishes control.
 
+The other semaphores are used to maintain a count of how many empty or
+non-empty slots are available in the buffer.  As the buffer is filled,
+the number of empty slots goes down and the number of non-empty slots
+goes up.  The inverse is true when the buffer is emptied by the
+\texttt{consume} function.  The \texttt{empty} mutex is initialised
+with a value equal to the size of the buffer, while the \texttt{full}
+mutex begins with a value of zero.
 
-But there are inherent problems with locking itself.  A successful
-strategy requires placing acquisition and release calls in all
-affected locations and is extremely prone to error.  Suppose the first
-process above never relinquishes the lock.  The second process (and
-any future processes running the same program) will be blocked
-indefinitely waiting for the lock.  Similarly, it takes only one
-program accessing the file without first acquiring the lock to make
-the whole process of locking redundant.
+In the \texttt{produce} function, the thread first checks if there are
+any empty slots by performing a \texttt{down} operation on the
+\texttt{empty} mutex.  If the \texttt{empty} semaphore has a non-zero
+value, as at the beginning, then there are available slots in the
+buffer and the operation will return after decrementing the value by
+one.  In this case, the thread can then proceed to lock the buffer
+using the \texttt{mutex} and add an item to it.  It then releases the
+\texttt{mutex} and performs an \texttt{up} operation on the
+\texttt{full} semaphore, increasing the number of slots in use and
+potentially allowing those threads waiting in the \texttt{consume}
+function to proceed.  The \texttt{consume} function itself is
+effectively the inverse of the \texttt{produce} function; it checks
+the number of full slots to begin with, using the \texttt{full}
+semaphore, and increases the number of empty slots when done.
 
-Locks don't scale well either.  The above example deals with only
-acquiring one resource, but most programs will need to make use of
-several.  In such a situation, ordering also becomes important.  If
-locks are acquired in the wrong order, deadlock can occur.  Processes
-deadlock when each process is trying to obtain a lock on a resource
-held by the other process.  Take two processes, A and B, both of whom
-are trying to acquire a lock on the two files, \texttt{/etc/passwd}
-and \texttt{/etc/shadow} in order to add a new user to the system.  If
-both processes acquire the locks in the same order, then all is well.
-If they don't, a deadlock may occur.
+The examples above are fairly simple, but already demonstrates some of
+the inherent problems with the use of semaphores.  A successful
+strategy for using them requires placing acquisition and release calls
+in all affected locations and is extremely prone to error.  Suppose
+one of the processes above never relinquishes the lock on the file.
+Or a thread never performs an \texttt{up} on the mutex.  Other threads
+or processes wishing to acquire the lock or mutex will be blocked
+forever.  Similarly, it takes only one miscreant to access the shared
+resource without attempting to acquire a lock to make the whole
+process of locking redundant.
+
+Semaphores don't scale well either.  For even a small program like the
+buffer example above, three semaphores are required.  In such a
+situation, the order of acquisition also becomes important.  If the
+order is wrong or differs between code segments, deadlock can occur.
+Deadlocks happen when each process or thread is waiting on a resource
+held by another waiting process.  In the buffer example, simply
+altering the order of the \texttt{down} calls in the \texttt{consume}
+function is enough to create a potential deadlock situation.  If a
+thread manages to acquire the mutex but is then forced to wait for an
+up on the \texttt{full} semaphore, no other thread will be able to
+acquire the mutex in the meantime.  Only in the unlikely situation
+that a thread has been stopped between the \texttt{up(mutex)} and the
+\texttt{up(full)} calls in the \texttt{produce} function would this
+deadlock be resolved.  In most cases, the other threads will attempt
+to acquire the mutex before reaching the required \texttt{up(full)}
+call and so end up waiting forever.
+
+By far the biggest issue with these kind of problems is
+reproducability.  Just as with the race conditions they are trying to
+avoid, bugs relating to semaphores may not always manifest themselves.
+The example above is very likely to result in deadlock, as it just
+requires the \texttt{consume} function to be called when the buffer is
+empty and no other thread is accessing it.  Other issues can be much
+harder to diagnose.
+
+Take two processes, A and B, both of which are trying to acquire a
+lock on the two files, \texttt{/etc/passwd} and \texttt{/etc/shadow}
+in order to add a new user to the system.  If both processes acquire
+the locks in the same order, then all is well.  If they don't, a
+deadlock may occur.
 
 Let's assume process A runs first.  It acquires a lock on
 \texttt{/etc/passwd}.  At this point, A has used its allocated quantum
@@ -336,60 +382,150 @@ of CPU time and so is descheduled.  A context switch occurs and
 process B begins to run.  If B begins by trying to acquire a lock on
 \texttt{/etc/passwd}, then it will simply block as A already holds
 this lock.  If, however, it tries to acquire a lock on
-\texttt{/etc/shadow} first, this will succeed.  We then get stuck; B
-blocks trying to acquire the lock on \texttt{/etc/passwd} held by A,
-which will never be relinquished because A will be blocked trying to
-acquire the lock on \texttt{/etc/shadow} held by B.  Such problems
-occur simply through two program statements occurring in the wrong
-order.
+\texttt{/etc/shadow} first, this will succeed.  We then get stuck in a
+deadlock; B blocks trying to acquire the lock on \texttt{/etc/passwd}
+held by A, which will never be relinquished because A will be blocked
+trying to acquire the lock on \texttt{/etc/shadow} held by B.  Such
+problems occur simply through an ordering mismatch, but can be
+extremely difficult to catch; in many situations, the process will
+acquire both locks without being descheduled inbetween.
 
-Such examples are frequent.  Take the classic readers and writers
-problem.  Here, we again have a scenario with a single shared resource
-(a database) and contention from multiple processes, which can result
-in data corruption.  The simplest solution is to do the same as we did
-above; have each reader or writer acquire a lock on the database when
-it wants to use it and relinquish it afterwards.  The problem with
-this approach is that it makes use of the database sequential.
-Multiple processes in parallel gives us the possibility of a
-substantial performance gain, but we sacrifice this to retain the same
-design and behaviour we are used to when working with a single process
-and no possibility of interference.
+The solution to these problems is to abstract away from such intimate
+details and allow the programmer to work at a more amenable level.
+One attempt at doing so can be seen in the use of \emph{monitors}
+\cite{mon1, mon2}.  Rather than worrying about the placement and
+sequencing of individual acquisition and release calls, the programmer
+simply denotes which sections of code must be run in mutual exclusion
+from one another.  The compiler or virtual machine (depending on
+whether the code is pre-compiled or not) then handles the process of
+adding the required statements to ensure this.  The concept of
+monitors is strongly linked to the idea of \emph{objects}, with the
+same common idea of data encapsulation; all variables are private to
+the object and inaccessible from the outside.  To read or modify the
+data held by a monitor, one of its methods must be called.  Once a
+thread is running code in a particular method, no other thread may
+enter a method belonging to that monitor.  This ensures the thread
+safety of the data without the issues of acquiring locks and lowers
+the potential for deadlocks.
 
-Things can be made a little better by exploiting the fact that
-processes either read from the database (\emph{readers}) or write to
-it (\emph{writers}).  It clearly doesn't matter if several readers are
-accessing the database at once, but a writer needs exclusive access.
-If two or more writers are altering the database at the same time,
-corruption may result.  Similarly, if readers are trying to use the
-database while it is being used, they may obtain inconsistent results.
+While this provides a better alternative to the use of binary
+semaphores or mutexes, for a scenario such as the buffer example a
+notification mechanism is required so that threads can wait for a
+particular event to occur and be notified by other threads when it
+does.  Monitors provide for this via the use of \emph{condition
+  variables} and the \texttt{wait} and \texttt{signal} primitives.
+Just as with semaphores, one thread calls the \texttt{wait} operation
+on a particular condition variable and then another thread calls
+\texttt{signal} on the same variable when the situation has changed.
+The problem with this approach is that it is just as prone to error as
+the use of semaphores; if the \texttt{wait} and \texttt{signal}
+primitives are not used appropriately, then threads may be stalled.
+It is still a very low-level solution.
 
-This results in the following conditions for access to the database:
-\begin{itemize}
-\item For a reader to access the database, there must be no writers
-  using the database.
-\item For a writer to alter the database, there must be no readers or
-  writers using the database.
-\end{itemize}
-One possible solution uses two controlled resources.  The first of
-these is a count, which enumerates the number of readers currently
-accessing the database.  Only when this count is zero may a writer
-gain access to the database.  The second resource is simply a binary
-flag which is used to indicate when a writer is active, making
-modifications.  Both readers and writers may not access the database
-if this flag is set.
+Another issue with monitors, as implied above, is that they are
+heavily reliant on support from the programming language being used.
+While semaphores just require some means of performing an atomic
+change to an area of memory, monitors need the compiler or virtual
+machine to be intelligent enough to parse the monitor structures and
+convert them into appropriate uses of more low-level locking
+constructs.  One such language in which support is provided is Java,
+as can be seen in the example below:
 
-Both resources must be modified atomically.  \emph{Semaphores} provide
-an apt solution for this. TODO
+\begin{verbatim}
+public class Buffer
+{
 
-Clearly, this process can quickly become complex and even more error
-prone when multiple resources are involved.  One attempt at
-simplifying this process is the use of \emph{monitors}.  TODO
+  public static final int BUFFER_SIZE = 5;
 
-Ideally, we need to limit the need for such locks altogether by
-reducing the number of shared resources and the amount of mutability
-inherent in our designs.  In the future, we want to be able to utilise
-the advantages of massively parallel systems and this can only be
-achieved by reducing the need for resource contention.
+  private int used = 0;
+  private Object buffer[BUFFER_SIZE];
+  
+  public void produce()
+  {
+    Object item = produceItem();
+    while (used == BUFFER_SIZE)
+      wait();
+    synchronized
+    {
+      buffer[used] = item;
+      ++used;
+    }
+    notifyAll();
+  }
+
+  public void consume()
+  {
+    Object item;
+    while (used == 0)
+      wait();
+    synchronized
+    {
+      --used;
+      item = buffer[used];
+    }
+    notifyAll();
+    consumeItem(item);
+  }
+}
+\end{verbatim}
+
+This is a implementation of the buffer example using monitors rather
+than semaphores.  There are two main differences between the Java
+implementation of monitors and that proposed in the academic
+literature: the mutual exclusion is limited to blocks of code marked
+with the \texttt{synchronized} keyword, rather than encompassing the
+whole class, and the \texttt{wait} and \texttt{signal} operations are
+realised as the \texttt{wait} and \texttt{notifyAll} methods of the
+\texttt{Object} class rather than being functions applied to condition
+variables.  One downside of these changes is that the addition of
+selective mutual exclusion makes it prone to error; although it is
+more efficient to not lock the entire class whenever any method is
+called, this also means that one may forget to use the
+\texttt{synchronized} keyword just as one may forget to perform the
+appropriate operation on a semaphore.
+
+The similarities and differences between monitors and semaphores can
+be clearly seen by comparing the two buffer examples.  In the Java
+version, the use of the \texttt{empty} and \texttt{full} semaphores is
+replaced by a while loop and the use of \texttt{wait()} and
+\texttt{notifyAll()}.  The value these depend on is also made explicit
+in this version (see the variable \texttt{used}), whereas it is an
+implicit part of the operations on the semaphores in the earlier
+example.  When \texttt{produce} is called, it tests to see if the
+buffer is full (the \texttt{used} count is equal to the size of the
+buffer).  If it is, then \texttt{wait} is called.  The test takes
+place in a \texttt{while} loop rather than a single \texttt{if}
+statement so that the condition is tested again when the thread is
+awoken by the \texttt{notifyAll()} call.  As before, if many threads
+are waiting, it may be the case that the buffer is already full again
+by the time a particular thread is allowed to execute.
+
+The \texttt{synchronized} blocks are the equivalent of the the use of
+the \texttt{mutex} semaphore; the opening bracket is the \texttt{down}
+operation, while the closing bracket is the \texttt{up}.  Once a
+thread is executing code inside one of these blocks, another thread
+may not enter such a block, whether this be the same one or that in
+the other method.  Modifications to the \texttt{buffer} and
+\texttt{item} variables only take place within these blocks, thus
+ensuring that only one thread can do so at a time.  Both variables are
+marked \texttt{private}, making them invisible to code outside this
+class.
+
+What is clear from our comparison is that there are few advantages to
+using monitors; they are prone to similar low level errors to those we
+saw with semaphores, and they also require support from the language
+being used, which may not always be possible.  Ideally, we instead
+need to take a step back and limit the need for such locks altogether
+by reducing the number of shared resources and the amount of
+mutability inherent in our designs.  Not only are such designs prone
+to error, but they also reduce the advantages of concurrent processing
+(having to acquire a lock effectively makes operations single-threaded
+once again) and are reliant on the existence of some form of shared
+memory.  In distributed systems, shared resources do not exist
+naturally but must instead be created artifically and may make
+processing more inefficient.  In the future, we want to be able to
+utilise the advantages of massively parallel systems and this can only
+be achieved by reducing the need for resource contention.
 
 \subsubsection{Interprocess Communication}
 
