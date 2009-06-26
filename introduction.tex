@@ -530,12 +530,32 @@ be achieved by reducing the need for resource contention.
 \subsubsection{Interprocess Communication}
 
 To achieve this, we need to focus on more short-lived processes which
-interact directly with each other, rather than via the means of shared
-resources.  This is nothing new.  However, it has never achieved
-universal usage as a design paradigm because having to deal with
-concurrency issues, as outlined above, has been avoidable while the
-majority of systems have remained based on a single thread of control.
+interact directly with one another, rather than via the means of
+shared resources.  This is nothing new.  However, it has never
+achieved universal usage as a design paradigm because having to deal
+with the kind of concurrency issues outlined above has been avoidable.
 This is no longer the case.
+
+Although mainstream development has migrated from procedural programs
+to the \emph{object-oriented} paradigm, programs, once compiled, still
+tend to be monolithic entities, with generally only a single thread of
+control.  The notion of objects we see being used is not that of
+Simula\cite{simula}, but one which is much more \emph{data-centric}.
+These objects allow data to be separated out into neat little bundles
+and stimulate reuse by allowing hierarchies of derived behaviour to be
+created.  But there is no relationship between objects and threads;
+when a method of an object is called, control switches from one object
+to another.  If multiple threads are in use, then the objects are
+shared between them and we see the kind of problems described above.
+
+Solving this takes more than simply establishing a 1:1 relationship
+between threads and objects.  For most designs, this would be terribly
+inefficient and, in some cases, preposterous.  Because such designs
+are centered around the data in use, we have objects such as a
+\texttt{Borrower} in a library system.  We may have thousands of such
+borrowers, many of which are inactive for weeks or months at a time.
+Having a thread for each would simply be wasteful.  Instead, the
+solution is to make objects \emph{task-centric}.
 
 For a long time, UNIX systems have included the notion of pipelines
 between processes.  For example, the command \texttt{du}, which
@@ -543,30 +563,31 @@ calculates disk usage, doesn't include an option to sort the results.
 This is because there also exists a command, \texttt{sort} which can
 order an arbitrary block of text in a number of ways.  As such, there
 is no point adding duplicate functionality to \texttt{du} when its
-output can just be fed in as input to \texttt{sort} for those who want
-sorting.
+output can just be fed in as input to \texttt{sort} for those who
+desire this feature.
 
 A pipeline is created in the shell by separating the two programs with
 a \texttt{|} symbol.  For our example, \texttt{du -h | sort -n} would
 do the job of outputting disk usage in human-readable form
-(\texttt{-h}) and then sorting it numerically (\texttt{-n}).  A simple
-solution can be applied programatically using system calls such as
-\texttt{pipe}, \texttt{fork} and \texttt{execve}.  The pipe allows the
-output of one program (\texttt{du}) to become the input of another
-(\texttt{sort}).  Neither of the individual programs needs to be aware
-that this is happening.  As far as \texttt{du} is concerned, it is
-still sending output on its standard output channel.  The difference
-is that this channel has been changed externally so as to instead feed
-into a pipe, the other end of which forms \texttt{sort}'s standard
-input channel.
+(\texttt{-h}) and then sorting it numerically (\texttt{-n}).  A
+similar solution can be applied programatically using system calls
+such as \texttt{pipe}, \texttt{fork} and \texttt{execve}.  The pipe
+allows the output of one program (\texttt{du}) to become the input of
+another (\texttt{sort}).  Neither of the individual programs needs to
+be aware that this is happening.  As far as \texttt{du} is concerned,
+it is still sending output on its standard output channel.  The
+difference is that this channel has been changed externally so as to
+instead feed into a pipe, the other end of which forms \texttt{sort}'s
+standard input channel.
 
 This is a very simple solution, yet it elegantly solves the problem of
 sharing the data between the two processes.  If a pipe was not used,
-\texttt{du} would have to store its results somewhere for \texttt{sort}
-to access.  This could then result in contention between the two
-processes for access to the resource.  Instead, here the two are
-working together rather than against each other by synchronising the
-passage of data between them.
+\texttt{du} would have to store its results somewhere for
+\texttt{sort} to access.  This could then result in contention between
+the two processes for access to the resource.  Instead, here the two
+are working together rather than against each other by synchronising
+the passage of data between them.  Each is independent of the other
+and specific to its purpose.
 
 A similar design tactic has been used in numerous areas.
 \emph{Microkernels} such as Mach\cite{mach}, MINIX 3\cite{minix3} and
