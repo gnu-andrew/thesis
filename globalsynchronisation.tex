@@ -1,5 +1,346 @@
-% Transfer Report: Global Synchronisation
+% Thesis: Global Synchronisation
 % Author: Andrew Hughes
 
 \chapter{Global Synchronisation}
 \label{globsync}
+
+Initially, the use of the word `timed', within the context of the
+calculi considered here, is a bit of a misnomer.  The notion of `time'
+is generally associated with concrete real values, in units such as
+minutes and seconds.  Real-time process calculi, such as those
+described in \cite{aceto:timing, beaten:timing, brics:lee,
+  lee:realtime, tccs, satoh:phd, satoh:distrib}, attempt to model
+this.  Instead, this section focuses on a series of discrete timed
+calculi which focus on abstract time and the use of \emph{clocks} for
+the primary purpose of global synchronisation (as described above).
+
+Hennessy's Temporal Process Language (TPL) \cite{hennessy:tpl} extends
+the CCS language discussed above with a single clock, akin to a
+hardware clock which emits a signal at an arbitrary point in time.
+These signal emissions are controlled by a concept known as
+\emph{maximal progress}, which allows each process to make as much
+progress as possible before the clock ticks.  Formally, this means
+that all silent actions ($\tau$s) are performed before a $\sigma$
+action (which represents the clock signal) occurs.
+
+This is of little use unless the actions of the processes can actually
+depend on the behaviour of the clock.  The two are related via the
+addition of a timeout operator.  This takes the form
+
+\begin{equation}
+\timeout{E}{\sigma}{F}
+\end{equation}
+
+\noindent where $E$ and $F$ are processes and $\sigma$ is the clock.  In
+short, $F$ acts if $E$ \emph{times out} on the clock, $\sigma$.  This is
+similar to non-deterministic choice, in that only one of the two
+processes will ever act and the behaviour of the other is lost.  Here,
+however, the choice is determined by the clock (and thus effectively by
+the other processes, as it is their behaviour which controls when the
+clock will tick).
+
+With these additions, the problem of defining a suitable compositional
+broadcast agent, as mentioned above, can be solved.  Recall the second
+solution, which used recursion.  Now, with the addition of an external
+entity (the clock) and a way of relating it to the processes involved
+(timeouts), a base case may be provided via recognition of the point
+when no more synchronisations may occur.  This can be added to the
+earlier recursive solution
+
+\begin{equation}
+\mu X.\timeout{\overline{o}.X}{\sigma}{0}\ |\ o.P\ |\ o.Q\ |\ o.R
+\end{equation}
+
+\noindent by simply adding a timeout which stops the recursion.  This
+works because the synchronisations of the input processes with the
+output of the broadcast agent generate silent actions and thus invoke
+maximal progress.  While there is a choice between a silent action
+(due to the broadcasting agent synchronising with an input) and a
+clock tick, the silent action always takes precedence and thus every
+possible synchronisation occurs.  Once no more synchronisations are
+possible, the clock is allowed to tick and the recursion stops.
+
+\subsection{Extending TPL}
+\label{tplext}
+
+The extensions to TPL considered here focus on expanding the
+scalability of the language.  As demonstrated above, TPL adequately
+provides for situations where an arbitrary number of processes must
+synchronize.  But what happens when a solution, like the one above, is
+integrated into a larger system?  With only one clock, further
+problems occur.  The use of the clock in one subsystem may conflict
+with its use in another, and there is no clock available to
+co-ordinate the subsystems themselves.
+
+The Calculus for Synchrony and Asynchrony (CSA) \cite{csa} extends TPL
+with the idea of multiple clocks, drawn from PMC\footnote{PMC also
+  differs from TPL in its use of \emph{insistent} actions; all must be
+  performed before a clock tick.}\cite{pmc}. However, while having
+multiple clocks allows the use of differing patterns of
+synchronisation, it increases the number of clock ticks present within
+the system.  With five clocks, even the nil process has five possible
+transitions (as clocks idle over nil).
+
+CSA solves this to a limited extent by localising maximal progress to
+a pre-defined scope for each clock.  A more elegant solution is
+provided in the Calculus for Synchrony and Encapsulation (CaSE)
+\cite{CaSE}, which introduces a clock hiding operator into the syntax.
+The effect of this is the introduction of \emph{synchronous
+  encapsulation}, as hidden clocks emit $\tau$ actions (as opposed to
+ticks) outside the operator's scope.  This can be used, in conjunction
+with restriction, to produce a hierarchy of components.  The actions
+of these subsystems can be represented purely as silent actions, and,
+when combined with the global form of maximal progress introduced by
+TPL and retained in CaSE, integrated into the `synchronous cycle'
+\cite{CaSE} of clocks at the level above.  CaSE is further discussed
+in \ref{case}, where it forms the basis for the calculus of
+\emph{Typed Nomadic Time} (TNT).
+
+\section{The Calculus of Synchronous \\ Encapsulation (CaSE)}
+\label{case}
+
+The syntax for CaSE, given in \cite{norton05alg}, is as follows:
+\begin{equation}
+  \begin{aligned}
+    \expr, \exprb\ ::=\ &
+    \nil  \;\,|\,\; 
+    \Delta \;\,|\,\; 
+    \Delta_{\sigma} \;\,|\,\; 
+    \alpha . \expr  \;\,|\,\;
+    \expr + \exprb \;\,|\,\; 
+   \expr \mathrel{\!|\!} \exprb \mid
+    \timeout{\expr}{\sigma}{\exprb} \;\,|\,\; \\
+    & \stimeout{\expr}{\sigma}{\exprb} \;\,|\,\; 
+    \mu X . \expr \;\,|\,\; 
+    X \;\,|\,\; 
+    \expr \setminus a \;\,|\,\; 
+    \expr / \sigma
+  \end{aligned}
+\end{equation}
+where $\expr$ and $\exprb$ define possible process terms. We assume a
+countable set of actions, $\actions = \names \cup \conames \cup
+\{\tau\}$, ranged over by $\alpha$, where the elements of $\names$ are
+drawn from an infinite set of \emph{names}, and $\conames$ is the
+corresponding set of \emph{co-names}, $\{\overline{a} \mid a \in
+\names\}$. $\timers$ is a countably infinite set of \emph{clocks} over
+which $\sigma$ ranges. $X$ ranges over a countably infinite set of variables, which are used to bind process
+behaviour in recursive process definitions. $\nil$, $\alpha . \expr$,
+$\expr + \exprb$, $\expr \mathrel{\!|\!} \exprb$, $\mu X
+. \expr$, $X$ and $\expr \setminus a$ retain their behaviour defined in
+CCS, but now exhibit additional actions due to the presence of clocks.
+
+There are now transitions for the $\nil$ process, as, while the
+process has no explicit behaviour, it can idle over the ticks of the
+clocks.  This also applies to actions in general:
+
+\begin{equation}
+a.0 \derives{\sigma} a.0
+\end{equation}
+
+\noindent assuming a clock context containing just the one clock,
+$\sigma$. Similarly, non-deterministic choice and parallel composition
+exist through time, so both sides can evolve due to a clock tick,
+while the operator remains in place.  This gives the following
+possible derivations for $a.0\;|\;b.0$ (where $b \ne \overline{a}$):
+
+\begin{enumerate}
+\item $a.0\ |\ b.0 \derives{a} 0\ |\ b.0$
+\item $a.0\ |\ b.0 \derives{b} a.0\ |\ 0$
+\item $a.0 |\ b.0 \derives{\sigma} a.0\ |\ b.0$
+\end{enumerate}
+
+\noindent with the same clock context as above.  The third derivation
+is duplicated for each available clock that can tick over both sides
+of the composition.  In cases where both sides may synchronize,
+causing a $\tau$ transition, this takes precedence over the clock
+transitions, due to \emph{maximal progress} (see \ref{timing}) and the
+original set of derivations for parallel composition (see \ref{ccs})
+are available instead.
+
+The changes to non-deterministic choice are simpler, as the operator itself
+does not generate silent actions.  So, if both sides allow the clock to tick,
+then the following derivations will occur:
+
+\begin{enumerate}
+\item $a.0\ +\ b.0 \derives{a} 0$
+\item $a.0\ +\ b.0 \derives{b} 0$
+\item $a.0\ +\ b.0 \derives{\sigma} a.0\ +\ b.0$
+\end{enumerate}
+
+\noindent again with the single clock, $\sigma$, as the context.
+
+\subsection{Timeouts}
+
+Moving on to the new operators, CaSE, as presented in
+\cite{norton05alg}, includes two variants of the timeout operator,
+first seen in TPL.  Recall from \ref{timing} that the operator
+essentially allows a decision to be made, based on the presence of a
+clock tick.  In the general scenario,
+
+\begin{equation}
+\timeout{E}{\sigma}{F}
+\end{equation}
+
+\noindent $F$ will act if $E$ fails to, prior to a clock tick.  If $E$
+can perform a $\tau$ action, then this will prevent the clock tick and
+$E$ will evolve. Both operators in CaSE maintain this core behaviour,
+which is central to the concept of global synchronisation explained
+earlier.
+
+The difference between the two operators in CaSE lies in their
+behaviour with regard to other clocks.  With the fragile timeout,
+$\timeout{E}{\sigma}{F}$, any possible transition on $E$ will cause the
+removal of the timeout.  So, with $\timeout{a.0}{\sigma}{b.0}$ and a clock
+context of $\sigma$ and $\rho$, the following derivations can occur:
+
+\begin{enumerate}
+\item $\timeout{a.0}{\sigma}{b.0} \derives{a} 0$
+\item $\timeout{a.0}{\sigma}{b.0} \derives{\sigma} b.0$
+\item $\timeout{a.0}{\sigma}{b.0} \derives{\rho} a.0$
+\end{enumerate}
+
+\noindent where both the $a$ and the $\rho$ transition leave only the
+left-hand side of the timeout.
+
+The stable timeout differs by continuing to exist through time until
+some action occurs.  While it exhibits the same behaviour in response
+to actions or the tick of the specified clock, the ticks of other
+clocks only cause the left-hand side to evolve; the timeout itself is
+retained.  Thus, $\stimeout{a.0}{\sigma}{b.0}$ gives a different set
+of derivations:
+
+\begin{enumerate}
+\item $\stimeout{a.0}{\sigma}{b.0} \derives{a} 0$
+\item $\stimeout{a.0}{\sigma}{b.0} \derives{\sigma} b.0$
+\item $\stimeout{a.0}{\sigma}{b.0} \derives{\rho} \stimeout{a.0}{\sigma}{b.0}$
+\end{enumerate}
+
+\noindent where the $\rho$ transition no longer causes the dissolution
+of the timeout.
+
+\subsection{Clock Stopping and Insistency}
+\label{clockcontrol}
+
+The remaining operators further control the behaviour of the clocks.
+$\Delta$ prevents all clocks from ticking, while $\Delta_{\sigma}$
+prevents only the ticks of the specified clock, $\sigma$.  $\Delta$ is
+similar to the CCS version of $\nil$, as it has no possible
+transitions.  $\Delta_{\sigma}$ exhibits transitions for all other
+clocks within the current context.  So, for a context containing both
+$\sigma$ and $\rho$, $\Delta_{\sigma}$ has a single transition,
+
+\begin{equation}
+  \Delta_{\sigma} \derives{\rho} \Delta_{\sigma}
+\end{equation}
+
+\noindent which is replicated for any other clocks in the context,
+which are not equal to $\sigma$.
+
+The stopping of clocks is used to provide \emph{insistency}.  Normally,
+a process $a.P$ has two possible derivations:
+
+\begin{enumerate}
+  \item $a.P \derives{a} P$
+  \item $a.P \derives{\sigma} P$
+\end{enumerate}
+
+\noindent with a clock context containing only $\sigma$.  To ensure
+that the first of these two derivations occurs, or, in other words, to
+\emph{insist} that $a$ is performed before the next tick of the clock,
+$\sigma$, $\Delta$ is used.  The semantics for an insistent prefix,
+$\underline{\alpha}.P$, may be given as:
+
+\begin{equation}
+\seml \underline{\alpha}.P \semr \eqdef \alpha.P + \Delta 
+\end{equation}
+
+\noindent where the presence of $\Delta$ prevents a $\sigma$
+transition from occurring on the right-hand side of the choice, and
+thus for the choice as a whole (as both sides must move through time
+simultaneously).  This leaves only one available action,
+$\derives{a}$, as required.  Clearly, insistency relative only to one
+particular clock may also be defined in a similar manner, using
+$\Delta_{\sigma}$ instead.
+
+\begin{equation}
+\seml \underline{\alpha}_{\sigma}.P \semr \eqdef \alpha.P + \Delta_{\sigma} 
+\end{equation}
+
+While on the subject of derived syntax, it is also possible to define
+a clock prefix, akin to the existing action prefix:
+
+\begin{equation}
+\seml \sigma.P \semr \eqdef \stimeout{\nil}{\sigma}{P}
+\end{equation}
+
+\noindent where the stable timeout ensures that the $\sigma.P$ will be
+retained until $\sigma$ ticks, despite the ticks of other clocks.  As
+the only transitions for $\nil$ are clock ticks, only a tick from
+$\sigma$ will cause the process to evolve and become $P$.
+
+The two notions of a clock prefix and insistency can then be combined
+to give an insistent clock prefix:
+
+\begin{equation}
+\seml \underline{\sigma}.P \semr \eqdef \stimeout{\Delta}{\sigma}{P}
+\end{equation}
+
+\noindent which differs from a standard clock prefix by only ever
+allowing the one transition, $\underline{\sigma}.P \derives{\sigma}
+P$, whereas $\sigma.P$ allows an arbitrary number of transitions from
+other clocks before this occurs.
+
+\subsection{Encapsulation}
+
+Clock hiding is used to provide scoping for the ticks of a
+clock.  Take the following situation,
+
+\begin{equation}
+\label{clockhidingex}
+  (P / \sigma)\;|\;Q
+\end{equation}
+
+\noindent where $/ \sigma$ hides the clock, $\sigma$, so that its
+ticks may only be seen by $P$.  $Q$ instead sees a silent action each
+time $\sigma$ ticks.  Such clock hiding is central to the
+encapsulation of components present in CaSE.  When coupled with
+restriction, components can be made to emit only silent actions from
+the perspective of external processes.
+
+\subsection{Advantages and Disadvantages of Timed Calculi}
+\label{timelimit}
+
+The main advantage of the timed calculi we have discussed here is that
+they allow, via the introduction of \emph{global synchronisation}, the
+construction of systems on a larger scale than those that could be
+created purely with CCS.  With CaSE, components can be created which
+consist of multiple processes and clocks.  These can then be
+successfully integrated together to form new components.
+
+Global synchronisation allows the problem of defining a compositional
+broadcast agent, cited earlier in \ref{ccslimit}, to be solved, but
+these timed calculi still retain the other problems with CCS we
+mentioned there.  Neither TPL, PMC, CSA nor CaSE explicitly include
+data within the model.  This is not necessarily a disadvantage; it is
+possible to model data implicitly, via the use of silent actions, and
+including data in the model complicates formal reasoning and
+equivalence theories.
+
+More importantly, these calculi all still retain a static structure.
+The scope of restriction or clock hiding doesn't change as the
+processes evolve.  This prevents these calculi from being used to
+model mobile systems where these elements do change, although they
+are perfectly suited to modelling static dataflow-oriented systems
+such as those in \cite{WICSA} and \cite{cashews-sem}.
+
+In contrast, the following section contains a discussion of calculi
+which, while lacking the scalability of the timed languages just
+illustrated, can model \emph{mobile systems}.
+
+\section{Conclusion}
+
+Discrete timed calculi can overcome this.  An example using TPL to
+model a compositional broadcasting agent, using semantics suitable for
+any arbitrary number of processes, is provided in \ref{timing}.
+Extensions to TPL, such as CaSE, may scale even further using
+synchronous encapsulation to create systems of multiple components.

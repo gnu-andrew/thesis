@@ -8,13 +8,7 @@ to both the theoretical aspects (sections \ref{futuretypes} and
 \section{The Type System}
 \label{futuretypes}
 
-A simple type system presented in \ref{typesys} has been completed.
-One issue remains; how are groups to be allocated to processes?  It may be
-necessary to add a form of type annotation or a group binder (e.g. ($\nu
-G$); see \ref{ambienttypes}), as in the type systems based on the
-ambient calculus.
-
-On a more general note, it would be interesting to consider further the
+It would be interesting to consider further the
 typing of both actions and clocks.  At present, they just have the
 simplest of types, but this could be extended to provide more
 interesting behaviour.  Similarly, bouncers only have rudimentary types
@@ -43,48 +37,45 @@ between two processes which exhibit mobility is much clearer via a
 structural comparison.  Hence, structural congruence may end up being
 more important with respect to the addition of mobility.
 
-\section{Applications}
-\label{futureapp}
+\section{DynamiTE}
+\label{futuredynamite}
 
-\subsection{DynamiTE}
-We have begun development of a tool, DynamiTE (\emph{Dynamic Theory
-Execution}), which will allow both the simulation of TNT processes and a
-mapping of these onto Java\footnote{While a functional programming
-language like Haskell may provide a simpler theoretical framework, we
-consider Java to be industrially more relevant, and to provide greater
-opportunity for less theoretically inclined developers.  It is also much
-more mature and well tested for use in distributed concurrent contexts.}
-and its underlying concurrency model.  This will allow TNT to be used as
-a framework for creating concurrent applications within the Java
-programming language by using individual constructs, represented by
-appropriate classes, as building blocks.
+To conclude, we have presented the overall structure of the DynamiTE
+framework for concurrent systems, with particular note to its more
+interesting aspects involving the use of signalling (via clock ticks)
+and process migration.  We have also outlined its underlying theoretical
+basis in the form of the process calculus TNT, further details of which
+are provided in the cited references.
 
-\subsection{Biology}
-Another possible application area of TNT is biological modelling.  This is an
-area where physical location is important and mobility is realised as
-shifts in topological composition.  Nested structures are important,
-being clearly present in, for example, cell membranes.  Within the
-literature, models of a similar style have already been applied,
-including Cardelli's brane calculi \cite{brane04} and the membrane
-computing of P systems (see section \ref{psystems}).  This will also be
-an interesting area to consider in terms of diversity, providing a
-pleasant contrast to the more theoretical notions implicit in
-designing the calculus itself.
+We believe that the framework provides a unique way of developing
+concurrent systems.  It provides features which have already proved
+advantageous in a theoretical setting, such as the n-ary process
+synchronisation mechanism described in \ref{sync}.  The existence of a
+formal theory for DynamiTE's behaviour gives many advantages over more
+ad-hoc approaches, allowing the underlying mechanisms to be rigorously
+examined before being applied to the implementation.  For example, the
+equivalence of two processes may be established clearly and
+unambiguously in the underlying process calculus and then used to
+compare the implementation of a process to its specification.
 
-One particular case study that is already being considered is that of
-quorum sensing (see section \ref{bioapps}).  In brief, this
-focuses on the reactive behaviour of bacteria in relation to the current
-level of concentration of a particular gene.  The multi-party
-synchronisation implicit in TNT is likely to be useful in this area.
+The DynamiTE framework is still in heavy development.  At its lowest
+level, it provides a means of simulating the operations of the TNT
+process calculus, allowing them to be more clearly understood.  In
+application, it can provide a useful mechanism for structuring
+concurrent programs, clearly dividing internal behaviour and
+interprocess communication.  The presence of signalling and code
+migration also means that fairly complex concepts can be leveraged by
+the programmer in the simple manner provided by the framework.
 
-In modelling this, it is expected that additions will be made to the
-calculus to allow the use of probabilistic derivation, akin to the use
-of the stochastic $\pi$ calculus and the Gillespie algorithm in similar
-studies (see section \ref{bioapps}).  In particular, this will hopefully
-allow simulations to be run and the behaviour of the model to be
-analysed.
+There are still areas we wish to explore in the future.  One such
+proposition is the addition of data to the clock signals,
+\balancecolumns \noindent allowing them
+not only to act as phasing signals but also as a mechanism for broadcast
+data.  It would also be interesting to further expand on the plugin
+frameworks mentioned, by providing more complex implementations such as
+interprocess communication via web services.
 
-In the longer term, probably outside the scope of this thesis, there may
+there may
 be other domains in which TNT will find applicability.  Pervasive
 computing is thought to be one such area, and this may make more
 effective use of the type system than biological modelling.  In
