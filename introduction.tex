@@ -614,13 +614,13 @@ through message passing to the underlying core of the kernel.  The
 majority of the driver's operation takes place in userspace and any
 low-level access can be monitored and potentially prohibited.
 
-The Mach and GNU HURD kernels (the former currently forming the basis
-for the latter) take a similar approach.  The central mantra behind
-this design is one of multiple servers, which provide different
-functionality such as a file system or network service.  Apple also
-adopted this design for XNU, the Mac OS X kernel, but, while basing it
-on Mach, they largely reduced the design to a single server running a
-monolithic BSD-based kernel.
+The Mach and GNU HURD kernels (the former currently
+\cite{hurd:critique} forming the basis for the latter) take a similar
+approach.  The central mantra behind this design is one of multiple
+servers, which provide different functionality such as a file system
+or network service.  Apple also adopted this design for XNU, the Mac
+OS X kernel, but, while basing it on Mach, they largely reduced the
+design to a single server running a monolithic BSD-based kernel.
 
 The traditional objection against such designs has been performance.
 Designs based on intercommunication have always tended to be more

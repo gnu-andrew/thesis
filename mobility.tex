@@ -631,7 +631,7 @@ that have been performed.
 \end{table}
 
 The semantics, as with those for CaSE and TNT given in chapter
-\ref{currentwork}, are based on a \emph{labelled transition system}.
+\ref{nt}, are based on a \emph{labelled transition system}.
 The possible behaviour of a process is defined as a series of labelled
 transitions from one process to another, which are later used as the
 basis for the bisimulation-based equivalence theories shown earlier.
@@ -1337,20 +1337,21 @@ as:
 \end{itemize}
 
 \noindent Any of the multisets, rules or priority relations may be
-empty.  Evolution occurs in parallel, in a synchronous fashion involving
-all membranes (referred to as \emph{maximal parallelism}).  A universal
-clock is assumed to exist, which breaks the evolution of the system into
-cycles.  Objects may move between membranes and membranes may be broken,
-causing their objects to flood into the membrane above and their rules to
-disappear.  Such behaviour has echoes of the ambient calculus described
-in \ref{ambientcalculus}, where ambients may be destroyed by the $open$
-primitive and processes may move around the ambient hierarchy (but only
-within an ambient).  The notion of synchronous clock cycles also recalls
-the discrete timed calculi of \ref{timing}, where evolution can also be
-bounded by clock cycles in a synchronous fashion.  An interesting
-distinction is commonly made in P systems; the outer membrane or
-\emph{skin membrane} is assumed to be special.  For example, at least in
-a biological context, the system is assumed to terminate if the outer
+empty.  Evolution occurs in parallel, in a synchronous fashion
+involving all membranes (referred to as \emph{maximal parallelism}).
+A universal clock is assumed to exist, which breaks the evolution of
+the system into cycles.  Objects may move between membranes and
+membranes may be broken, causing their objects to flood into the
+membrane above and their rules to disappear.  Such behaviour has
+echoes of the ambient calculus described in \ref{ambientcalculus},
+where ambients may be destroyed by the $open$ primitive and processes
+may move around the ambient hierarchy (but only within an ambient).
+The notion of synchronous clock cycles also recalls the discrete timed
+calculi of chapter \ref{globsync}, where evolution can also be bounded
+by clock cycles in a synchronous fashion.  An interesting distinction
+is commonly made in P systems; the outer membrane or \emph{skin
+  membrane} is assumed to be special.  For example, at least in a
+biological context, the system is assumed to terminate if the outer
 membrane is destroyed (biologically, the external membrane has been
 broken and thus the organism falls apart).
 
@@ -1672,10 +1673,11 @@ amb_m (amb_n \square_0 \pc \square_1)
 
 \noindent where the similarities between the two are clear.
 
-Bigraphs provide an interesting framework for unifying the two disparate
-concepts outlined above in \ref{scopemobility} and \ref{migration}.  It
-will be exciting to see how this theory develops, and whether it can
-also be used to encode the discrete time notions described in \ref{timing}.
+Bigraphs provide an interesting framework for unifying the two
+disparate concepts outlined above in \ref{scopemobility} and
+\ref{migration}.  It will be exciting to see how this theory develops,
+and whether it can also be used to encode the discrete time notions
+described in chapter \ref{globsync}.
 
 \section{Conclusion}
 

@@ -5,7 +5,7 @@
 \label{dynamite}
 
 \section{Mapping Theory to Practicality}
-\label{dynamite}
+\label{dyn:maptheory}
 
 DynamiTE uses the TNT process calculus described above as the basis for
 a concurrent object-oriented framework.  Within this framework,
@@ -23,7 +23,7 @@ realised as a class \texttt{Nil} which provides process termination.
 The internal action $\tau$ is realised as an abstract class \texttt{Tau}
 and this is where the user can implement arbitrary sequential behaviour
 as required, by providing a subclass. The observable actions form part
-of the channel subsystem, described in \ref{channels}.
+of the channel subsystem, described in \ref{dyn:channels}.
 
 The $+$ operator is implemented as a class which contains a list of
 subprocesses from which one is chosen at random.  The action to perform
@@ -46,7 +46,7 @@ spawned by the VM or a more complex distributed solution may become
 apparent.
 
 \subsection{The Channel Abstraction}
-\label{channels}
+\label{dyn:channels}
 
 In the same vein, the implementation of synchronisation channels is
 abstracted in such as way as to allow for differing implementations.
@@ -102,12 +102,12 @@ calculus, so the decision should still be left to an appropriate
 parallel composition operator.
 
 \subsection{Signalling}
-\label{signalling}
+\label{dyn:signalling}
 
 One of the most interesting parts of the DynamiTE framework is the
 implementation of clock signals.  While there have been other attempts
 to produce frameworks or languages based on process calculi (see section
-\ref{relatedwork}), we believe that the rendering of discrete time into
+\ref{dyn:relatedwork}), we believe that the rendering of discrete time into
 such a context is novel.
 
 The first question to answer when attempting to perform such a
@@ -163,7 +163,7 @@ probing each of the constituent processes.
 Both $a.\nil$ and $b.\nil$ are implemented using instances of the
 \texttt{Prefix} class, which composes a \texttt{Channel}\footnote{An
 abstract class, instances of which are provided by the channel
-architecture described in \ref{channels}} or \texttt{Tau} instance
+architecture described in \ref{dyn:channels}} or \texttt{Tau} instance
 (unified by the \texttt{Action} class) with another instance of a
 \texttt{Process} subclass.  In determining whether a clock can tick, it
 first checks that the action is a channel rather than a \texttt{Tau}
@@ -200,14 +200,14 @@ determined as follows:
       timeout and from other clocks), one of which is chosen to be
       performed.
 \item Once the chosen action has been performed, the timeout instance
-      will be replaced as appropriate (see section \ref{backbone}). 
+      will be replaced as appropriate (see chapter \ref{nt}). 
 \end{enumerate}
 
 \subsection{Structural Changes}
-\label{structchange}
+\label{dyn:structchange}
 
 The \texttt{Environ} class also places a central role in providing
-system structure.  In section \ref{structmob}, we described how
+system structure.  In chapter \ref{nt}, we described how
 processes are organised into environs and the way communication is
 limited to its bounds.  Within DynamiTE, one possible use of environs
 is to map them to physical or virtual hosts.  While a simple testing
@@ -238,7 +238,7 @@ purpose to the use of structural mobility and process migration, which
 we describe next.
 
 \subsection{Migration}
-\label{migration}
+\label{dyn:migration}
 
 The final aspect of DynamiTE that we describe here is the migration of a
 process from one environ to another, which occurs both as a result of
@@ -269,7 +269,7 @@ to enlighten us with more sophisticated ways of achieving such
 migration.
 
 \section{Related Work}
-\label{relatedwork}
+\label{dyn:relatedwork}
 
 There has already been a significant body of research into providing
 concurrent frameworks, including those based on process calculi.

@@ -2,11 +2,11 @@
 \label{futurework}
 
 This chapter briefly discusses future work on the calculus, with regard
-to both the theoretical aspects (sections \ref{futuretypes} and
-\ref{futureequiv}) and its applications (section \ref{futureapp}).
+to both the theoretical aspects (sections \ref{future:types} and
+\ref{future:equiv}) and its applications (section \ref{future:dynamite}).
 
 \section{The Type System}
-\label{futuretypes}
+\label{future:types}
 
 It would be interesting to consider further the
 typing of both actions and clocks.  At present, they just have the
@@ -22,7 +22,7 @@ The addition of explicit data provision to the calculus via the
   use of typed channels -- see \ref{tnted}.
 
 \section{Equivalence}
-\label{futureequiv}
+\label{future:equiv}
 
 The main element lacking in the current version of TNT is some notion of
 equivalence.  An equivalence notion is necessary to be able to compare
@@ -45,7 +45,7 @@ structural comparison.  Hence, structural congruence may end up being
 more important with respect to the addition of mobility.
 
 \section{DynamiTE}
-\label{futuredynamite}
+\label{future:dynamite}
 
 To conclude, we have presented the overall structure of the DynamiTE
 framework for concurrent systems, with particular note to its more
@@ -57,13 +57,14 @@ are provided in the cited references.
 We believe that the framework provides a unique way of developing
 concurrent systems.  It provides features which have already proved
 advantageous in a theoretical setting, such as the n-ary process
-synchronisation mechanism described in \ref{sync}.  The existence of a
-formal theory for DynamiTE's behaviour gives many advantages over more
-ad-hoc approaches, allowing the underlying mechanisms to be rigorously
-examined before being applied to the implementation.  For example, the
-equivalence of two processes may be established clearly and
-unambiguously in the underlying process calculus and then used to
-compare the implementation of a process to its specification.
+synchronisation mechanism described in chapter \ref{globsync}.  The
+existence of a formal theory for DynamiTE's behaviour gives many
+advantages over more ad-hoc approaches, allowing the underlying
+mechanisms to be rigorously examined before being applied to the
+implementation.  For example, the equivalence of two processes may be
+established clearly and unambiguously in the underlying process
+calculus and then used to compare the implementation of a process to
+its specification.
 
 The DynamiTE framework is still in heavy development.  At its lowest
 level, it provides a means of simulating the operations of the TNT
@@ -75,12 +76,11 @@ migration also means that fairly complex concepts can be leveraged by
 the programmer in the simple manner provided by the framework.
 
 There are still areas we wish to explore in the future.  One such
-proposition is the addition of data to the clock signals,
-\balancecolumns \noindent allowing them
-not only to act as phasing signals but also as a mechanism for broadcast
-data.  It would also be interesting to further expand on the plugin
-frameworks mentioned, by providing more complex implementations such as
-interprocess communication via web services.
+proposition is the addition of data to the clock signals, allowing
+them not only to act as phasing signals but also as a mechanism for
+broadcast data.  It would also be interesting to further expand on the
+plugin frameworks mentioned, by providing more complex implementations
+such as interprocess communication via web services.
 
 there may
 be other domains in which TNT will find applicability.  Pervasive
