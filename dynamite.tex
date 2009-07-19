@@ -131,7 +131,7 @@ internal actions caused by synchronisation or movement.  So, in order
 for the environ to know whether to propagate a clock tick to the
 process, it must first probe it to find out whether such a high priority
 action is pending.  Clock ticks may also be prevented by the $\Delta$
-and $\Delta_sigma$ constructs, so these must also be checked for.
+and $\Delta_\sigma$ constructs, so these must also be checked for.
 
 Both can actually be achieved in one transaction by making the probe the
 clock tick.  The clock tick is sent down the process hierarchy until it
