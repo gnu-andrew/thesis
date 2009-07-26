@@ -1,8 +1,10 @@
 % Thesis: DynamiTE
 % Author: Andrew Hughes
 
-\chapter{The Dynamic Theory Execution Framework}
+\chapter{The DynamiTE Framework}
 \label{dynamite}
+
+\section{Introduction}
 
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
@@ -45,7 +47,7 @@ concurrent processing could also be provided by distinct processes
 spawned by the VM or a more complex distributed solution may become
 apparent.
 
-\subsection{The Channel Abstraction}
+\section{The Channel Abstraction}
 \label{dyn:channels}
 
 In the same vein, the implementation of synchronisation channels is
@@ -101,7 +103,7 @@ they can actually `see' each other, according to the constraints of the
 calculus, so the decision should still be left to an appropriate
 parallel composition operator.
 
-\subsection{Signalling}
+\section{Signalling}
 \label{dyn:signalling}
 
 One of the most interesting parts of the DynamiTE framework is the
@@ -203,7 +205,7 @@ determined as follows:
       will be replaced as appropriate (see chapter \ref{nt}). 
 \end{enumerate}
 
-\subsection{Structural Changes}
+\section{Structural Changes}
 \label{dyn:structchange}
 
 The \texttt{Environ} class also places a central role in providing
@@ -237,7 +239,7 @@ particular thread, and transferred via channels.  This gives additional
 purpose to the use of structural mobility and process migration, which
 we describe next.
 
-\subsection{Migration}
+\section{Migration}
 \label{dyn:migration}
 
 The final aspect of DynamiTE that we describe here is the migration of a
@@ -294,3 +296,5 @@ a distributed implementation.
 %languages with semantics founded in the $\pi$ calculus, while a machine
 %framework (PAN \cite{sangiorgi:safeambientsmachine}) has been developed
 %and implemented for the ambient calculus.
+
+\section{Conclusion}

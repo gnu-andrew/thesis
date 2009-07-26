@@ -3,6 +3,8 @@
 \chapter{Algebraic Process Calculi}
 \label{apc}
 
+\section{Introduction}
+
 In this chapter, we focus on concurrency from a theoretical
 perspective and introduce one of the main algebraic models for
 modelling concurrent systems.  The topics and ideas discussed here lay
@@ -121,6 +123,7 @@ such models have been developed, and over the next three chapters, we
 will consider a subset of these.
 
 \section{The Calculus of Communicating Systems (CCS)}
+\label{ccs}
 
 Algebraic process calculi model the interaction of concurrent
 processes using a (usually small) set of algebraic operators, as
@@ -154,9 +157,6 @@ this core set.  From a theoretical perspective, this is advantageous, as
 it makes reasoning over the calculus a simpler process, and, as will be
 seen, adding further syntax to represent more features is a relatively
 simple process.
-
-\subsection{CCS}
-\label{ccs}
 
 In CCS, processes are modelled as terms ranged over by $E, F$.  These
 process terms have the following syntax:
@@ -286,7 +286,7 @@ replaced with $E$.  The function, $f$, in $E[f]$ has the type $Act
 \rightarrow Act$ and converts actions, while preserving $\tau$ and
 complementation.
 
-\subsection{The Dining Philosophers in CCS}
+\subsection{The Dining Philosophers}
 
 To fully appreciate CCS, it is necessary to see how it may be used to
 model an example scenario.  Consider the dining philosopher's example
@@ -388,7 +388,7 @@ implementational aspects of the model; all these phenomena could be
 represented, but a choice between these is not made at this level of
 abstraction.
 
-\subsection{Advantages and Limitations of CCS}
+\section{Advantages and Limitations of CCS}
 \label{ccslimit}
 
 From its syntax, it is clear that CCS can model sequential behaviour

@@ -4,6 +4,8 @@
 \chapter{Mobility}
 \label{mobility}
 
+\section{Introduction}
+
 Within the field of algebraic process calculi, there are two clear ways
 in which the dynamic nature of a system is modelled.  The most
 well-known is the form of mobility present within Milner's $\pi$
@@ -35,10 +37,10 @@ represented.
 The following two sections consider examples of both types of mobile
 calculi in more detail.
  
-\subsection{Scope Mobility}
+\section{Scope Mobility}
 \label{scopemobility}
 
-\subsubsection{The $\pi$ Calculus}
+\subsection{The $\pi$ Calculus}
 \label{picalculus}
 
 The $\pi$ calculus follows on from Milner's earlier work on CCS
@@ -150,7 +152,7 @@ mobility within the $\pi$ calculus.  They reflect the dynamic
 environment of the processes represented, and give the calculus a
 greater expressivity.
 
-\subsubsection{Variants of the $\pi$ Calculus}
+\subsection{Variants of the $\pi$ Calculus}
 \label{pivariants}
 
 Multiple variants of the $\pi$ calculus exist, including various
@@ -476,7 +478,7 @@ of advantages in endowing the calculus with distributive properties at
 the syntactic level.\footnote{Such changes have also been made using the
 restrictions imposed by an appropriate type system \cite{sangiorgi:uniformreceptiveness}.}
 
-\subsubsection{Advantages and Disadvantages of the $\pi$ Calculus}
+\subsection{Advantages and Disadvantages of the $\pi$ Calculus}
 
 The $\pi$ calculus is a powerful formalism drawn from a minimal
 abstract syntax.  As noted at the start of this section, it is capable
@@ -514,7 +516,7 @@ the distributed calculi considered in \ref{migration}.  The $\pi$
 calculus may already model mobility, but these calculi do so in a
 different way, which may prove more suitable in a particular context.
  
-\subsection{Distribution and Migration}
+\section{Distribution and Migration}
 \label{migration}
 
 Allowing the scope of a name to change during execution is one possible
@@ -856,7 +858,7 @@ non-distributed formalisms, such as the Join calculus.
 
 %The distributed $\pi$ calculus, or D$\pi$ \cite{hennessy:dpi98},
 
-\subsubsection{The Distributed Join Calculus}
+\subsection{The Distributed Join Calculus}
 
 By adding localities, \cite{djoin} defines a distributed variant of the
 Join calculus shown in \ref{join}.  The extended syntax is as follows:
@@ -947,7 +949,7 @@ mobility in a minimal fashion.
 %an extension to PICT \cite{daveturner:phd} which incorporates
 %distribution.
 
-\subsubsection{The Ambient Calculus}
+\subsection{The Ambient Calculus}
 \label{ambientcalculus}
 
 The ambients within the ambient calculus \cite{amb} are a form of
@@ -1095,7 +1097,7 @@ rule,
 \noindent which allows the restriction of $n$ to be removed from $P$
 if the name doesn't occur free within its body.
 
-\subsubsection{Variants of the Ambient Calculus}
+\subsection{Variants of the Ambient Calculus}
 \label{ambvariants}
 
 A general problem within concurrency is the possibility of
@@ -1268,7 +1270,7 @@ applications.  In contrast, the latter is clearly more suited to
 situations where the removal of a locality corresponds to a similar
 event in the real-world situation being modelled.
 
-\subsubsection{Advantages and Disadvantages of the Ambient Calculus}
+\subsection{Advantages and Disadvantages of the Ambient Calculus}
 
 The most interesting aspect of the ambient calculus is that, while it
 includes no communication primitives, it can encode the asynchronous
@@ -1301,7 +1303,7 @@ largely based on the most natural formalism for a particular task.
 
 %The seal calculus \cite{seal}
 
-\subsubsection{P Systems}
+\subsection{P Systems}
 \label{psystems}
 
 While providing a way of modelling concurrent spatially-oriented
@@ -1464,7 +1466,7 @@ biological modelling.  In the latter, they provide a much more natural
 perspective than the channel-based operations of the $\pi$ calculus, and
 this is something that will be considered further in section \ref{bioapps}.
 
-\section{Applying Mobile Calculi to Biology}
+\section{Comparing Modelling Approaches}
 \label{bioapps}
 
 Biological systems are inherently concurrent, being focused on the
@@ -1593,7 +1595,7 @@ as that of the $\pi$ calculus (upon which the BioAmbients calculus is
 essentially based).  This can prove problematic, especially when model
 checking such models.
 
-\subsubsection{Bigraphs}
+\section{Bigraphs}
 \label{bigraphs}
 
 Bigraphs \cite{bigraph1, bigraph2} are an attempt at providing a

@@ -52,9 +52,9 @@ varying results.  We close with a summary of the novelty of this work,
 and an overview of how this will be covered in the later chapters of
 this thesis.
 
-\subsection{The Current Status Quo}
+\section{The Current Status Quo}
 
-\subsubsection{Multiprogramming}
+\subsection{Multiprogramming}
 
 Concurrency is nothing new.  The concept of executing multiple
 programs at once has been in use since \emph{multiprogramming} was
@@ -126,7 +126,7 @@ share the same memory space and thus may interoperate more easily and
 more efficiently.  The disadvantage is that it makes the possibility
 of contention much more likely.
 
-\subsubsection{Resource Contention}
+\subsection{Resource Contention}
 
 Concurrency issues arise when a resource is accessed by multiple
 processes or threads at the same time.  With threads, this is a
@@ -194,7 +194,7 @@ collision depends on the timing:
 The solution to these sort of problems is to limit access to a
 resource, so that a process is forced to wait its turn.
 
-\subsubsection{Semaphores and Monitors}
+\subsection{Semaphores and Monitors}
 
 Such access limitations can be imposed by a \emph{semaphore}, a
 solution first proposed by Dijkstra\cite{semaphore}.  A semaphore
@@ -527,7 +527,7 @@ processing more inefficient.  In the future, we want to be able to
 utilise the advantages of massively parallel systems and this can only
 be achieved by reducing the need for resource contention.
 
-\subsubsection{Interprocess Communication}
+\subsection{Interprocess Communication}
 
 To achieve this, we need to focus on more short-lived processes which
 interact directly with one another, rather than via the means of

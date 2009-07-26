@@ -4,7 +4,7 @@
 \chapter{Global Synchronisation}
 \label{globsync}
 
-\section{Discrete Timed Process Calculi}
+\section{Introduction}
 \label{timing}
 
 Initially, the use of the word `timed', within the context of the
@@ -16,6 +16,8 @@ described in \cite{aceto:timing, beaten:timing, brics:lee,
 this.  Instead, this section focuses on a series of discrete timed
 calculi which focus on abstract time and the use of \emph{clocks} for
 the primary purpose of global synchronisation (as described above).
+
+\section{Temporal Process Language (TPL)}
 
 Hennessy's Temporal Process Language (TPL) \cite{hennessy:tpl} extends
 the CCS language discussed above with a single clock, akin to a
@@ -63,7 +65,7 @@ clock tick, the silent action always takes precedence and thus every
 possible synchronisation occurs.  Once no more synchronisations are
 possible, the clock is allowed to tick and the recursion stops.
 
-\subsection{Extending TPL}
+\section{Extending TPL}
 \label{tplext}
 
 The extensions to TPL considered here focus on expanding the
@@ -99,7 +101,7 @@ TPL and retained in CaSE, integrated into the `synchronous cycle'
 in \ref{case}, where it forms the basis for the calculus of
 \emph{Typed Nomadic Time} (TNT).
 
-\section{The Calculus of Synchronous \\ Encapsulation (CaSE)}
+\section{The Calculus of Synchronous Encapsulation (CaSE)}
 \label{case}
 
 The syntax for CaSE, given in \cite{norton05alg}, is as follows:
@@ -310,7 +312,7 @@ encapsulation of components present in CaSE.  When coupled with
 restriction, components can be made to emit only silent actions from
 the perspective of external processes.
 
-\subsection{Advantages and Disadvantages of Timed Calculi}
+\section{Advantages and Disadvantages of Timed Calculi}
 \label{timelimit}
 
 The main advantage of the timed calculi we have discussed here is that
