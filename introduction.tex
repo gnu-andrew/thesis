@@ -195,6 +195,7 @@ The solution to these sort of problems is to limit access to a
 resource, so that a process is forced to wait its turn.
 
 \subsection{Semaphores and Monitors}
+\label{semaphores}
 
 Such access limitations can be imposed by a \emph{semaphore}, a
 solution first proposed by Dijkstra\cite{semaphore}.  A semaphore
@@ -662,15 +663,22 @@ knowledge which we believe to be novel:
 
 \section{Structure of the Thesis}
 
-In the next chapter, we introduce existing research in to the area of
-algrebriac process calculi through an exploration of the Calculus of
-Concurrent Systems (CCS) \cite{milner:ccs}.  The following two
-chapters focus on specific extensions to such calculi: global
-synchronisation (\ref{globsync}) and mobility (\ref{mobility}).  In
-chapter \ref{nt}, we introduce our own research in the form of the
+The first half of the thesis focuses on existing research in order to
+provide the necessary background material for the novel work presented
+in later chapters.  Through this evaluation, we make clear the
+motivation for our work and also allow this thesis to be relatively
+self-contained.  In the next chapter, we introduce existing research
+in to the area of algrebriac process calculi through an exploration of
+the Calculus of Concurrent Systems (CCS) \cite{milner:ccs}.  The
+following two chapters then focus on specific extensions to such
+calculi: global synchronisation (\ref{globsync}) and mobility
+(\ref{mobility}).
+
+In chapter \ref{nt}, we introduce our own research in the form of the
 Nomadic Time process calculus.  The following chapter (\ref{tnt})
-extends this with a type system to create TNT (Typed Nomadic Time).
-The second part of our research is covered in chapter \ref{dynamite}
-with the development of the DynamiTE (Dynamic Theory Execution)
-framework.  We close with suggestions for future work in chapter
-\ref{futurework}.
+extends this with a type system to create TNT (Typed Nomadic Time),
+while the second part of our research is covered in chapter
+\ref{dynamite} with the development of the DynamiTE (Dynamic Theory
+Execution) framework.  Both the latter two chapters also cover related
+work in these particular areas.  We close with suggestions for future
+work in chapter \ref{futurework}.

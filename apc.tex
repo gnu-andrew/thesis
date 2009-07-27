@@ -26,7 +26,11 @@ exists, and has a certain level of expressivity, it doesn't imply that
 it is the most appropriate for a particular context.  The existence of
 both Turing machines and the $\lambda$ calculus already demonstrates
 this point.  While both have proven equivalent in power, they take
-different approaches to achieving this.
+different approaches to achieving this.  However, neither model can
+represent the possibility of two or more events occurring at the same
+time, and thus can not be used to capture and evaluate the potential
+problems which may occur, such as the race conditions illustrated in
+the previous chapter.
 
 To see the effect of concurrency on computation, consider a simple
 prototypical example, as demonstrated by Milner \cite{milner:lecture}.
@@ -53,10 +57,9 @@ However, in a concurrent system, multiple control flows or processes
 exist, each running in parallel with the others.  With P1, the value
 of \texttt{x} will always be equal to two immediately after execution,
 as the assignment takes place within a single atomic action.  However,
-in P2, another process is free to modify \texttt{x} \footnote{Assuming
-  \texttt{x} is accessible by more than one process.} between the
-assignment of the value 1 and the later summation which makes
-\texttt{x} 2.
+in P2, another process is free to modify \texttt{x} (assuming
+\texttt{x} is globally accessible) between the assignment of the value
+1 and the later summation which makes \texttt{x} 2.
 
 Thus, if P2 is run in parallel with a third program,
 
@@ -68,15 +71,15 @@ Thus, if P2 is run in parallel with a third program,
 on whether P3 executes before the first line, after the completion of
 P2, or after the first line respectively.  With P1 and P3, only 2 or 3
 can result (which one depends on the order the two programs are run).
-This is known as a \emph{race condition}, as the final value of
-\texttt{x} depends on the timing of the various modifications of its
-value by the two programs.  The solution to this problem is to require
-each program to obtain exclusive access to \texttt{x} (a lock) for the
-extent of its use.
+Again, we have a \emph{race condition}; the final value of \texttt{x}
+depends on the timing of the various modifications to its value
+performed by the two programs.  As we saw in \ref{semaphores}, the
+solution to this problem is to require each program to obtain
+exclusive access to \texttt{x} (a lock) for the extent of its use.
 
 This example demonstrates that modelling concurrency is not so much
 about multiple programs executing at the same time, but instead
-concerns how they interact.  If each program exists in its own
+concerns how they may interact.  If each program exists in its own
 isolated environment and doesn't access any common resources, then no
 interactions will take place and a sequential model for each would be
 suitable.  Indeed, this is the way most operating systems handle
@@ -84,43 +87,25 @@ running multiple programs.  Thus, it follows that sequential models
 are not distinct from concurrent models, but a subset where this
 additional restriction of isolation applies.
 
-Dijkstra's classic `Dining Philosophers' problem
-\cite{dijkstra:philosophers} illustrates further issues which may
-arise in a situation where multiple processes must interact to achieve
-their goal.  In this scenario, five philosophers are seated around a
-table, each with a plate of spaghetti and a fork.  The philosophers
-divide their time between thinking and eating.  In order to eat, a
-philosopher must obtain two forks, necessitating some form of
-interaction.  This is a common situation in concurrency, where
-multiple parallel processes (the philosophers) need to gain access to
-a limited resource (the forks).
-
-In cases where things go awry, \emph{deadlock} or \emph{starvation}
-may result.  For example, if all the philosophers simultaneously pick
-up the forks on their left, then none of them will be able to eat;
-they will all end up waiting on a fork held by another philosopher.
-The system is said to be \emph{deadlocked}, as none of the processes
-can obtain a lock on the resource it needs, as a lock is already held
-by one of the other processes\footnote{The solution to breaking this
-  deadlock is to break the symmetry; if the fifth philosopher tries to
-  take the fork on the right first, he or she will be unable to
-  proceed, but the first philosopher will, using the fifth
-  philosopher's left fork.}.  Alternatively, \emph{starvation} may
-result (literally in this case) if one of the philosophers never stops
-eating and consequently never releases the forks; the resources are
-unfairly distributed to the deficit of one of the processes.
-
-As can be seen from these examples, concurrency raises issues outside
-the reach of traditional sequential models of computation.  Thus, just
-as there is a requirement for models of sequential computation, models
-that can represent these phenomena are also necessary.  This is even
-more relevant today, as hardware advances make more machines capable
-of true concurrency (via dual-core processors and beyond) and
-distributed computing paradigms, such as services, become more
-prevalent.  To adequately work with these systems, appropriate formal
-models are needed to represent them and highlight their flaws.  Many
-such models have been developed, and over the next three chapters, we
-will consider a subset of these.
+The problem is that using sequential models to design and evaluate
+programs is becoming more and more detached from the reality of modern
+implementations.  For example, many programs now include a graphical
+user interface, which must have at least two concurrent threads of
+control to be operable; one is needed to await and handle any user
+interaction, while the other actually executes the operations of the
+program, even if that simply involves updating the display while idle.
+As multi-core processes make more machines capable of \emph{true
+  concurrency} \footnote{where operations are actually performed
+  simultaneously, rather than this being emulated by the system
+  scheduler} and distributed computing paradigms, such as services,
+become more prevalent, the need to accurately model the possible
+interactions increases.  Concurrency raises issues outside the reach
+of traditional sequential models of computation, so to adequately work
+with concurrent systems, we need appropriate formal models to
+highlight potential flaws and to allow us to account for any issues
+these may raise in the design of the program.  Many such models have
+been developed, and over the next three chapters, we will consider a
+subset of these.
 
 \section{The Calculus of Communicating Systems (CCS)}
 \label{ccs}
@@ -131,32 +116,32 @@ opposed to the true concurrency of Mazurkiewicz trace theory
 \cite{maz:trace} or the graphical style associated with Petri nets
 \cite{petri:phd} and Hewitt's Actor model \cite{hewitt:actor}.
 Interaction between processes is via message-passing, rather than via
-shared memory\footnote{Although shared memory and message-passing are
-  not orthogonal; a shared memory space may be represented as a
-  communicating resource in a message-passing system, while message
-  queues can be implemented in shared memory.} or a tuple space
-\cite{linda}.
+a common shared memory\footnote{Although shared memory and
+  message-passing are not orthogonal; a shared memory space may be
+  represented as a communicating resource in a message-passing system,
+  while message queues can be implemented using shared memory.} or a
+tuple space \cite{linda}.
 
-The foundational calculi in this field are Hoare's CSP \cite{hoare:csp78},
-Milner's CCS \cite{milner:ccs} and Bergstra and Klop's ACP \cite{acp}, all of
-which were first developed in the late 1970s to early 1980s.  CSP was
-originally developed as a programming language, with a relatively large
-syntax, and later given a theoretical basis, following Milner's work on
-CCS.  Both calculi have influenced each other, while starting out from
-different perspectives (Milner's being more of a theoretical one).  ACP
-shares many of the ideas of CCS, and can be regarded as an
+The foundational calculi in this field are Hoare's CSP
+\cite{hoare:csp78}, Milner's CCS \cite{milner:ccs} and Bergstra and
+Klop's ACP \cite{acp}, all of which were first developed in the late
+1970s to early 1980s.  CSP was originally developed as a programming
+language with a relatively large syntax, while Milner aimed for a
+minimal calculus.  Both calculi have influenced each other, with CSP
+later being refined and given a theoretical basis, following Milner's
+work.  ACP shares many of the ideas of CCS, and can be regarded as an
 `alternative formulation' \cite{acp}, using a similar set of operators
 to achieve a different goal.
 
 Here, the focus is on CCS, as it forms the basis for most of the other
-calculi considered, including the $\pi$ calculus
-\cite{picalctutorial} and CaSE \cite{CaSE}.  Of the three, CCS has the
-most minimal syntax with additional features such as failure
-(represented in both CSP and ACP) needing to be derived from or appended to
-this core set.  From a theoretical perspective, this is advantageous, as
-it makes reasoning over the calculus a simpler process, and, as will be
-seen, adding further syntax to represent more features is a relatively
-simple process.
+calculi considered, including the $\pi$ calculus \cite{picalctutorial}
+(see \ref{picalculus}) and CaSE \cite{CaSE} (see \ref{case}).  Of the
+three, CCS has the most minimal syntax with additional features such
+as failure (represented in both CSP and ACP) needing to be derived
+from or appended to this core set.  From a theoretical perspective,
+this is advantageous, as it makes reasoning over the calculus simpler,
+and, as will be seen in later chapters, further syntax can be added to
+represent further features if necessary.
 
 In CCS, processes are modelled as terms ranged over by $E, F$.  These
 process terms have the following syntax:
@@ -176,33 +161,37 @@ process terms have the following syntax:
 
 \noindent where $\alpha$, $a$ and $f$ are explained below.
 
-Communication between processes is via the sending and receiving of
-signals.  The internal behaviour of the processes is abstracted,
-represented simply by the silent action $\tau$.  The full set of
-actions, $Act = \mathcal{N} \cup \overline{\mathcal{N}} \cup
-\{\tau\}$, is used to describe the behaviour of the concurrent system,
-where $\mathcal{N}$ is an infinite set of names, and
-$\overline{\mathcal{N}}$ is the corresponding set of co-names,
+The behaviour of a process is described as a sequence of actions.
+This can be seen in the above grammar, where $0$ represents the empty
+process (which exhibits no behaviour) and $\alpha.E$ is the action
+prefix used for the limited sequential composition of actions, where
+$\alpha \in Act$ and $Act = \mathcal{N} \cup \overline{\mathcal{N}}
+\cup \{\tau\}$. The internal behaviour of the processes is abstracted,
+represented simply by the silent action $\tau$.  External behaviour is
+described using members of $\mathcal{N}$, an infinite set of names,
+and $\overline{\mathcal{N}}$, the corresponding set of co-names
 $\{\overline{a} | a \in \mathcal{N}\}$.  These names are usually used
-to represent \emph{channels}, which the processes use to communicate.
-Thus, $a.E$, where $a \in \mathcal{N}$, represents a process whose
-first action is an input on the channel $a$, whereas $\overline{a}.E$
-(where $\overline{a} \in \overline{\mathcal{N}}$) represents a process
-which initially outputs on $a$.
+to represent \emph{channels} upon which the processes communicate.
+Under such an interpretation, $a.E$ (where $a \in \mathcal{N}$)
+represents a process whose first action is an input on the channel
+$a$, whereas $\overline{a}.E$ (where $\overline{a} \in
+\overline{\mathcal{N}}$) represents a process which initially outputs
+on $a$.  
 
-The behaviour of a single process is thus defined as a sequence of
-inputs, outputs and silent actions. This can be seen in the above
-grammar, where $0$ represents the empty process, which exhibits no
-behaviour, and $\alpha.E$ is the action prefix used for the limited
-sequential composition of actions, where $\alpha \in Act$.
+Thus, a single process is defined as a sequence of inputs, outputs and
+silent actions.  Each step in the sequence is a state from which the
+process may \emph{perform} an action in order to transition to a new
+state.  For example, $a.E$ may perform the action $a$ and become $E$.
+We represent this using the notation $a.E \derives{a} E$.
 
-For communication to actually take place, two processes must
-\emph{synchronize}; they must emit corresponding actions on the same
-channel at the same time.  For this to occur, the two processes must be
-running in parallel.  Parallel composition in CCS is represented by the
-$|$ operator.  When two processes are composed in this way, they may
-both perform their corresponding input and output actions
-simultaneously, resulting in a $\tau$ action being emitted.
+For two processes to actually communicate with one another, they must
+\emph{synchronize}; they must perform a corresponding pair of actions
+(e.g. $a$ and $\overline{a}$) at the same time.  For this to occur,
+the two processes must be running in parallel.  Parallel composition
+in CCS is represented by the $|$ operator.  When two processes are
+composed in this way, they may both perform their corresponding input
+and output actions simultaneously, resulting in a single $\tau$
+transition which changes the state of both processes.
 
 For instance, if $E$ is considered to be $a.0$ and $F$ to be
 $\overline{a}.0$, then the process formed by the composition of these
@@ -289,7 +278,35 @@ complementation.
 \subsection{The Dining Philosophers}
 
 To fully appreciate CCS, it is necessary to see how it may be used to
-model an example scenario.  Consider the dining philosopher's example
+model an example scenario.  
+
+Dijkstra's classic `Dining Philosophers' problem
+\cite{dijkstra:philosophers} illustrates further issues which may
+arise in a situation where multiple processes must interact to achieve
+their goal.  In this scenario, five philosophers are seated around a
+table, each with a plate of spaghetti and a fork.  The philosophers
+divide their time between thinking and eating.  In order to eat, a
+philosopher must obtain two forks, necessitating some form of
+interaction.  This is a common situation in concurrency, where
+multiple parallel processes (the philosophers) need to gain access to
+a limited resource (the forks).
+
+In cases where things go awry, \emph{deadlock} or \emph{starvation}
+may result.  For example, if all the philosophers simultaneously pick
+up the forks on their left, then none of them will be able to eat;
+they will all end up waiting on a fork held by another philosopher.
+The system is said to be \emph{deadlocked}, as none of the processes
+can obtain a lock on the resource it needs, as a lock is already held
+by one of the other processes\footnote{The solution to breaking this
+  deadlock is to break the symmetry; if the fifth philosopher tries to
+  take the fork on the right first, he or she will be unable to
+  proceed, but the first philosopher will, using the fifth
+  philosopher's left fork.}.  Alternatively, \emph{starvation} may
+result (literally in this case) if one of the philosophers never stops
+eating and consequently never releases the forks; the resources are
+unfairly distributed to the deficit of one of the processes.
+
+Consider the dining philosopher's example
 illustrated above. Modelling this in CCS involves first ascertaining
 what processes form the basis of this `system'.  Clearly, each
 philosopher plays a part, so they should be represented by a process.
