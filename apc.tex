@@ -165,18 +165,18 @@ The behaviour of a process is described as a sequence of actions.
 This can be seen in the above grammar, where $0$ represents the empty
 process (which exhibits no behaviour) and $\alpha.E$ is the action
 prefix used for the limited sequential composition of actions, where
-$\alpha \in Act$ and $Act = \mathcal{N} \cup \overline{\mathcal{N}}
-\cup \{\tau\}$. The internal behaviour of the processes is abstracted,
-represented simply by the silent action $\tau$.  External behaviour is
-described using members of $\mathcal{N}$, an infinite set of names,
-and $\overline{\mathcal{N}}$, the corresponding set of co-names
-$\{\overline{a} | a \in \mathcal{N}\}$.  These names are usually used
-to represent \emph{channels} upon which the processes communicate.
-Under such an interpretation, $a.E$ (where $a \in \mathcal{N}$)
-represents a process whose first action is an input on the channel
-$a$, whereas $\overline{a}.E$ (where $\overline{a} \in
-\overline{\mathcal{N}}$) represents a process which initially outputs
-on $a$.  
+$\alpha \in \actions$ and $\actions = \names \cup
+\overline{\names} \cup \{\tau\}$. The internal behaviour of the
+processes is abstracted, represented simply by the silent action
+$\tau$.  External behaviour is described using members of
+$\names$, an infinite set of names, and $\overline{\names}$,
+the corresponding set of co-names $\{\overline{a} | a \in
+\names\}$.  These names are usually used to represent
+\emph{channels} upon which the processes communicate.  Under such an
+interpretation, $a.E$ (where $a \in \names$) represents a process
+whose first action is an input on the channel $a$, whereas
+$\overline{a}.E$ (where $\overline{a} \in \overline{\names}$)
+represents a process which initially outputs on $a$.
 
 Thus, a single process is defined as a sequence of inputs, outputs and
 silent actions.  Each step in the sequence is a state from which the
@@ -226,23 +226,23 @@ $\overline{a}$ or $\tau$, to give three possible derivations:
 
 This is illustrated in Fig. \ref{fig:graph1}.  To make the derivation
 of $E|F$ deterministic, the scope of $a$ can be restricted.  In CCS,
-an input or output can be paired with any corresponding action which
-is within the scope of the channel.  To force the input of $E$ to be
-paired with the output of $F$, the scope of $a$ must be restricted so
-as to only include the two processes, $E$ and $F$.  This is handled by
-another operator in the core syntax, $\backslash$.  The right operand
-of this is the name of a channel whose scope is restricted to that of
-the left operand.  In this case, $(E|F)\backslash a$ appropriately
+an action or co-action can be paired with any converse action which is
+within its scope.  To force the input of $E$ to be paired with the
+output of $F$ in the above, the scope of $a$ must thus be restricted
+so as to only include the two processes, $E$ and $F$.  This is handled
+by another operator in the core syntax, $\backslash$.  Its operand $a$
+is the name of a channel whose scope is restricted to that of $E$, the
+left operand.  So, in this case, $(E|F)\backslash a$ appropriately
 limits the possible derivations to just $\derives{\tau}$.
 
 The remaining binary CCS operator is $+$, which provides
-non-deterministic choice between two processes.  Once a derivation is
-made from one process, the option of performing the actions of the
-other is lost.  This contrasts with the parallel composition operator,
-where the other process remains running in parallel.  Choice thus
-effectively corresponds to the familiar idea of branching found in
-sequential models.  Using the same two exemplar processes again, $E +
-F$ may derive as follows:
+non-deterministic choice between two processes.  While the parallel
+composition operator represents two processes running in parallel, $+$
+corresponds to the familiar idea of branching found in sequential
+models and takes place within a single process.  $E$ and $F$ thus
+represent two possible sequences of actions which may or may not
+occur.  Using the same two exemplar processes again, $E + F$ may
+derive as follows:
 
 \begin{enumerate}
 \item $E\ +\ F \derives{a} 0$
@@ -265,15 +265,92 @@ F$ may derive as follows:
   \label{fig:graph2}
 \end{figure}
 
-Again, this is illustrated in Fig. \ref{fig:graph2}.  There are clearly
-similarities between the two sets of possible derivations, but note
-that, with choice, there is no possibility of synchronisation.
+Again, this is illustrated in Fig. \ref{fig:graph2}.  There are
+clearly similarities between the possible derivations from $E|F$ and
+$E+F$, but with choice, there is no possibility of synchronisation and
+only one of the two transitions, $a$ and $\overline{a}$ is ever
+performed.  The other is lost after the process makes its decision.
 
 The remaining operators in CCS handle recursion and relabelling.  $\mu
-X.E$ binds X with the value of $E$, so that later occurrences of $X$ are
-replaced with $E$.  The function, $f$, in $E[f]$ has the type $Act
-\rightarrow Act$ and converts actions, while preserving $\tau$ and
-complementation.
+X.E$ binds X with the value of $E$, so that later occurrences of $X$
+are replaced with $E$.  For example, $\mu X.a.X$ can perform an $a$
+transition to become $\mu X.a.X$ again.  The function, $f$, in $E[f]$
+has the type $\names \rightarrow \names$ and renames actions, while
+preserving $\tau$ and complementation.  So $a.\overline{a}.\tau.0[a
+  \rightarrow b]$ is the same as $b.\overline{b}.\tau.0$ after the
+function is applied.
+
+An operational semantics for CCS can be given in terms of a labelled
+transition system, $(\procs, \actions, \rightarrow)$.  $\procs$ is the
+set of CCS expressions formed from the above syntax, $\actions$ is as
+defined above and $\rightarrow$ is the transition relation.  The
+transition relation, $\mathop{\rightarrow} \mathrel{\subseteq} \procs
+\times \actions \times \procs$ is defined in Table
+\ref{tab:ccssemantics}.  We use $E$ and $F$ to range over process
+terms ($\procs$), $\alpha$ over the set of actions ($\actions$) and
+$a$ and $b$ over the set of names ($\names$).
+
+\begin{table}
+  \caption{CCS Semantics}
+ \label{tab:ccssemantics}
+  \shrule
+ \vspace{-2mm}
+ \begin{center}
+ \begin{tabular}{rlrl}
+     \Rule{Act}
+     {-}
+     {\alpha . E \derives{\alpha} E}
+     {}
+     &
+     \Rule{Sum1}
+     {E \derives{\alpha} E^\prime}
+     {E + F \derives{\alpha} E^\prime}
+     {}
+     \\[3ex]
+     \Rule{Sum2}
+     {F \derives{\alpha} F^\prime}
+     {E + F \derives{\alpha} F^\prime}
+     {}
+     &
+     \Rule{Par1}
+     {E \derives{\alpha} E^\prime}
+     {E \;|\; F \derives{\alpha} E^\prime \;|\; F}
+     {}
+     \\[3ex]
+     \Rule{Par2}
+     {F \derives{\alpha} F^\prime}
+     {E \;|\; F \derives{\alpha} E \;|\; F^\prime}
+     {}
+     &
+      \Rule{Par3}
+      {E \derives{a} E^\prime,
+        F \derives{\overline{a}} F^\prime}
+      {E \;|\; F \derives{\tau} E^\prime \;|\; F^\prime}
+      {}
+     \\[3ex]
+      \Rule{Rec}
+      {E \derives{\alpha} E'}
+      {\mu X.E \derives{\alpha} E' \{ \mu X.E / X\}}
+      {}
+      &
+      \Rule{Res}
+      {E \derives{\alpha} E'}
+      {E \res{b} \derives{\alpha} E' \res{b}}
+      {\alpha \ne b}
+      \\[3ex]
+      \Rule{Ren1}
+      {E \derives{a} E'}
+      {E[f] \derives{f(a)} E'[f]}
+      {}
+      &
+      \Rule{Ren2}
+      {E \derives{\overline{a}} E'}
+      {E[f] \derives{\overline{f(a)}} E'[f]}
+      {}
+ \end{tabular}
+  \end{center}
+  \shrule
+\end{table}
 
 \subsection{The Dining Philosophers}
 
