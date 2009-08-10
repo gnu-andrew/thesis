@@ -379,7 +379,7 @@ deadlock may occur.
 
 Let's assume process A runs first.  It acquires a lock on
 \texttt{/etc/passwd}.  At this point, A has used its allocated quantum
-of CPU time and so is descheduled.  A context switch occurs and
+of processor time and so is descheduled.  A context switch occurs and
 process B begins to run.  If B begins by trying to acquire a lock on
 \texttt{/etc/passwd}, then it will simply block as A already holds
 this lock.  If, however, it tries to acquire a lock on
@@ -529,6 +529,7 @@ utilise the advantages of massively parallel systems and this can only
 be achieved by reducing the need for resource contention.
 
 \subsection{Interprocess Communication}
+\label{ipc}
 
 To achieve this, we need to focus on more short-lived processes which
 interact directly with one another, rather than via the means of
@@ -611,38 +612,46 @@ are working together rather than against each other by synchronising
 the passage of data between them.  Each is independent of the other
 and specific to its purpose.
 
-A similar design tactic has been used in numerous areas.
 \emph{Microkernels} such as Mach\cite{mach}, MINIX 3\cite{minix3} and
 the GNU HURD\cite{hurd} also utilise this idea of synchronous
-communication over a monolithic design based around shared resources.
-In this context, it provides an essential stability and security
-advantage; many services, such as drivers, file systems and network
-protocols, can operate at the same level (or close to) as user-level
-processes.
+communication rather than a monolithic design based around shared
+resources.  In this context, it provides an essential stability and
+security advantage; many services, such as device drivers, file systems and
+network protocols, can operate at a similar level to user processes.
 
-Some elements of the kernel must interact with the CPU at a very low
-level.  This can only be achieved in the assembly language of the
-processor and in a special \emph{protected} mode of operation.
-However, it is not necessary for the entire kernel to function under
-these conditions.  Device drivers are particularly notorious for
-causing system instability by doing so.  Through running as part of a
-monolithic kernel and assuming complete control, a buggy device driver
-can cause the entire system to crash.
+Some elements of the kernel require specialised operations which are
+only available when the processor is in a \emph{privileged} mode of
+operation.  As they are generally unique to a particular processor
+architecture, they also require the code to be written in assembly
+language.  However, these restrictions need not apply to the entire
+kernel.  Device drivers are particularly notorious for causing system
+instability by having this level of control.  This is especially true
+when such drivers are provided by third parties who are not as
+familiar with the operating system code as the core developers.
 
 Instead, in MINIX 3, device drivers operate as separate privileged
 processes.  Unlike normal user-level processes, they have the ability
 to request direct access to hardware but such access is achieved
-through message passing to the underlying core of the kernel.  The
-majority of the driver's operation takes place in userspace and any
-low-level access can be monitored and potentially prohibited.
+through passing messages to a minimal kernel.  The majority of the
+driver's operation takes place in userspace and any low-level access
+can be monitored and potentially prohibited.  Other components can
+operate with even fewer privileges; file systems and network protocols
+need only the means to transfer a sequence of bytes to disc or down
+the wire.
 
-The Mach and GNU HURD kernels (the former currently
-\cite{hurd:critique} forming the basis for the latter) take a similar
-approach.  The central mantra behind this design is one of multiple
-servers, which provide different functionality such as a file system
-or network service.  Apple also adopted this design for XNU, the Mac
-OS X kernel, but, while basing it on Mach, they largely reduced the
-design to a single server running a monolithic BSD-based kernel.
+The Mach kernel, developed at Carnegie Mellon University, takes a
+similar approach with the central mantra being one of multiple
+servers, which provide different operating system services.  The GNU
+HURD kernel is currently based on Mach, though a number of more recent
+microkernels are now being considered, due to issues with Mach's
+design\cite{hurd:critique}.  Apple also adopted this design for XNU,
+the Mac OS X kernel, but, while basing it on Mach, they largely
+reduced the design to a single server running a monolithic BSD-based
+kernel.  MINIX 3, XNU and the HURD all try to implement a
+component-based design while retaining compatibility with existing
+monolithic UNIX systems, and so compromises have to be made.  While
+Mac OS X is easily the most widely used of these examples, it has had
+to sacrifice the most to achieve this.
 
 The traditional objection against such designs has been performance.
 Designs based on intercommunication have always tended to be more
@@ -650,15 +659,95 @@ elegant, but their usage has tended to be restricted to distributed
 systems such as web services.  In these circumstances, any design
 approach necessitates utilising a potentially slow connection to
 another system and having a central resource upon which all others
-rely becomes disadvantageous, due to the potential for failure.
+rely becomes disadvantageous, due to the potential for failure.  That
+said, the most popular web services in use today do not follow the
+component-based design that would allow the dream of composite web
+services\cite{cashews-sem} to become a reality; the likes of Facebook,
+Twitter and Last.fm \cite{facebook, amazon, twitter, lastfm} all
+provide web service interfaces which simply wrap an earlier monolithic
+object-oriented design.  Others, such as Amazon\cite{amazon}, now
+focus on providing a utility service, offering processing power and
+storage for a price, while Google\cite{google} prefer to target users
+with complete applications.
 
 We believe it is time to reevaluate the benefits of systems focused on
 intercommunication between specialised components.  With modern
 systems, the potential performance disadvantage is becoming outweighed
 by the benefits of a cleaner and more sustainable design.  With the
-increasing prevalance of truly concurrent systems, more monolithic
-systems will face a clear disadvantage, as the potential for
-parallelism is severely reduced by contention for shared resources.
+increasing prevalance of truly concurrent systems, monolithic designs
+will face a clear disadvantage, as the potential for parallelism is
+severely reduced by contention for shared resources.
+
+\section{Our Proposed Solution}
+
+There are already many examples of computational models which
+represent concurrent behaviour and its issues in the academic
+literature.  We will cover some of these in depth in chapters
+\ref{apc}, \ref{globsync} and \ref{mobility}.  However, these have
+been largely ignored by the software industry, as has one of their
+main uses; formal verification.  This is primarily due to inertia;
+developers have little time to invest in learning new techniques and
+so stick to those they know and which have proved successful in the
+past.
+
+Change does occur when there is little other sensible choice and it
+makes good business sense to do so.  We have already seen this with
+object-oriented programming (OOP). It took about twenty years for OOP
+to become widely adopted from its initial inception in academia, and
+then, as we discussed in \ref{ipc}, it was in a form much closer to
+existing sequential models.  The change happened as programs became
+larger and their design made them more and more unmaintainable, to the
+point where the cost of doing so was more than adopting a different
+technique, in this case OOP.
+
+We have reached an equivalent juncture now with relation to
+concurrency.  Programs have continued to become larger and more
+bloated with features, but the increasing speed of microprocessors has
+allowed a state of equilibrium to be maintained.  This is no longer
+so.  Now, when users go out to purchase a new computer, they are
+likely to get one with twice the number of processors than the one
+they had before, rather than twice the speed.  Because their programs
+will be largely monolithic, they won't see much of a performance
+increase in their new purchase; the same application will still be
+running on a single processor of about the same speed.
+
+Thus, software designers need to seriously start thinking about how
+they can best utilise this new hardware and this undoubtably requires
+a shift in the underlying design.  What we propose here is a
+compromise; we introduce a new framework (chapter \ref{dynamite}) with
+a task-oriented design methodology, while retaining as many familiar
+ideas as possible.  Unlike efforts such as \cite{obliq},
+\cite{daveturner:phd}, \cite{wojciechowski:phd} and
+\cite{sangiorgi:safeambientsmachine}, we avoid introducing a
+completely new programming language.  Instead, we build on top of an
+existing one (Java) which is already familiar to many software
+developers and which uses constructs with which they are already
+familiar.  In doing so, we remove a huge barrier to adoption; the
+implementation of the framework is no longer some mysterious mass of
+code written in an obscure functional language, but a Java library
+like any other which developers may even be able to contribute to with
+time.  In this form, it still provides the advantage of abstracting
+away from many of the low-level details we saw in \ref{semaphores},
+while also being much more approachable.
+
+We still follow these earlier examples in basing the framework on a
+theoretical model.  This allows us to leverage years of academic work
+in this area, and allows for the possibility of reasoning over such
+programs in the future.  However, we approach this from the point of a
+view of a software developer wanting an implementation with the
+benefits of a theoretical basis, rather than as a process algebraist
+looking to write code in their favourite calculus.
+
+To this end, we base our framework on our own calculus, which is
+compromised of what we believe to be some of the best of the existing
+ideas present in the literature.  We believe our particular
+combination to be novel, as are the way in which some features are
+presented, in particular the notion of `bouncers'; its formation and
+use is discussed at length in chapters \ref{nt} and \ref{tnt}.
+However, our primary aim is not to provide a vastly superior calculus,
+but one which best suits its position at the core of our framework.
+
+\subsection{A Prototypical Application}
 
 \section{Contributions to Knowledge}
 
