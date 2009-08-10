@@ -18,8 +18,8 @@ However, this leads to a problem.  The existing dominant methods for
 designing software systems are inherently sequential.  Current
 imperative and object-oriented programming languages are still founded
 on the principles of early computational models, such as the Turing
-machine \cite{turing:36}.  These take a idealised view of events
-whereby they always occur sequentially and in isolation.  Programs are
+machine \cite{turing:36}.  These take an idealised view of events
+where they always occur sequentially and in isolation.  Programs are
 thus still effectively written as a sequence of reads and writes to a
 form of memory.  The problem with this approach is that it runs into
 major issues when the execution of other programs may cause changes to
@@ -32,7 +32,7 @@ In this thesis, we advocate a move towards systems where the focus is
 on interaction between minimal sequential subsystems.  Rather than
 building huge monolithic structures, the same result can be achieved
 using a number of smaller components, running in parallel.  Such a
-design has been suggested in varying forms over the years, but due to
+strategy has been suggested in varying forms over the years, but due to
 the perceived future evolution of the microprocessor, this is now an
 essential requirement, rather than a design ideal or optimisation.  We
 also provide a formal grounding for such designs, based on academic
@@ -48,7 +48,7 @@ which is becoming more and more distant from reality.  We also look at
 how restricted mutability and an emphasis on intercommunication
 between smaller, more specific processes can provide a better
 solution, and how this approach has been adopted in the past with
-varying results.  We close with a summary of the novelty of this work,
+varying success.  We close with a summary of the novelty of this work,
 and an overview of how this will be covered in the later chapters of
 this thesis.
 
@@ -57,14 +57,14 @@ this thesis.
 \subsection{Multiprogramming}
 
 Concurrency is nothing new.  The concept of executing multiple
-programs at once has been in use since \emph{multiprogramming} was
-first introduced back in the 1960s.  But the same underlying model has
-remained.  Parallelism is still seen as an optimisation, beholden to
-the maintenance of the sequential standard.  Utilising concurrency
-within a program remains relegated to study as an advanced feature,
-seldom taught and even less well practiced.  If parallelism is to
-become the dominant means of exploiting the power of future hardware,
-this needs to change.
+programs at the same time has been in use since
+\emph{multiprogramming} was first introduced back in the 1960s.  But
+the same underlying model has remained.  Parallelism is still seen as
+an optimisation, beholden to the maintenance of the sequential
+standard.  Utilising concurrency within a program remains relegated to
+study as an advanced feature, seldom taught and even less well
+practiced.  If parallelism is to become the dominant means of
+exploiting the power of future hardware, this needs to change.
 
 Multiprogramming was introduced as an efficiency measure.  At the
 time, machines were available only on a per-institution rather than
@@ -108,15 +108,15 @@ the scheduler.
 Over time, schedulers have been extended so as to also switch when a
 quantum of time allocated to a process has been depleted.  This
 ensures a greater degree of fairness; a processor-intensive task which
-rarely blocks can no longer become overly dominant.  This wasn't of
-great importance for batch systems, as users submitted a job and then
-collected the results later on.  In this context, just utilising the
-time when a process was blocked had a significant impact on perceived
-performance.  However, with a move towards first time sharing and then
-personal computer systems, it became necessary to ensure that each
-process was given time to execute on a regular basis, so the system
-remained responsive.  This concept is referred to as
-\emph{preemption}.
+rarely blocks can no longer become overly dominant.  For batch
+systems, this wasn't of great importance (provided the process
+eventually terminated) as users submitted a job and then collected the
+results later on.  In this context, just utilising the time when a
+process was blocked had a significant impact on perceived performance.
+However, with a move towards first time sharing and then personal
+computer systems, it became necessary to ensure that each process was
+given time to execute on a regular basis, so the system remained
+responsive.  This concept is referred to as \emph{preemption}.
 
 Finally, further performance enhancements were made possible by
 allowing processes to have multiple threads of control and extending
@@ -124,19 +124,19 @@ the scheduler to enable switching between the individual threads
 within a process.  The advantage of such threading is that the threads
 share the same memory space and thus may interoperate more easily and
 more efficiently.  The disadvantage is that it makes the possibility
-of contention much more likely.
+of \emph{contention} much more likely.
 
 \subsection{Resource Contention}
 
-Concurrency issues arise when a resource is accessed by multiple
-processes or threads at the same time.  With threads, this is a
-frequent occurrence as they run the same code and access the same
-variables.  It also occurs with processes; although they have their
-own memory space in which to operate, the resources provided by the
-underlying operating system are shared by them all.  An obvious
-example is the filesystem.  What happens if more than one process
-tries to access a file at the same time?  Unless only reads occur, the
-possibility of data corruption arises.
+Concurrency issues arise when multiple processes or threads contend
+for access to the same resource.  With threads, this is a frequent
+occurrence as they run the same code and access the same variables.
+It also occurs with processes; although they have their own memory
+space in which to operate, the resources provided by the underlying
+operating system are shared by them all.  An obvious example is the
+filesystem.  What happens if more than one process tries to access a
+file at the same time?  Unless only reads occur, the possibility of
+data corruption arises.
 
 Such bugs, known as \emph{race conditions}, are difficult to reproduce
 as they are heavily dependent on timing.  This is especially true of
@@ -199,20 +199,20 @@ resource, so that a process is forced to wait its turn.
 
 Such access limitations can be imposed by a \emph{semaphore}, a
 solution first proposed by Dijkstra\cite{semaphore}.  A semaphore
-maintains an integer count which is manipulated by two operations:
-\emph{up} and \emph{down}.  The count can be used to limit the number
-of threads of control active in a particular region.  In effect, this
-is akin to the scenario where a gate requires a token in order to
-allow someone (a thread) to pass through, but the number of such
-tokens is limited.  When a thread wants to pass through the gate, it
-attempts to acquire a token by executing the down operation.  If the
-count maintained by the semaphore is greater than zero, then it will
-be decremented and the thread can proceed through the gate.  However,
-if it is zero, there are no tokens left so the thread is forced to
-wait until one of the existing tokens is returned.  Tokens are
-returned by executing the up operation.
+maintains an integer count which is manipulated by two operations: \texttt{up}
+and \texttt{down}.  The count can be used to limit the number of threads of
+control active in a particular region.  In effect, this is akin to the
+scenario where a gate requires a token in order to allow someone (a
+thread) to pass through, but the number of such tokens is limited.
+When a thread wants to pass through the gate, it attempts to acquire a
+token by executing the \texttt{down} operation.  If the count maintained by
+the semaphore is greater than zero, then it will be decremented and
+the thread can proceed through the gate.  However, if it is zero,
+there are no tokens left so the thread is forced to wait until one of
+the existing tokens is returned.  Tokens are returned by executing the
+\texttt{up} operation.
 
-The up and down operations must be atomic; it should not be possible
+The \texttt{up} and \texttt{down} operations must be atomic; it should not be possible
 for such an operation to be interrupted.  If they can, then the whole
 purpose of the semaphore is defeated; a further solution would be
 needed to resolve the possible concurrency issues that may occur
@@ -220,11 +220,11 @@ inside the semaphore itself.  Most operating systems provide such
 atomicity by using support available at the processor level.
 
 \emph{Binary semaphores}, where the count is either zero or one, are
-very common.  Such semaphores can be implemented in a more simplified
-form known as a \emph{mutex}, which maintains a binary state
+very common.  Such semaphores can be implemented in a simplified form
+known as a \emph{mutex}, which maintains a binary state
 (locked/unlocked) rather than a count.  Locking a mutex is equivalent
-to decrementing the count to zero via a down operation, and unlocking
-it is the same as performing an up to return its value to one.  The
+to decrementing the count to zero via a \texttt{down} operation, and unlocking
+it is the same as performing an \texttt{up} to return its value to one.  The
 usage pattern is the same for both: a thread first locks the mutex,
 does its work and then unlocks the mutex to allow others access.
 
@@ -258,14 +258,14 @@ interim.  The final call to \texttt{flock} releases the lock so the
 second process may now proceed.
 
 Semaphores also have signalling capabilities; threads waiting to
-perform a down operation are woken when an up occurs on the same
-semaphore.  They can then retry the down operation again and return,
+perform a \texttt{down} operation are woken when an \texttt{up} occurs on the same
+semaphore.  They can then retry the \texttt{down} operation again and return,
 having decremented the value of the semaphore, should the operation
 succeed on this attempt.  Given that there may be multiple waiting
-threads, there is no guarantee that a thread will do so; for each up
-operation, only one down operation will be successful and any other
+threads, there is no guarantee that a thread will do so; for each \texttt{up}
+operation, only one \texttt{down} operation will be successful and any other
 threads will again be forced to wait.  Again, this race is why it is
-essential that the down operation itself is atomic.
+essential that the \texttt{down} operation itself is atomic.
 
 Suppose we want to implement a bounded buffer which is accessed by
 multiple threads.  We need to use semaphores both to prevent possible
@@ -321,27 +321,27 @@ with a value equal to the size of the buffer, while the \texttt{full}
 mutex begins with a value of zero.
 
 In the \texttt{produce} function, the thread first checks if there are
-any empty slots by performing a \texttt{down} operation on the
-\texttt{empty} mutex.  If the \texttt{empty} semaphore has a non-zero
-value, as at the beginning, then there are available slots in the
-buffer and the operation will return after decrementing the value by
-one.  In this case, the thread can then proceed to lock the buffer
-using the \texttt{mutex} and add an item to it.  It then releases the
-\texttt{mutex} and performs an \texttt{up} operation on the
-\texttt{full} semaphore, increasing the number of slots in use and
-potentially allowing those threads waiting in the \texttt{consume}
-function to proceed.  The \texttt{consume} function itself is
-effectively the inverse of the \texttt{produce} function; it checks
-the number of full slots to begin with, using the \texttt{full}
-semaphore, and increases the number of empty slots when done.
+any empty slots by performing a \texttt{down} operation on the \texttt{empty}
+mutex.  If the \texttt{empty} semaphore has a non-zero value, as at
+the beginning, then there are available slots in the buffer and the
+operation will return after decrementing the value by one.  In this
+case, the thread can then proceed to lock the buffer using the
+\texttt{mutex} and add an item to it.  It then releases the
+\texttt{mutex} and performs an \texttt{up} operation on the \texttt{full}
+semaphore, increasing the number of slots in use and potentially
+allowing those threads waiting in the \texttt{consume} function to
+proceed.  The \texttt{consume} function is effectively the inverse of
+the \texttt{produce} function; it checks the number of full slots to
+begin with, using the \texttt{full} semaphore, and increases the
+number of empty slots when done.
 
-The examples above are fairly simple, but already demonstrates some of
-the inherent problems with the use of semaphores.  A successful
+The examples above are fairly simple, but already demonstrate some of
+the problems inherent with the use of semaphores.  A successful
 strategy for using them requires placing acquisition and release calls
 in all affected locations and is extremely prone to error.  Suppose
 one of the processes above never relinquishes the lock on the file.
-Or a thread never performs an \texttt{up} on the mutex.  Other threads
-or processes wishing to acquire the lock or mutex will be blocked
+Or a thread never performs an \texttt{up} on the mutex.  Other threads or
+processes wishing to acquire the lock or mutex will be blocked
 forever.  Similarly, it takes only one miscreant to access the shared
 resource without attempting to acquire a lock to make the whole
 process of locking redundant.
@@ -355,13 +355,13 @@ held by another waiting process.  In the buffer example, simply
 altering the order of the \texttt{down} calls in the \texttt{consume}
 function is enough to create a potential deadlock situation.  If a
 thread manages to acquire the mutex but is then forced to wait for an
-up on the \texttt{full} semaphore, no other thread will be able to
+\texttt{up} on the \texttt{full} semaphore, no other thread will be able to
 acquire the mutex in the meantime.  Only in the unlikely situation
 that a thread has been stopped between the \texttt{up(mutex)} and the
 \texttt{up(full)} calls in the \texttt{produce} function would this
 deadlock be resolved.  In most cases, the other threads will attempt
 to acquire the mutex before reaching the required \texttt{up(full)}
-call and so end up waiting forever.
+call and so are left waiting forever.
 
 By far the biggest issue with these kind of problems is
 reproducability.  Just as with the race conditions they are trying to
@@ -429,8 +429,8 @@ While semaphores just require some means of performing an atomic
 change to an area of memory, monitors need the compiler or virtual
 machine to be intelligent enough to parse the monitor structures and
 convert them into appropriate uses of more low-level locking
-constructs.  One such language in which support is provided is Java,
-as can be seen in the example below:
+constructs.  One language in which support is provided is Java, as can
+be seen in the example below:
 
 \begin{verbatim}
 public class Buffer
@@ -480,7 +480,7 @@ realised as the \texttt{wait} and \texttt{notifyAll} methods of the
 \texttt{Object} class rather than being functions applied to condition
 variables.  One downside of these changes is that the addition of
 selective mutual exclusion makes it prone to error; although it is
-more efficient to not lock the entire class whenever any method is
+more efficient not to lock the entire class whenever any method is
 called, this also means that one may forget to use the
 \texttt{synchronized} keyword just as one may forget to perform the
 appropriate operation on a semaphore.
@@ -501,12 +501,12 @@ awoken by the \texttt{notifyAll()} call.  As before, if many threads
 are waiting, it may be the case that the buffer is already full again
 by the time a particular thread is allowed to execute.
 
-The \texttt{synchronized} blocks are the equivalent of the the use of
-the \texttt{mutex} semaphore; the opening bracket is the \texttt{down}
+The \texttt{synchronized} blocks are the equivalent of the use of the
+\texttt{mutex} semaphore; the opening bracket is the \texttt{down}
 operation, while the closing bracket is the \texttt{up}.  Once a
 thread is executing code inside one of these blocks, another thread
-may not enter such a block, whether this be the same one or that in
-the other method.  Modifications to the \texttt{buffer} and
+may not enter such a block, whether this be the same one or another in
+the same class.  Modifications to the \texttt{buffer} and
 \texttt{item} variables only take place within these blocks, thus
 ensuring that only one thread can do so at a time.  Both variables are
 marked \texttt{private}, making them invisible to code outside this
@@ -515,7 +515,7 @@ class.
 What is clear from our comparison is that there are few advantages to
 using monitors; they are prone to similar low level errors to those we
 saw with semaphores, and they also require support from the language
-being used, which may not always be possible.  Ideally, we instead
+being used, which may not always be available.  Ideally, we instead
 need to take a step back and limit the need for such locks altogether
 by reducing the number of shared resources and the amount of
 mutability inherent in our designs.  Not only are such designs prone
@@ -541,25 +541,46 @@ Although mainstream development has migrated from procedural programs
 to the \emph{object-oriented} paradigm, programs, once compiled, still
 tend to be monolithic entities, with generally only a single thread of
 control.  The notion of objects we see being used is not that of
-Simula\cite{simula}, but one which is much more \emph{data-centric}.
-These objects allow data to be separated out into neat little bundles
-and stimulate reuse by allowing hierarchies of derived behaviour to be
-created.  But there is no relationship between objects and threads;
-when a method of an object is called, control switches from one object
-to another.  If multiple threads are in use, then the objects are
-shared between them and we see the kind of problems described above.
+Simula\cite{simula}, where they are \emph{task-centric} units with
+their own behaviour.  Instead, it is one which is much more
+\emph{data-centric}.  These objects allow data to be separated out
+into neat little bundles and stimulate reuse by allowing hierarchies
+of derived behaviour to be created.  But, there is no relationship
+between objects and threads; when a method of an object is called,
+control switches from one object to another.  If multiple threads are
+in use, then the objects are shared between them and we see the kind
+of problems described above.
 
 Solving this takes more than simply establishing a 1:1 relationship
-between threads and objects.  For most designs, this would be terribly
-inefficient and, in some cases, preposterous.  Because such designs
-are centered around the data in use, we have objects such as a
-\texttt{Borrower} in a library system.  We may have thousands of such
-borrowers, many of which are inactive for weeks or months at a time.
-Having a thread for each would simply be wasteful.  Instead, the
-solution is to make objects \emph{task-centric}.
+between threads and objects, because each unit is designed with a
+focus on the data being stored and not on the task being performed.
+Thus, for most designs, having an object per thread would be terribly
+inefficient and, in some cases, preposterous.  For example, an
+implementation of a library system would have a \texttt{Borrower}
+object.  A typical system may have thousands of such borrowers, many
+of which are inactive for weeks or months at a time.  Having a thread
+for each would be ridculously wasteful.  
 
-For a long time, UNIX systems have included the notion of pipelines
-between processes.  For example, the command \texttt{du}, which
+Instead, the solution is to again use objects which are task-centric.
+In the library example, the objects would focus on jobs such as
+issuing and returning books,and dependent tasks such as obtaining data
+on a borrower or book from the database.  In either scenario, there
+will be contention for database access, but in the task-centric
+variant, an object can be given the job of a database guardian,
+centralising all data storage issues in one place.
+
+There are many existing examples of this kind of \emph{component} or
+\emph{service}-based design, but they have so far failed to become the
+mainstream approach.  One of the earliest is the notion of pipelines
+between processes, which originated from UNIX systems\footnote{Other
+  systems have since adopted this technique, including those such as
+  MS-DOS which are single-tasking and thus can not actually pass data
+  between two processes.  Instead, they make use of
+  \emph{pseudo-pipelines}, where the first program outputs data to a
+  temporary file and the second then reads its input from that file.}
+Early UNIX programs were developed with the aim of doing a single task
+and doing it well, unlike the feature bloat apparent in many of
+today's applications.  For example, the command \texttt{du}, which
 calculates disk usage, doesn't include an option to sort the results.
 This is because there also exists a command, \texttt{sort} which can
 order an arbitrary block of text in a number of ways.  As such, there
@@ -627,7 +648,7 @@ The traditional objection against such designs has been performance.
 Designs based on intercommunication have always tended to be more
 elegant, but their usage has tended to be restricted to distributed
 systems such as web services.  In these circumstances, any design
-approach nesisitates utilising a potentially slow connection to
+approach necessitates utilising a potentially slow connection to
 another system and having a central resource upon which all others
 rely becomes disadvantageous, due to the potential for failure.
 
@@ -637,7 +658,7 @@ systems, the potential performance disadvantage is becoming outweighed
 by the benefits of a cleaner and more sustainable design.  With the
 increasing prevalance of truly concurrent systems, more monolithic
 systems will face a clear disadvantage, as the potential for
-parallelism is severly reduced by contention for shared resources.
+parallelism is severely reduced by contention for shared resources.
 
 \section{Contributions to Knowledge}
 
