@@ -26,6 +26,112 @@ implementation.
 
 \section{Why Java?}
 
+The first implementation of the Java programming language was released
+in 1995 by Sun Microsystems.  It takes the form of a block structured
+language with a syntax akin to C or C++.  However, unlike programs
+written in those languages, Java applications tend to be compiled to
+platform-independent Java bytecodes which are then executed by a Java
+Virtual Machine or JVM.  This allows the same Java program to be
+executed on multiple platforms without the need for recompilation.
+With this new operating environment comes the removal of a number of
+features found in Java's predecessors and the restriction of others,
+with the aim of creating a safer and more portable language:
+
+\begin{itemize}
+\item \textbf{No pointer manipulation}.  All primitive types in Java
+  (integer, floating point numbers, booleans and single characters)
+  are passed by value.  All objects are stored and passed as pointers
+  or references to their location in memory.  These pointers are
+  immutable, removing the ability to perform pointer arthimetic
+  (e.g. for iterating over arrays) and with it, a host of problems
+  inherent with inappropriate memory access.  For example, attempts to
+  use a \texttt{null} pointer are caught by the virtual machine and
+  produce a checked exception, rather than causing a segmentation
+  fault which brings down the entire process.
+\item \textbf{All arrays are bounds checked}.  A major cause of errors
+  and security issues in C and C++ programs is the possibility of
+  buffer overflows, where programs write to memory beyond the end of
+  an array.  In Java, such errors are prevented by the virtual
+  machine; any attempt to access an index outside the bounds of an
+  array causes a checked exception to be thrown and direct access to
+  the array's memory is forbidden by the lack of pointer manipulation.
+\item \textbf{All memory management is performed by a garbage
+  collector}.  While allowing manual memory management allows the
+  programmer greater control, it leads to an equivalent to the issue
+  we saw with semaphores in \ref{semaphores}; every allocation must be
+  paired with a later deallocation to avoid the possibility of an
+  application leaking memory.  The problem is even more pronounced
+  with regard to memory management as, while the acquisition and
+  release of a lock tend to occur in close proximity to one another,
+  allocation and deallocation can occur in quite disparate parts of
+  the application.  In Java, memory is instead managed by a
+  \emph{garbage collector} which allocates memory for objects as
+  needed and periodically reclaims those that are no longer
+  referenced.  The downside of this is that the garbage collector has
+  to use processor time to perform its scans which would otherwise be
+  used by the application.  However, as new garbage collection
+  techniques, such as concurrent and generational collectors, become
+  prevalent, this disadvantage is further outweighed by the prospect
+  of chasing memory leaks.
+\item \textbf{Lack of unsigned types}.  All integer types in Java use
+  a bit to store the sign of the value, with no equivalent unsigned
+  types that instead use this bit to store larger values.  This makes
+  bitwise operations (and (\texttt{\&}), or(\texttt{|}) and
+  not(\texttt{\~})) more inefficient as they need to operate on the
+  type one size above (bytes ($2^8$) on shorts ($2^{16}$), shorts on
+  ints ($2^{32}$), etc.).  Indeed, the Java
+  specification\cite{javaspec} specifies that the operands should be
+  converted to integer or long integer levels of precision before the
+  operation is performed.  Thus, it logically follows that it is
+  impossible to work with unsigned long integers ($2^64$) without
+  resorting to the overhead of a class which implements arbitrary
+  precision integers, such as \texttt{java.lang.BigInteger}.  Unsigned
+  types continue to be proposed for addition to the Java language, but
+  no such extension is scheduled for the next release (Java 7).
+\end{itemize}
+
+Although these changes are made at the expense of flexibility for the
+programmer and possible efficency gains, they save time overall in
+chasing bugs caused by memory allocation errors, buffer overflows or
+leaks.  Besides, the Java Native Interface (JNI) can be used to
+implement certain methods in C, should the need arise.  Many of the
+methods provided by the Java class library do just that, usually to
+make use of a platform-specific application programming interface
+(API).  Doing so has some overhead and means losing the safety and
+memory management benefits of Java, but is possible where necessary.
+
+Performance has been a common criticism of Java, not just because of
+these features but also because the Java bytecodes it uses must be
+either interpreted or compiled into native code at run time.  This is
+much less of an issue than it once was, due to advances in virtual
+machine design and Just-In-Time (JIT) compilation techniques.
+Theoretically, JIT compilation should eventually exceed the
+performance of code compiled Ahead-Of-Time (AOT) as it can take
+advantage of information only available at runtime.  This includes
+knowing the exact platform on which the code will execute and being
+able to make better optimisations based on statistics gathered through
+execution (e.g. better branch prediction).  For example, HotSpot, the
+virtual machine used by Sun's implementation of Java, only uses the
+JIT compiler to create native code when it believes the code is used
+enough (`hot' enough) to make doing so worthwhile.
+
+Of these changes, the absence of unsigned types is the only one that
+seems to have no advantage, other than simplifing the language.  Many
+file formats and network protocols include unsigned types, so working
+with them in Java becomes harder than is necessary.  Although their
+absence may have made sense in earlier versions of the language, the
+complexity of understanding unsigned arithmetic now seems trivial when
+compared with the existential type system and its reification added by
+the introduction of `\emph{generics}' in Java 5.  We thus hope that
+they may make an appearance in Java 8.
+
+\subsection{Concurrency in Java}
+
+From the perspective of implementing DynamiTE, one advantage of Java
+is its broad support for concurrency.  Java is one of the few
+languages to have an implementation of \emph{monitors}, a feature we
+demonstrated in \ref{semaphores}.
+
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
 
@@ -290,6 +396,9 @@ is one area in which we expect further study of the existing literature
 to enlighten us with more sophisticated ways of achieving such
 migration.
 
+\section{A Prototypical Application in DynamiTE}
+\label{app:dynamite}
+                                   
 \section{Related Work}
 \label{dyn:relatedwork}
 
