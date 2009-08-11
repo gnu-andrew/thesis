@@ -6,6 +6,26 @@
 
 \section{Introduction}
 
+In this chapter, we introduce DynamiTE, the Dynamic Theory Execution
+framework.  This provides the solution we first proposed in
+\ref{solution}, using the calculus introduced in \ref{nt} and
+\ref{tnt} as a foundation for application development.  Through using
+DynamiTE, programmers compose TNT processes, realised as Java objects,
+to create a working system.  The framework handles running these
+processes, in parallel if necessary, and negotiates the communication
+between them.  Both features are provided by leveraging existing
+facilities in the underlying Java virtual machine and class library.
+
+Over the course of this chapter, we will describe how TNT processes
+are mapped onto Java objects (see \ref{dyn:maptheory}) and then show
+how DynamiTE can be used to create an implementation of the
+application we introduced in \ref{protoapp} (see \ref{app:dynamite}).
+But first, we discuss why we chose Java as the host language for
+DynamiTE and what advantages and disadvantages this brings to its
+implementation.
+
+\section{Why Java?}
+
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
 
@@ -47,7 +67,7 @@ concurrent processing could also be provided by distinct processes
 spawned by the VM or a more complex distributed solution may become
 apparent.
 
-\section{The Channel Abstraction}
+\subsection{The Channel Abstraction}
 \label{dyn:channels}
 
 In the same vein, the implementation of synchronisation channels is
@@ -103,7 +123,7 @@ they can actually `see' each other, according to the constraints of the
 calculus, so the decision should still be left to an appropriate
 parallel composition operator.
 
-\section{Signalling}
+\subsection{Signalling}
 \label{dyn:signalling}
 
 One of the most interesting parts of the DynamiTE framework is the
@@ -205,7 +225,7 @@ determined as follows:
       will be replaced as appropriate (see chapter \ref{nt}). 
 \end{enumerate}
 
-\section{Structural Changes}
+\subsection{Structural Changes}
 \label{dyn:structchange}
 
 The \texttt{Environ} class also places a central role in providing
@@ -239,7 +259,7 @@ particular thread, and transferred via channels.  This gives additional
 purpose to the use of structural mobility and process migration, which
 we describe next.
 
-\section{Migration}
+\subsection{Migration}
 \label{dyn:migration}
 
 The final aspect of DynamiTE that we describe here is the migration of a

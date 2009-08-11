@@ -679,6 +679,7 @@ will face a clear disadvantage, as the potential for parallelism is
 severely reduced by contention for shared resources.
 
 \section{Our Proposed Solution}
+\label{solution}
 
 There are already many examples of computational models which
 represent concurrent behaviour and its issues in the academic
@@ -748,6 +749,7 @@ However, our primary aim is not to provide a vastly superior calculus,
 but one which best suits its position at the core of our framework.
 
 \subsection{A Prototypical Application}
+\label{protoapp}
 
 The best way to demonstrate the use of a framework is through example.
 Hence, through the course of this thesis, we present a music player
@@ -831,14 +833,14 @@ knowledge which we believe to be novel:
 \item The development of Nomadic Time, an algebraic process calculus
   with \emph{compositional global synchronisation}, \emph{mobility}
   and security provision via the notion of `\emph{bouncers}'
-  (c.f. chapter \ref{nt}).
+  (see chapter \ref{nt}).
 \item The addition of a \emph{type system} to the aforementioned calculus
   which provides movement restriction via the group membership of
-  processes (c.f. chapter \ref{tnt}); we refer to this extended
+  processes (see chapter \ref{tnt}); we refer to this extended
   version as Typed Nomadic Time (TNT).
 \item The realisation of TNT as a \emph{design framework}, DynamiTE,
   through the implementation of its constructs as programmatic
-  elements in the Java programming language (c.f. chapter
+  elements in the Java programming language (see chapter
   \ref{dynamite}).  This allows the specification of system
   interactions to be shifted directly from the theoretical domain into
   an implementation backed by a formal methodology, helping in turn to
