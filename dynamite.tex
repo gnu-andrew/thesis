@@ -8,21 +8,21 @@
 
 In this chapter, we introduce DynamiTE, the Dynamic Theory Execution
 framework.  This provides the solution we first proposed in
-\ref{solution}, using the calculus introduced in \ref{nt} and
-\ref{tnt} as a foundation for application development.  Through using
-DynamiTE, programmers compose TNT processes, realised as Java objects,
-to create a working system.  The framework handles running these
-processes, in parallel if necessary, and negotiates the communication
-between them.  Both features are provided by leveraging existing
-facilities in the underlying Java virtual machine and class library.
+\ref{solution}, using the Nomadic Time (NT) calculus introduced in
+\ref{nt} and \ref{tnt} as a foundation for application development.
+Through using DynamiTE, programmers compose NT processes, realised as
+Java objects, to create a working system.  The framework handles
+running these processes, in parallel if necessary, and negotiates the
+communication between them.  Both features are provided by leveraging
+existing facilities in the underlying Java virtual machine and class
+library.
 
-Over the course of this chapter, we will describe how TNT processes
-are mapped onto Java objects (see \ref{dyn:maptheory}) and then show
-how DynamiTE can be used to create an implementation of the
-application we introduced in \ref{protoapp} (see \ref{app:dynamite}).
-But first, we discuss why we chose Java as the host language for
-DynamiTE and what advantages and disadvantages this brings to its
-implementation.
+Over the course of this chapter, we will describe how NT processes are
+mapped onto Java objects (see \ref{dyn:maptheory}) and then show how
+DynamiTE can be used to create an implementation of the application we
+introduced in \ref{protoapp} (see \ref{app:dynamite}).  But first, we
+discuss why we chose Java as the host language for DynamiTE and what
+advantages and disadvantages this brings to its implementation.
 
 \section{Why Java?}
 
@@ -269,7 +269,7 @@ perfect but niche language.
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
 
-In this section, we show how the constructs of TNT introduced in
+In this section, we show how the constructs of NT introduced in
 chapter \ref{nt} are mapped on to Java classes by the DynamiTE
 framework.  Within this framework, developers can create concurrent
 applications simply by implementing the specific behaviour they
@@ -322,7 +322,7 @@ still.  This allows the user to have freedom of choice with respect to
 their chosen channel implementation, which may even be further extended
 by their own or third-party plugins.
 
-At its simplest, DynamiTE provides a way of testing TNT processes and
+At its simplest, DynamiTE provides a way of testing NT processes and
 ensuring they perform as expected.  In this respect, the simplest
 channel plugin is a dummy channel, which need do nothing more than
 simply exist.  More complex solutions are of course possible and are
@@ -374,7 +374,7 @@ to produce frameworks or languages based on process calculi (see section
 such a context is novel.
 
 The first question to answer when attempting to perform such a
-translation is where to actually locate the clocks.  Within TNT, the
+translation is where to actually locate the clocks.  Within NT, the
 obvious answer is within each environ, as these are responsible for
 providing the division between processes which can observe clock ticks
 and those which can not.  For example, the following environ
@@ -512,7 +512,7 @@ possibly located in a different physical location.
 
 Migrating an active process is not a simple operation.  Not only must
 any remaining code to be executed be transferred, but any local data
-must also migrate.  TNT does allow us to achieve a significant amount of
+must also migrate.  NT does allow us to achieve a significant amount of
 simplification here.  The transferred process is already separated from
 other code within the system by virtue of the moving process being in
 the form of a \texttt{Prefix} instance.  When the action is matched to

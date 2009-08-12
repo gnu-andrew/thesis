@@ -45,7 +45,7 @@ Observe the following programs,
 
 \noindent where we assume that each line is an atomic
 action\footnote{This is a simplification; for example, \texttt{x = x +
-    1} actually involves three atomic actions - reading the value of
+    1} actually involves three atomic actions -- reading the value of
   x, computing the value of x plus one and writing the result to x}.
 
 In a sequential system, such as may be modelled by a Turing machine or the
@@ -59,7 +59,7 @@ of \texttt{x} will always be equal to two immediately after execution,
 as the assignment takes place within a single atomic action.  However,
 in P2, another process is free to modify \texttt{x} (assuming
 \texttt{x} is globally accessible) between the assignment of the value
-1 and the later summation which makes \texttt{x} 2.
+1 and the later summation which makes \texttt{x} equal to 2.
 
 Thus, if P2 is run in parallel with a third program,
 
@@ -84,7 +84,7 @@ isolated environment and doesn't access any common resources, then no
 interactions will take place and a sequential model for each would be
 suitable.  Indeed, this is the way most operating systems handle
 running multiple programs.  Thus, it follows that sequential models
-are not distinct from concurrent models, but a subset where this
+are not distinct from concurrent models, but form a subset where this
 additional restriction of isolation applies.
 
 The problem is that using sequential models to design and evaluate
@@ -95,17 +95,17 @@ control to be operable; one is needed to await and handle any user
 interaction, while the other actually executes the operations of the
 program, even if that simply involves updating the display while idle.
 As multi-core processors make more machines capable of \emph{true
-  concurrency}\footnote{where operations are actually performed
-  simultaneously, rather than this being emulated by the system
-  scheduler} and distributed computing paradigms, such as services,
-become more prevalent, the need to accurately model the possible
-interactions increases.  Concurrency raises issues outside the reach
-of traditional sequential models of computation, so to adequately work
-with concurrent systems, we need appropriate formal models to
-highlight potential flaws and to allow us to account for any issues
-these may raise in the design of the program.  Many such models have
-been developed, and over the next three chapters, we will consider a
-subset of these.
+  concurrency}\footnote{In truly concurrent systems, operations are
+  actually performed simultaneously, rather than this being emulated
+  by the system scheduler.} and distributed computing paradigms, such
+as services, become more prevalent, the need to accurately model the
+possible interactions increases.  Concurrency raises issues outside
+the reach of traditional sequential models of computation, so to
+adequately work with concurrent systems, we need appropriate formal
+models to highlight potential flaws and to allow us to account for any
+issues that may arise in the design of the program.  Many such models
+have been developed, and over the next three chapters, we will
+consider a subset of these.
 
 \section{The Calculus of Communicating Systems (CCS)}
 \label{ccs}
@@ -116,11 +116,11 @@ opposed to the true concurrency of Mazurkiewicz trace theory
 \cite{maz:trace} or the graphical style associated with Petri nets
 \cite{petri:phd} and Hewitt's Actor model \cite{hewitt:actor}.
 Interaction between processes is via message-passing, rather than via
-a common shared memory\footnote{Although shared memory and
-  message-passing are not orthogonal; a shared memory space may be
-  represented as a communicating resource in a message-passing system,
-  while message queues can be implemented using shared memory.} or a
-tuple space \cite{linda}.
+a common shared memory\footnote{Shared memory and message-passing are
+  not orthogonal; a shared memory space may be represented as a
+  communicating resource in a message-passing system, while message
+  queues can be implemented using shared memory.} or a tuple space
+\cite{linda}.
 
 The foundational calculi in this field are Hoare's CSP
 \cite{hoare:csp78}, Milner's CCS \cite{milner:ccs} and Bergstra and
@@ -133,18 +133,19 @@ work.  ACP shares many of the ideas of CCS, and can be regarded as an
 `alternative formulation' \cite{acp}, using a similar set of operators
 to achieve a different goal.
 
-Here, the focus is on CCS, as it forms the basis for most of the other
-calculi considered, including the $\pi$ calculus \cite{picalctutorial}
-(see \ref{picalculus}) and CaSE \cite{CaSE} (see \ref{case}).  Of the
-three, CCS has the most minimal syntax with additional features such
-as failure (represented in both CSP and ACP) needing to be derived
-from or appended to this core set.  From a theoretical perspective,
-this is advantageous, as it makes reasoning over the calculus simpler,
-and, as will be seen in later chapters, further syntax can be added to
-represent further features if necessary.
+In our work, the focus is on CCS, as it forms the basis for most of
+the other calculi considered, including the $\pi$ calculus
+\cite{picalctutorial} (see \ref{picalculus}) and CaSE \cite{CaSE} (see
+\ref{case}).  Of the three foundational calculi, CCS has the smallest
+syntax with additional features such as failure (represented in both
+CSP and ACP) needing to be derived from or appended to this core set.
+From a theoretical perspective, this is advantageous, as it makes
+reasoning over the calculus simpler, and, as will be seen in later
+chapters, further syntax can be added to represent further features if
+necessary.
 
-In CCS, processes are modelled as terms ranged over by $E, F$.  These
-process terms have the following syntax:
+In CCS, processes can be modelled as terms ranged over by $E, F$.
+These process terms have the following syntax:
 
 \begin{equation}
 \label{ccssyntax}
@@ -161,57 +162,56 @@ process terms have the following syntax:
 
 \noindent where $\alpha$, $a$ and $f$ are explained below.
 
-The behaviour of a process is described as a sequence of actions.
-This can be seen in the above grammar, where $0$ represents the empty
-process (which exhibits no behaviour) and $\alpha.E$ is the action
-prefix used for the limited sequential composition of actions, where
-$\alpha \in \actions$ and $\actions = \names \cup
-\overline{\names} \cup \{\tau\}$. The internal behaviour of the
-processes is abstracted, represented simply by the silent action
-$\tau$.  External behaviour is described using members of
-$\names$, an infinite set of names, and $\overline{\names}$,
-the corresponding set of co-names $\{\overline{a} | a \in
-\names\}$.  These names are usually used to represent
-\emph{channels} upon which the processes communicate.  Under such an
+External behaviour is described using members of $\names$, an infinite
+set of names, and $\overline{\names}$, the corresponding set of
+co-names $\{\overline{a} \mid a \in \names\}$.  These names are usually
+used to represent \emph{channels} upon which the processes
+communicate.  The internal behaviour of the processes is abstracted,
+represented simply by the silent action $\tau$.  Under such an
 interpretation, $a.E$ (where $a \in \names$) represents a process
 whose first action is an input on the channel $a$, whereas
 $\overline{a}.E$ (where $\overline{a} \in \overline{\names}$)
-represents a process which initially outputs on $a$.
+represents a process which initially outputs on $a$.  The behaviour of
+a process is thus described in terms of atomic actions.  This can be
+seen in the first two cases above, where $0$ represents the empty
+process (which exhibits no behaviour) and $\alpha.E$ represents action
+prefix (used for the limited sequential composition of actions), where
+$\alpha \in \actions = \names \cup \overline{\names} \cup \{\tau\}$.
 
-Thus, a single process is defined as a sequence of inputs, outputs and
+Thus, a basic process is defined as a sequence of inputs, outputs and
 silent actions.  Each step in the sequence is a state from which the
 process may \emph{perform} an action in order to transition to a new
 state.  For example, $a.E$ may perform the action $a$ and become $E$.
 We represent this using the notation $a.E \derives{a} E$.
 
-For two processes to actually communicate with one another, they must
+For two processes to communicate with one another, they must
 \emph{synchronize}; they must perform a corresponding pair of actions
 (e.g. $a$ and $\overline{a}$) at the same time.  For this to occur,
 the two processes must be running in parallel.  Parallel composition
 in CCS is represented by the $|$ operator.  When two processes are
-composed in this way, they may both perform their corresponding input
-and output actions simultaneously, resulting in a single $\tau$
-transition which changes the state of both processes.
+composed in this way, they may perform their corresponding input and
+output actions simultaneously, resulting in a single $\tau$ transition
+which changes the state of both processes.
 
-For instance, if $E$ is considered to be $a.0$ and $F$ to be
-$\overline{a}.0$, then the process formed by the composition of these
+For instance, if $E$ is considered to be $a.E'$ and $F$ to be
+$\overline{a}.F'$, then the process formed by the composition of these
 two processes, $E|F$ may initially perform one of three actions, $a$,
 $\overline{a}$ or $\tau$, to give three possible derivations:
 
 \begin{enumerate}
-\item $E\ |\ F \derives{a} 0|F$
-\item $E\ |\ F \derives{\overline{a}} E|0$
-\item $E\ |\ F \derives{\tau} 0|0$
+\item $E\ |\ F \derives{a} E'|F$
+\item $E\ |\ F \derives{\overline{a}} E|F'$
+\item $E\ |\ F \derives{\tau} E'|F'$
 \end{enumerate}
 
 \begin{figure}  
   \centering
 \[
 \xy
-(20,0)*{a.\nil \mid \overline{a}.\nil}="1";
-(0,-15)*{a.\nil \mid \nil}="2";
-(40,-15)*{\nil \mid \overline{a}.\nil}="3";
-(20,-30)*{\nil \mid \nil}="4";
+(20,0)*{a.E' \mid \overline{a}.F'}="1";
+(0,-15)*{a.E' \mid F'}="2";
+(40,-15)*{E' \mid \overline{a}.F'}="3";
+(20,-30)*{E' \mid F'}="4";
 {\ar@/^2pc/^{a} "1";"3"};
 {\ar@/_2pc/_{\overline{a}} "1";"2"};
 {\ar@/^2pc/^{\overline{a}} "3";"4"};
@@ -226,27 +226,26 @@ $\overline{a}$ or $\tau$, to give three possible derivations:
 
 This is illustrated in Fig. \ref{fig:graph1}.  To make the derivation
 of $E|F$ deterministic, the scope of $a$ can be restricted.  In CCS,
-an action or co-action can be paired with any converse action which is
-within its scope.  To force the input of $E$ to be paired with the
-output of $F$ in the above, the scope of $a$ must thus be restricted
-so as to only include the two processes, $E$ and $F$.  This is handled
-by another operator in the core syntax, $\backslash$.  Its operand $a$
-is the name of a channel whose scope is restricted to that of $E$, the
-left operand.  So, in this case, $(E|F)\backslash a$ appropriately
-limits the possible derivations to just $\derives{\tau}$.
+an action or co-action can be paired with any complementary action
+which is within its scope.  To force the input of $E$ to be paired
+with the output of $F$ above, the scope of $a$ must be restricted so
+as to include only $E$ and $F$.  This is handled by another operator
+in the core syntax, $\backslash$.  Its operand $a$ is the name of a
+channel whose scope is restricted to the process given as its left
+operand.  So, in this case, $(E|F)\backslash a$ appropriately limits
+the possible derivations to just $\derives{\tau}$.
 
-The remaining binary CCS operator is $+$, which provides
-non-deterministic choice between two processes.  While the parallel
-composition operator represents two processes running in parallel, $+$
-corresponds to the familiar idea of branching found in sequential
-models and takes place within a single process.  $E$ and $F$ thus
-represent two possible sequences of actions which may or may not
-occur.  Using the same two exemplar processes again, $E + F$ may
-derive as follows:
+The remaining binary operator is $+$, which provides non-deterministic
+choice between two processes.  While the parallel composition operator
+represents two processes running in parallel, $+$ corresponds to the
+familiar idea of branching found in sequential models.  $E$ and $F$
+thus represent two possible behaviours which may or may not occur.
+Using the same two exemplar processes again, $E + F$ may derive as
+follows:
 
 \begin{enumerate}
-\item $E\ +\ F \derives{a} 0$
-\item $E\ +\ F \derives{\overline{a}} 0$
+\item $E\ +\ F \derives{a} E'$
+\item $E\ +\ F \derives{\overline{a}} F'$
 \end{enumerate}
 
 
@@ -254,10 +253,14 @@ derive as follows:
   \centering
 \[
 \xy
-(20,0)*{a.\nil + \overline{a}.\nil}="1";
-(20,-30)*{\nil}="2";
-{\ar@/^2pc/^{a} "1";"2"};
+(20,0)*{a.E' \mid \overline{a}.F'}="1";
+(0,-15)*{F'}="2";
+(40,-15)*{E'}="3";
+{\ar@/^2pc/^{a} "1";"3"};
 {\ar@/_2pc/_{\overline{a}} "1";"2"};
+%{\ar@/^2pc/^{\overline{a}} "3";"4"};
+%{\ar@/_2pc/_{a} "2";"4"};
+%{\ar^{\tau} "1";"4"};
 \endxy
 \]
 %  \includegraphics[scale=0.5]{graph2}
@@ -269,26 +272,26 @@ Again, this is illustrated in Fig. \ref{fig:graph2}.  There are
 clearly similarities between the possible derivations from $E|F$ and
 $E+F$, but with choice, there is no possibility of synchronisation and
 only one of the two transitions, $a$ and $\overline{a}$ is ever
-performed.  The other is lost after the process makes its decision.
+performed.  The other is lost after the process makes its decision,
+whereas with composition, it is possible to perform both actions, one
+after the other.
 
-The remaining operators in CCS handle recursion and relabelling.  $\mu
-X.E$ binds X with the value of $E$, so that later occurrences of $X$
+The remaining operators in CCS handle recursion and relabelling.  The
+process $\mu X.E$ binds $X$ to $E$, so that later occurrences of $X$
 are replaced with $E$.  For example, $\mu X.a.X$ can perform an $a$
 transition to become $\mu X.a.X$ again.  The function, $f$, in $E[f]$
-has the type $\names \rightarrow \names$ and renames actions, while
-preserving $\tau$ and complementation.  So $a.\overline{a}.\tau.0[a
-  \rightarrow b]$ is the same as $b.\overline{b}.\tau.0$ after the
-function is applied.
+has the type $\names \rightarrow \names$ and is used to rename actions
+and their complements.  For example, $a.\overline{a}.\tau.0[a
+  \rightarrow b]$ is $b.\overline{b}.\tau.0$.
 
 An operational semantics for CCS can be given in terms of a labelled
-transition system, $(\procs, \actions, \rightarrow)$.  $\procs$ is the
-set of CCS expressions formed from the above syntax, $\actions$ is as
-defined above and $\rightarrow$ is the transition relation.  The
-transition relation, $\mathop{\rightarrow} \mathrel{\subseteq} \procs
-\times \actions \times \procs$ is defined in Table
-\ref{tab:ccssemantics}.  We use $E$ and $F$ to range over process
-terms ($\procs$), $\alpha$ over the set of actions ($\actions$) and
-$a$ and $b$ over the set of names ($\names$).
+transition system, $(\procs, \actions, \rightarrow)$, where $\procs$
+is the set of CCS expressions formed from the above syntax, $\actions$
+is as defined above and $\mathop{\rightarrow} \mathrel{\subseteq}
+\procs \times \actions \times \procs$ is the transition relation
+defined in Table \ref{tab:ccssemantics}.  We use $E$ and $F$ to range
+over process terms ($\procs$), $\alpha$ over the set of actions
+($\actions$) and $a$ and $b$ over the set of names ($\names$).
 
 \begin{table}
   \caption{CCS Semantics}
@@ -366,88 +369,83 @@ divide their time between thinking and eating.  In order to eat, a
 philosopher must obtain two forks, necessitating some form of
 interaction.  This is a common situation in concurrency, where
 multiple parallel processes (the philosophers) need to gain access to
-a limited resource (the forks).
+shared resources (the forks).
 
-In cases where things go awry, \emph{deadlock} or \emph{starvation}
-may result.  For example, if all the philosophers simultaneously pick
-up the forks on their left, then none of them will be able to eat;
-they will all end up waiting on a fork held by another philosopher.
-The system is said to be \emph{deadlocked}, as none of the processes
-can obtain a lock on the resource it needs, as a lock is already held
-by one of the other processes\footnote{The solution to breaking this
-  deadlock is to break the symmetry; if the fifth philosopher tries to
-  take the fork on the right first, he or she will be unable to
-  proceed, but the first philosopher will, using the fifth
-  philosopher's left fork.}.  Alternatively, \emph{starvation} may
-result (literally in this case) if one of the philosophers never stops
-eating and consequently never releases the forks; the resources are
-unfairly distributed to the deficit of one of the processes.
+In cases where things go awry, deadlock or starvation may result.  For
+example, if all the philosophers simultaneously pick up the forks on
+their left, then none of them will be able to eat; they will all end
+up waiting for a fork held by another philosopher.  The system is said
+to be \emph{deadlocked}, as none of the processes can obtain a lock on
+the resource it needs, as a lock is already held by one of the other
+processes\footnote{The solution to breaking this deadlock is to break
+  the symmetry; if the fifth philosopher tries to take the fork on the
+  right first, he or she will be unable to proceed, but the first
+  philosopher will, using the fifth philosopher's left fork.}.
+Alternatively, \emph{starvation} may result (literally in this case)
+if one of the philosophers never stops eating and consequently never
+releases the forks; the resources are unfairly distributed to the
+deficit of one of the processes.
 
-Consider the dining philosopher's example
-illustrated above. Modelling this in CCS involves first ascertaining
-what processes form the basis of this `system'.  Clearly, each
-philosopher plays a part, so they should be represented by a process.
-Returning to the original definition of the problem, each philosopher
-may choose to eat or think.  In CCS, this can be represented as:
+Modelling this in CCS involves first ascertaining which processes form
+the basis of the system.  Clearly, each philosopher plays a part, so
+they should be represented by processes.  Returning to the original
+definition of the problem, each philosopher may choose to eat or
+think.  In CCS, this can be represented as:
 
 \begin{equation}
-Philosopher = EatingPhilosopher\ +\ ThinkingPhilosopher
+Philosopher = Eating + Thinking
 \end{equation}
 
 \noindent where the philosopher is recursively defined as making the
-choice between becoming an $EatingPhilosopher$ process or a
-$ThinkingPhilosopher$ process.  Defining the latter is simple; 
+choice between $Eating$ or $Thinking$.  Defining the latter is simple;
 thinking is simply some internal process of the philosopher:
 
 \begin{equation}
-ThinkingPhilosopher = \tau .Philosopher
+Thinking = \tau .Philosopher
 \end{equation}
 
-The focus of the model is on the eating process, which requires
-access to the system's shared resource: the forks.  Modelling this
+The focus of the model is on the eating process, which requires access
+to the system's shared resources: the forks.  Modelling this
 necessitates defining a protocol whereby the philosopher may interact
-with the resource in order to obtain access to it.  From this, it
-follows that the forks must also be represented as processes:
+with the resource in order to obtain access to it.  
 
 \begin{equation}
-Fork = \mu X.takeFork.putDownFork.X
+Eating = \overline{take}.\overline{take}.\tau.\overline{replace}.\overline{replace}.Philosopher
 \end{equation}
 
-\noindent with two communication channels, $takeFork$ and
-$putDownFork$.  The fork begins its life on the table from which it
-may be taken, represented here by the receipt of an input on the
-$takeFork$ channel.  Once this has occurred, the process becomes
-$Fork^\prime$,
+\noindent which needs to synchronize with two available forks if the
+philosopher is to be able to eat (represented by $\tau$) and then
+replace the forks again.  It follows that the forks must also be
+represented using the process
 
 \begin{equation}
-Fork^\prime = putDownFork.X
+Fork = \mu X.take.Fork^\prime
+\end{equation}
+
+\noindent with two communication channels, $take$ and
+$replace$.  The fork begins its life on the table from which it
+may be \emph{taken}, represented here by the receipt of an input on
+the $take$ channel.  Once this has occurred, the process becomes
+
+\begin{equation}
+Fork^\prime = replace.X
 \end{equation}
 
 \noindent which represents the state where the fork is in use by a
 philosopher.  The fork can't be used again until it has received an
-input on $putDownFork$, which causes $X$ to be expanded and the fork to
-wait for input on $takeFork$ again.
+input on $replace$, which causes $X$ to be expanded and the fork to
+wait for input on $take$ again.
 
-This interaction is further clarified by defining the final process,
-the $EatingPhilosopher$:
+  The system as a whole is modelled by running a number of
+  philosophers and forks in parallel, and restricting the scope of the
+  fork channels in order to enforce synchronisation.
 
-\begin{equation}
-EatingPhilosopher = \overline{takeFork}.\overline{takeFork}.\tau.\overline{putDownFork}.\overline{putDownFork}.Philosopher
-\end{equation}
-
-\noindent which needs to synchronize with two available $Fork$
-processes to be able to eat (represented by $\tau$) and then release
-the forks.  The system as a whole is modelled by running a number of
-philosophers and forks in parallel (i.e. multiple copies of
-Fig. \ref{fig:dpccs}), and restricting the scope of the fork channels
-in order to enforce synchronisation.
-
-\begin{figure}  
-  \centering
-  \includegraphics[scale=0.5]{philosophers}
-  \caption{The Dining Philosophers in CCS}
-  \label{fig:dpccs}
-\end{figure}
+%\begin{figure}  
+%  \centering
+%  \includegraphics[scale=0.5]{philosophers}
+%  \caption{The Dining Philosophers in CCS}
+%  \label{fig:dpccs}
+%\end{figure}
 
 Note that this CCS representation of the problem only models the
 narrative version of the problem above.  There is no attempt to
@@ -462,25 +460,24 @@ exactly to a specified number of philosophers and forks, $n$.  From
 the definitions above, multiple variants may be generated, such that
 each philosopher and fork process has a unique subscript.  For
 example, $Philosopher$ becomes $Philosopher_i$, where $i = 1\dots n$.
-The same subscripting also applies to the $takeFork$ and $putDownFork$
+The same subscripting also applies to the $take$ and $replace$
 channels, so that they now correspond to a specific fork.  The
 original solution can thus be represented, as the case where each
-philosopher, $i$, initially performs the action $takeFork_i$ (to take
-the left fork) and then $takeFork_{i-1}$ (with the exception that when
-$i-1 = 0$, we use $n$) \footnote{Again, it is necessary to reverse the
+$Philosopher_i$ initially performs the action $take_i$ (to take
+the left fork) and then $take_{i-1}$ (with the exception that when
+$i-1 = 0$, we use $n$)\footnote{Again, it is necessary to reverse the
   actions of $Philosopher_n$ in order to obtain a solution that does not
   deadlock.}.
 
 This model restricts which fork is taken by which philosopher
 (limiting the possible actions, and thus removing some
-non-determinism), but is still prone to the effects of
-non-deterministic choice (some philosophers may arbitrarily choose to
-think instead) and fairness, with regards to action performance (if
-the actions are performed in a depth-first manner, only one
-philosopher may end up eating).  These may be regarded as
-implementational aspects of the model; all these phenomena could be
-represented, but a choice between these is not made at this level of
-abstraction.
+non-determinism), but is still prone to questions of non-deterministic
+choice (some philosophers may arbitrarily choose to think instead) and
+fairness, with regards to action performance (if the actions are
+performed in a depth-first manner\footnote{i.e. if an implementation
+  always chooses to execute a particular philosopher's choices
+  first.}, only one philosopher may end up eating).  These may be
+regarded as implementational aspects of the model.
 
 \section{Advantages and Limitations of CCS}
 \label{ccslimit}
