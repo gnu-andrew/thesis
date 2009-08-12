@@ -79,15 +79,17 @@ with the aim of creating a safer and more portable language:
   bitwise operations (and (\texttt{\&}), or(\texttt{|}) and
   not(\texttt{\~})) more inefficient as they need to operate on the
   type one size above (bytes ($2^8$) on shorts ($2^{16}$), shorts on
-  ints ($2^{32}$), etc.).  Indeed, the Java
-  specification\cite{javaspec} specifies that the operands should be
-  converted to integer or long integer levels of precision before the
-  operation is performed.  Thus, it logically follows that it is
-  impossible to work with unsigned long integers ($2^64$) without
-  resorting to the overhead of a class which implements arbitrary
-  precision integers, such as \texttt{java.lang.BigInteger}.  Unsigned
-  types continue to be proposed for addition to the Java language, but
-  no such extension is scheduled for the next release (Java 7).
+  ints ($2^{32}$), etc.).  Indeed, section 15.22.1 of the Java
+  language specification\cite{javaspec} states that \emph{binary
+    numeric promotion} (as defined in 5.6.2) should be applied to the
+  operands, causing them to be converted to integer or long integer
+  levels of precision before the operation is performed.  Thus, it
+  logically follows that it is impossible to work with unsigned long
+  integers ($2^64$) without resorting to the overhead of a class which
+  implements arbitrary precision integers, such as
+  \texttt{java.lang.BigInteger}.  Unsigned types continue to be
+  proposed for addition to the Java language, but no such extension is
+  scheduled for the next release (Java 7).
 \end{itemize}
 
 Although these changes are made at the expense of flexibility for the
@@ -121,29 +123,162 @@ file formats and network protocols include unsigned types, so working
 with them in Java becomes harder than is necessary.  Although their
 absence may have made sense in earlier versions of the language, the
 complexity of understanding unsigned arithmetic now seems trivial when
-compared with the existential type system and its reification added by
-the introduction of `\emph{generics}' in Java 5.  We thus hope that
-they may make an appearance in Java 8.
+compared with the existential type system and its lack of reification
+which was introduced by the addition of `\emph{generics}' in Java 5.
+We thus hope that they may make an appearance in Java 8.
 
-\subsection{Concurrency in Java}
+\subsection{Concurrency Provision}
 
 From the perspective of implementing DynamiTE, one advantage of Java
 is its broad support for concurrency.  Java is one of the few
 languages to have an implementation of \emph{monitors}, a feature we
-demonstrated in \ref{semaphores}.
+demonstrated in \ref{semaphores}.  It has also had support for threads
+from the very beginning, with support as a core part of the virtual
+machine rather than as an auxillary library (the approach used for C).
+Java's platform independence means that the same threading constructs
+and semantics, as mandated by the VM specification\cite{vmspec}, can
+be used across all operating systems supported by a Java virtual
+machine.  The actual implementation is provided by the virtual machine
+and class library, which may either map them on to native threads or
+provide \emph{green} threads, where the virtual machine itself creates
+and schedules threads.  The main disadvantage of the latter is that
+blocking calls to the operating system performed by one thread will
+cause the virtual machine and all its threads to be blocked; as the
+system is unaware of the presence of the threads, its only option is
+to block the entire VM process.  Green threads are however much faster
+to create and synchronise, as everything takes place within the VM.
+They can also match the required thread semantics exactly, rather than
+having to map those provided by the operating system's threads.  While
+earlier versions of Sun's implementation used green threads, native
+threads are now used on all supported platforms.
+
+The result of this early adoption of multithreading is that the
+implementation in Java is reasonably mature and well-tested.  With
+Java 5, this support was greatly expanded as a result of research \cite{aqs} led
+by Doug Lea and incorporated into the Java platform via JSR166 and the
+\texttt{java.util.concurrent} packages \cite{jsr166, concpractice}.
+
+--TODO - more on JSR166
+
+Other languages are not so lucky.  In C and C++, threads are provided
+by an operating system library and thus vary depending on platform.
+The POSIX standard for threads attempts to overcome this by providing
+a standard threading interface and semantics for POSIX systems.  While
+POSIX-based systems including GNU/Linux, Solaris, FreeBSD and Mac OS X
+all provide implementations. the problem remains with systems that do
+not provide such by default, notably Microsoft Windows.
+
+Haskell has been slow to introduce threading support.  Although the
+Concurrent Haskell\cite{conchaskell} extension was originally proposed
+in 1996, it does not form part of the Haskell 98 standard and the GHC
+documentation still lists it as experimental.  Both Hugs and the
+Glasgow Haskell Compiler (GHC), the two main implementations of
+Haskell, provide an implementation of Concurrent Haskell's
+\texttt{Control.Concurrent} module, they do so using green threads.
+As mentioned above, while these are faster than native threads,
+blocking calls to the operating system, such as I/O, will cause all
+threads to be blocked.  A workaround is provided in GHC when it is
+built with the \texttt{-threaded} option; it uses a pool of worker
+threads to execute Haskell code and switches to a new one when a
+\texttt{safe} foreign call is made.  It also allows native threads via
+\texttt{forkOS} when built in this manner.  As with C, this makes
+Haskell's thread behaviour dependent on the underlying system as
+opposed to providing a standard set of operations and semantics;
+whether threads are provided and how well they perform depends
+entirely on which implementation of Haskell is being used.
+
+However, functional languages in general should be a good basis for
+concurrency.  They already operate in a task-oriented manner through
+\emph{pure functions}; data is fed in, manipulated as desired and the
+result output without altering memory.  Those that do alter memory,
+and thus could lead to concurrency issues, are clearly denoted
+(e.g. by monads in Haskell), reducing the amount of code that has to
+be checked for race conditions.
+
+It is thus a pity that they are not more widely used and their
+concurrency facilities not more well developed.  This is changing,
+however.  GHC has recently been extended with support for Software
+Transactional Memory (STM) \cite{haskellstm}, which provides a new
+\texttt{atomic} function and \texttt{STM} monad for implementing
+transactions.  The STM logs all actions and then performs a single
+atomic commit, provided there are no conflicts with other updates.
+This allows Haskell programmers to compose new atomic transactions
+from others, and moves the need to ensure atomicity away from each
+individual function to the caller, who can only invoke them from
+within an atomic environment.
+
+Erlang\cite{erlang} is another interesting case, as both it and
+DynamiTE focus on message passing between processes as opposed to
+shared data and locking.  Erlang differs in that it operates
+asynchronously, collecting messages in a mailbox on a per-process
+basis and filtering which ones are received in any one operation.
+However, synchronous delivery can be implemented by requiring messages
+to be acknowledged.  The main limitation of current Erlang
+implementations is that they use green processes; unlike green
+threads, these don't share state but they do have the same downside
+that a blocking system call from one will cause them all to become
+blocked by the system.
+
+Both Erlang and Haskell provide an interesting environment in which to
+implement a framework like DynamiTE.  Indeed, we hope that the
+majority of the design explained here in \ref{dyn:maptheory} can be
+applied to most languages with sufficient threading support.  However,
+there is another reason for our choice of Java as the initial
+prototype language.
+
+\subsection{Popularity}
+
+Popularity is rarely a good reason to do anything but, in combatting
+developer inertia, it is a good weapon to have.  The simple fact is
+that most of today's developers know Java and sometimes little else;
+it (or its close relative, C\#) is taught as part of most computer
+science degrees and is used as the language of choice for many
+applications, especially in the area of enterprise web applications.
+
+As we discussed in \ref{solution}, easing the barriers for adoption is
+an essential aspect in influencing developers to try something new.
+With DynamiTE, we are already advocating the idea of using message
+passing rather than state manipulation to Java developers, a body of
+programmers who will generally be more familiar with object-oriented
+design techniques which focus on manipulating data.  Adding the
+prospect of learning an entirely new language is not going to help our
+case, and we believe this to be the main reason other solutions have
+not moved far beyond their academic roots.  Instead, DynamiTE is
+developed as a Java class library like any other, which leverages
+standard features of the Java platform and which can be further
+developed by the very people that use it.
+
+We will be the first to admit that Java has issues; its age means that
+with hindsight many design decisions can now be seen as flawed and
+attempting to change this leads us to consider the bane of all
+programming languages -- backwards compatibility.  Most features, good
+or bad, are now enshrined in the language and further development
+rightly takes a conservative attitude to avoid breaking the huge body
+of existing code already in use.  This means that APIs are deprecated
+rather than removed, causing the class library to become more bloated
+than ever, and new language features such as generics take years to
+appear and even then have to be limited.  No consensus has yet been
+reached on how closures should be implemented, so they will not appear
+in Java 7 either.  These issues are here to stay; Java is unlikely to
+ever have a type system as advanced as that of most functional
+languages or a separation between pure and impure functions.  But with
+these come maturity and a vast body of developers which we believe to
+be far more useful in achieving our goal than the possibilities of a
+perfect but niche language.
 
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
 
-DynamiTE uses the TNT process calculus described above as the basis for
-a concurrent object-oriented framework.  Within this framework,
-developers can create concurrent applications simply by implementing the
-specific behaviour they require in appropriate subclasses.  Each
-syntactic construct is mapped to an appropriate Java class, which
-provides the required functionality and relates to others via a common
-\texttt{Process} superclass.  Operation follows a top-down approach; the
-complete system is represented by a single instance of one of these
-classes which, in most cases, will be an operator that composes together
+In this section, we show how the constructs of TNT introduced in
+chapter \ref{nt} are mapped on to Java classes by the DynamiTE
+framework.  Within this framework, developers can create concurrent
+applications simply by implementing the specific behaviour they
+require in appropriate subclasses.  Each syntactic construct is mapped
+to an appropriate Java class, which provides the required
+functionality and relates to others via a common \texttt{Process}
+superclass.  Operation follows a top-down approach; the complete
+system is represented by a single instance of one of these classes
+which, in most cases, will be an operator that composes together
 further instances as appropriate.
 
 The simplest \texttt{Process} subclass is the representation of $\nil$,
