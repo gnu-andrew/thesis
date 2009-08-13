@@ -154,7 +154,7 @@ threads are now used on all supported platforms.
 
 The result of this early adoption of multithreading is that the
 implementation in Java is reasonably mature and well-tested.  With
-Java 5, this support was greatly expanded as a result of research \cite{aqs} led
+Java 5, this support was greatly expanded as a result of research led
 by Doug Lea and incorporated into the Java platform via JSR166 and the
 \texttt{java.util.concurrent} packages \cite{jsr166, concpractice}.
 
@@ -183,7 +183,7 @@ itself is not altered.  It provides support for:
   altered; this provides both the update guarantees of a
   \texttt{volatile} variable and blocks other threads trying to obtain
   the same lock.  Atomic variables provide an alternate solution by
-  allowing the processor's Compare And Swap (CAS) operation to be
+  allowing the processor's CAS operation (see \ref{semaphores}) to be
   used.  This is usually more efficient than locking the entire class,
   which will involve the VM performing a CAS operation on the lock at
   some point anyway.  While locking takes a pessimistic approach to
@@ -195,6 +195,49 @@ itself is not altered.  It provides support for:
   usually much more efficient when contention is low.  With the
   addition of atomic variables to Java, programmers now have the
   choice of using either.
+  \item \textbf{Explicit Locks}.  As we saw in \ref{semaphores}, Java
+    has implicit reentrant locking via the \texttt{synchronised}
+    keyword.  Their use, however, is limited; there is only one lock
+    per class, so all its variables must be protected by the same
+    lock, and threads are always blocked until they either acquire the
+    lock or the thread is interrupted by \texttt{Thread.interrupt()}.
+    The \texttt{ReentrantLock} class provides a more advanced version
+    with the following additional features:
+    \begin{itemize}
+      \item \texttt{tryLock()} can be called to perform a non-blocking
+        acquisition of the lock.  It immediately returns with
+        \texttt{true} if the lock was acquired, and \texttt{false} if
+        it wasn't.
+      \item \texttt{tryLock(long, TimeUnit)} can be called to perform
+        a timed acquisition.  If the lock is available, it acquires it
+        and returns immediately.  Otherwise, it blocks.  However,
+        unlike the implicit lock provision and the \texttt{lock()}
+        method, it will become unblocked after the given timeout and
+        return \texttt{false}.
+        \item The lock can operate in a fair mode, where threads
+          acquire the lock in the order they requested it.  Both
+          implicit and explicit locks default to unfair behaviour,
+          which permits \emph{barging} if a new thread happens to
+          request a lock when it is unheld.  Unfair locks are much
+          faster\footnote{If threads are not allowed to jump the
+            queue, then we end up blocking and descheduling a thread
+            which could have quite happily acquired the lock but isn't
+            allowed to do so because of the fairness policy}, but
+          fairness is sometimes needed to ensure correctness.
+    \end{itemize}
+    A class can have multiple instances of an explicit lock, just like
+    any other variable, and this benefit is utilised by
+    \texttt{ReentrantReadWriteLock}.  This class provides both a
+    shared (\textbf{read}) lock and an exclusive (\textbf{write})
+    lock.  Multiple threads can acquire the read lock, but to acquire
+    the write lock, both locks must be unheld.  This can be used to
+    make classes more efficient when compared with the brute force
+    approach of enforcing mutual exclusion for all operations.  For
+    example, a collection class can allow multiple threads to read
+    values as long as there is no thread altering the collection.
+    Both locks, and other implementations such as \texttt{Semaphore},
+    are based on \texttt{AbstractQueuedSynchronizer}\cite{aqs} which
+    provides a common framework thread queues.
 \end{itemize}
 
 Other languages are not so lucky.  In C and C++, threads are provided
