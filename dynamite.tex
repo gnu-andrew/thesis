@@ -238,7 +238,79 @@ itself is not altered.  It provides support for:
     Both locks, and other implementations such as \texttt{Semaphore},
     are based on \texttt{AbstractQueuedSynchronizer}\cite{aqs} which
     provides a common framework thread queues.
+    \item \textbf{Explicit Condition Queues}.  As in the case of
+      locks, Java already has its own implicit condition queues,
+      accessible via the \texttt{wait}, \texttt{notify} and
+      \texttt{notifyAll} methods.  These also have similar limitations
+      to the implicit locks; only one queue is available per class and
+      either one or all threads must be notified.  With only one
+      condition queue, the usability of \texttt{notify} to alert a
+      single thread is extremely limited; using it is dangerous if
+      there is more than one condition as the wrong thread may be
+      awoken, and it is inefficient unless a change in the condition
+      means that one and only one thread may proceed.  The former can
+      be observed in the buffer example of \ref{semaphores} where
+      there are two conditions: \texttt{used == BUFFER_SIZE} and
+      \texttt{used == 0}. The latter is observable in a `gate'
+      scenario where multiple threads queue up waiting for a condition
+      to hold, and then all proceed when it does.  Explicit condition
+      queues address these issues by allowing a class to have multiple
+      condition queues.  Each \texttt{Condition} is obtained from a
+      \texttt{Lock} by a call to \texttt{Lock.newCondition} and that
+      same lock must be held when calling its methods.  In the buffer
+      example, the synchronized blocks would be replaced by the use of
+      explicit locks and the calls to \texttt{wait} and
+      \texttt{notifyAll} by \texttt{await} and \texttt{signal} calls
+      on one of two \texttt{Condition} objects.  The \texttt{signal}
+      method can now be used rather than \texttt{signalAll}, awakening
+      just one thread, as we know the thread will be waiting for the
+      condition whose state has changed and no other.  This avoids
+      waking all threads and having all but one go back to sleep.
+    \item \textbf{Executors and Thread Pools}.  The new classes
+      provide a framework for executing tasks in the form of the
+      \texttt{Executor} interface.  This decouples the process of
+      submitting a task from how it is executed.  Tasks (in the form of an object which implements the \texttt{Runnable} interface) are submitted to an \texttt{Executor} instance, and then performed in a manner determined by the \texttt{Executor} implementation.  The \texttt{Executors} class provides a number of pre-defined instances:
+      \begin{itemize}
+        \item A single thread executor, which performs tasks sequentially.
+        \item An executor with a fixed size pool of threads.
+        \item An executor with an unbounded pool that grows and shrinks as demand allows.
+        \item An executor with a fixed size pool of threads and delayed or periodic task execution.
+      \end{itemize}
+      The programmer is also, of course, free to define their own
+      implementation.  This feature is very useful for implementing
+      parallel composition in DynamiTE as each process may be
+      submitted to an executor, the choice of which is left up to the
+      user of the framework.
+    \item \textbf{New Collections}.  The standard Java collections
+      apply an all-or-nothing approach to thread safety; either the
+      instance is unsafe for multithreaded use (as with instances of
+      the Java 1.2 classes -- \texttt{HashMap}, \texttt{ArrayList},
+      etc.) or every method call locks the class (as with the legacy
+      classes such as \texttt{Vector} and \texttt{Hashtable} or the
+      1.2 classes when wrapped by the \texttt{synchronizedX} methods
+      in \texttt{Collections}).  The JSR166 extensions provide a new
+      set of collections which utilise the features listed above.  For
+      example, \texttt{ConcurrentHashMap} provides a hash map which
+      utilises \emph{lock striping}; the map is protected by multiple
+      read and write locks which protect only a segment of the whole
+      map each.  Thus, not only can multiple readers access the map
+      concurrently, but it may be possible to perform multiple writes
+      concurrently if they effect different areas of the map.  The new
+      collections also include various \texttt{BlockingQueue}
+      implementations, which implement the producer-consumer model we
+      demonstrated with the buffer example in \ref{semaphores}.  One
+      such implementation is \texttt{SynchronousQueue} which closely
+      matches the semantics of synchronous channels in Nomadic Time;
+      it has no storage so a thread performing a \texttt{put} blocks
+      until a receiving thread calls \texttt{take}.
 \end{itemize}
+
+With these additions, the programmer is given a lot of control and
+flexibility when implementing concurrent programs in Java, and we will
+leverage many of these features when implementing DynamiTE.  Having
+essential components such as locks and concurrent collections already
+available and well tested makes it much easier to meet the
+requirements of the framework.
 
 Other languages are not so lucky.  In C and C++, threads are provided
 by an operating system library and thus vary depending on platform.

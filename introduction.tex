@@ -447,27 +447,27 @@ public class Buffer
   public void produce()
   {
     Object item = produceItem();
-    while (used == BUFFER_SIZE)
-      wait();
     synchronized
     {
+      while (used == BUFFER_SIZE)
+        wait();
       buffer[used] = item;
       ++used;
+      notifyAll();
     }
-    notifyAll();
   }
 
   public void consume()
   {
     Object item;
-    while (used == 0)
-      wait();
     synchronized
     {
+      while (used == 0)
+        wait();
       --used;
       item = buffer[used];
+      notifyAll();
     }
-    notifyAll();
     consumeItem(item);
   }
 }
