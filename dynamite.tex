@@ -158,7 +158,44 @@ Java 5, this support was greatly expanded as a result of research \cite{aqs} led
 by Doug Lea and incorporated into the Java platform via JSR166 and the
 \texttt{java.util.concurrent} packages \cite{jsr166, concpractice}.
 
---TODO - more on JSR166
+The extensions provided by JSR166 take the form of a host of new
+classes, backed by support in the virtual machine.  The Java language
+itself is not altered.  It provides support for:
+
+\begin{itemize}
+\item \textbf{Atomic Variables}.  These provide replacements for
+  integer, long integer and reference fields which can be updated in
+  an atomic fashion, are safer than \texttt{volatile} variables and
+  more efficient than locking.  The Java memory model allows
+  operations which alter the value of normal fields to be reordered by
+  the VM as a form of optimisation, as long as this reordering is not
+  visible from within the same thread.  However, this means that other
+  threads may see the changes in the wrong order or not at all.
+  Marking a field as \texttt{volatile} makes the VM aware that it may
+  be accessed by multiple threads, causing updates to be made visible
+  to all threads immediately.  However, \texttt{volatile} fields are
+  still prone to race conditions when used in non-atomic operations
+  such as incrementing a value or performing a conditional
+  update\footnote{e.g. in \texttt{if (x == 4) x = 5}, it is possible
+    for \texttt{x}'s value to have been changed by another thread
+    before the assignment but after the comparison}.  The usual
+  solution is to obtain a lock on the class every time the variable is
+  altered; this provides both the update guarantees of a
+  \texttt{volatile} variable and blocks other threads trying to obtain
+  the same lock.  Atomic variables provide an alternate solution by
+  allowing the processor's Compare And Swap (CAS) operation to be
+  used.  This is usually more efficient than locking the entire class,
+  which will involve the VM performing a CAS operation on the lock at
+  some point anyway.  While locking takes a pessimistic approach to
+  thread safety by blocking all other threads, CAS operations are
+  optimistic; the update is attempted, and if it fails, we try again
+  until it succeeds.  Implementing such a check successfully is even
+  more prone to error than locking, as the programmer has to ensure
+  they check the result of the CAS and loop accordingly, but it is
+  usually much more efficient when contention is low.  With the
+  addition of atomic variables to Java, programmers now have the
+  choice of using either.
+\end{itemize}
 
 Other languages are not so lucky.  In C and C++, threads are provided
 by an operating system library and thus vary depending on platform.

@@ -212,12 +212,15 @@ there are no tokens left so the thread is forced to wait until one of
 the existing tokens is returned.  Tokens are returned by executing the
 \texttt{up} operation.
 
-The \texttt{up} and \texttt{down} operations must be atomic; it should not be possible
-for such an operation to be interrupted.  If they can, then the whole
-purpose of the semaphore is defeated; a further solution would be
-needed to resolve the possible concurrency issues that may occur
-inside the semaphore itself.  Most operating systems provide such
-atomicity by using support available at the processor level.
+The \texttt{up} and \texttt{down} operations must be atomic; it should
+not be possible for such an operation to be interrupted.  If they can,
+then the whole purpose of the semaphore is defeated; a further
+solution would be needed to resolve the possible concurrency issues
+that may occur inside the semaphore itself.  Most operating systems
+provide such atomicity by using support available at the processor
+level; a Compare And Swap (CAS) operation updates a memory value only
+if the current value matches the one given as an argument (i.e. it
+hasn't been changed by another process or thread).
 
 \emph{Binary semaphores}, where the count is either zero or one, are
 very common.  Such semaphores can be implemented in a simplified form
