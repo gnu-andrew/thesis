@@ -6,18 +6,23 @@
 
 \section{Introduction}
 
-The initial aim of this research is to construct a process calculus which
-combines the notions of discrete time and mobility.  Earlier work
-during an undergraduate project focused on developing a semantics for
-the Cashews\footnote{Cashews is a language for web service
-  composition, initially based on OWL-S.}\cite{cashews-sem} language,
-using the CaSE process calculus (see section \ref{tplext}) and later,
-a conservative extension to it called Cashew-Nuts.  It became clear
-during this project that it would be interesting to further extend CaSE
-with a notion of mobility, and this led to the development of the
-calculus of \emph{Typed Nomadic Time} (TNT) discussed here.
+This chapter introduces the process calculus used as the basis for
+DynamiTE, Nomadic Time.  Over the course of the first half of this
+chapter, we show how CaSE (itself a derivative of CCS) is extended
+with first localities (see \ref{localising}) and then mobility (see
+\ref{addingmob}) to create a calculus which provides both the ability
+to migrate processes during execution and to perform global
+synchronisation in a compositional manner.  We then introduce the
+concept of `bouncers' (see \ref{bouncers}), which allow migration to
+be restricted; they define which mobility actions may be performed and
+how many times.  This is followed by the operational semantics of the
+calculus (see \ref{ntsemantics}).  Finally, we close with a
+comprehensive example (see \ref{example}) demonstrating each feature
+of the calculus and the application of the calculus to our
+prototypical application (see \ref{app:nt}).
 
 \section{Localising the Calculus}
+\label{localising}
 
 \emph{Localisation}, discussed in detail in \ref{migration}, effectively
 adds another level of grouping to the calculus.  A set of composed
@@ -27,7 +32,7 @@ can be taken to its logical conclusion by forming a hierarchy of such
 localities, has echoes of the notion of \emph{clock hiding} within CaSE,
 as just described.
 
-Thus, the first step in the evolution towards TNT is to combine these
+Thus, the first step in the evolution towards NT is to combine these
 two hierarchical concepts by effectively localising CaSE.  The notion of
 components and encapsulation is explicitly realised by an
 \emph{environ}, which also handles the hiding of clocks.  As a result,
@@ -122,13 +127,13 @@ natural and simplistic formalism, which builds on the component-oriented
 nature of the calculus, now explicitly realised by environs.  This is
 shown in more detail in \ref{locmob}.
 
-In addition, TNT allows the movement of individual processes.  In the
+In addition, NT allows the movement of individual processes.  In the
 ambient calculus, only ambients can move, which restricts the
 separability of processes.  For a given group of processes, the
 size of the group may only change by:
 
 \begin{enumerate}
-\item One of the processes becoming $\nil$.  Both TNT and the ambient
+\item One of the processes becoming $\nil$.  Both NT and the ambient
       calculus include a structural congruence law,
 \begin{equation}
 E\;|\;\nil \equiv E
@@ -188,12 +193,12 @@ into $n$ is even more convoluted:
 \begin{equation}
 m[z[\ambout{m}.\ambin{n}.E]\;|\;F\;|\;G]\;|\;n[\ambopen{z}.\nil]\;|\;H
 \end{equation}
-and neither are particularly natural.  TNT instead provides
+and neither are particularly natural.  NT instead provides
 this functionality as a base part of the syntax, which will be explored
 in \ref{procmob}.  
 
 Finally, it should be noted that the scope of an action is implicitly
-restricted to the bounds of an environ within TNT.  For instance, in the
+restricted to the bounds of an environ within NT.  For instance, in the
 following process:
 \begin{equation}
 a.P \pc \lcloc{m}{\overline{a}.Q}{\sigma}
@@ -201,7 +206,7 @@ a.P \pc \lcloc{m}{\overline{a}.Q}{\sigma}
 synchronisation between the two processes is not permitted as
 they lie on either side of a environ boundary.  This is not an issue,
 as the presence of mobility allows processes to move into a situation
-where the co-action is in scope.  In addition, TNT (at present) does not
+where the co-action is in scope.  In addition, NT (at present) does not
 incorporate the scoping of environ names.
 
 \subsection{Location Mobility}
@@ -290,7 +295,7 @@ in the ambient calculus, but now $E$ is also affected.  Prior to the
 emission of $\tntopen{n}$, $E$ could only see ticks from the clock
 $\rho$.  The ticks of $\sigma$ were converted to silent actions by the
 environ barrier.  Following the dissolution of the environ, $n$, these
-ticks become visible to $E$.  So, the $open$ capability in TNT not only
+ticks become visible to $E$.  So, the $open$ capability in NT not only
 changes the environ hierarchy, but also the clock context within the
 parent environ.
 
@@ -319,7 +324,7 @@ the full calculus, this non-determinism is restricted by the notion of
 \subsection{Process Mobility}
 \label{procmob}
 
-In TNT, the mobility prefix is further extended as follows:
+In NT, the mobility prefix is further extended as follows:
 
 \begin{equation}
    \ambop \mathrel{::=} \tntin{m} \mid \tntout{m} \mid \tntopen{m} 
@@ -380,7 +385,7 @@ the continuation and $z$ is a new name.  The converse is pretty much the same:
 \section{Bouncers}
 \label{bouncers}
 
-This description of TNT is concluded by the addition of the final
+This description of NT is concluded by the addition of the final
 element, the \emph{bouncers}.  Named after the staff who
 restrict access to a night club\footnote{American usage:
 doorman/woman.}, the bouncer is an additional property of an environ
@@ -393,7 +398,9 @@ bouncer provides a structured selection of co-primitives ($\bin$,
 $\bout$ and $\bopen$), similar to those in \cite{sangiorgi:mobsafeambients} (see section \ref{ambvariants}) and dictates which mobility transitions may
 occur, and when..
 
-The full syntax of TNT may now be given as:
+The full syntax of NT may now be given as:
+
+% If this changes, change the copy in dynamite.tex
 \begin{equation}
   \begin{aligned}
     \expr, \exprb \quad \mathrel{::=} \quad &
@@ -497,11 +504,11 @@ available to $E$ and the bouncer of $n$ disappears along with $n$
 itself.
 
 \section{The Semantics}
-\label{tntsemantics}
+\label{ntsemantics}
 
-This section gives TNT an operational semantics in terms of a labelled
+This section gives NT an operational semantics in terms of a labelled
 transition system, $(\procs, \labels, \rightarrow)$, defined
-up to structural congruence.  $\procs$ is the set of TNT expressions; $\labels$ the
+up to structural congruence.  $\procs$ is the set of NT expressions; $\labels$ the
 alphabet comprising actions, clocks and mobility primitives; and $\rightarrow$ the
 transition relation.  Transitions with labels in
 $\actions$ are known as \emph{action transitions}, those in $\timers$ as
@@ -835,7 +842,7 @@ initially equal to the number of chairs.
   their chairs and the next round begins (from stage three).
 \end{enumerate}
 The winner is the last player left in the game.  A model of
-this game can be created using the TNT process calculus.
+this game can be created using the NT process calculus.
 
 The game environment is represented using environs.  In the musical
 chairs scenario, each chair is represented by a environ, as is the `sin
@@ -931,7 +938,7 @@ chair at any one time, while the sin bin bouncer prevents players
 leaving the sin bin once they have entered.
 
 To model stage one of the game, $n$ player processes and $n$ chair
-environs are placed in the room.  The advantage of using TNT for this
+environs are placed in the room.  The advantage of using NT for this
 model is that the actual number of players or chairs is irrelevant.
 They only have to be equal at the start to accurately model the game.
 The calculus allows the creation of a compositional semantics, as
@@ -1040,7 +1047,7 @@ players (see (\ref{gmstage6}) and (\ref{loser})).  The difference is
 that stage six demonstrates something which wouldn't be possible without
 mobility: the broadcast is limited to those player processes which
 remain in the room.  As communication between processes in different
-environs is disallowed in TNT, an implicit scoping of the broadcast
+environs is disallowed in NT, an implicit scoping of the broadcast
 occurs.  In the example, stage six again sees just one $\topen$
 transition:
 \begin{equation}
@@ -1084,5 +1091,8 @@ remaining players leave their chairs:
 \end{equation}
 and the system essentially returns to the beginning, with $n -
 1$ chairs and $n - 1$ players.
+
+\section{A Prototypical Application in NT}
+\label{app:nt}
 
 \section{Conclusion}

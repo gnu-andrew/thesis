@@ -250,7 +250,7 @@ itself is not altered.  It provides support for:
       awoken, and it is inefficient unless a change in the condition
       means that one and only one thread may proceed.  The former can
       be observed in the buffer example of \ref{semaphores} where
-      there are two conditions: \texttt{used == BUFFER_SIZE} and
+      there are two conditions: \texttt{used == BUFFER\_SIZE} and
       \texttt{used == 0}. The latter is observable in a `gate'
       scenario where multiple threads queue up waiting for a condition
       to hold, and then all proceed when it does.  Explicit condition
@@ -423,9 +423,34 @@ perfect but niche language.
 
 In this section, we show how the constructs of NT introduced in
 chapter \ref{nt} are mapped on to Java classes by the DynamiTE
-framework.  Within this framework, developers can create concurrent
+framework.  Within DynamiTE, developers can create concurrent
 applications simply by implementing the specific behaviour they
-require in appropriate subclasses.  Each syntactic construct is mapped
+require in appropriate subclasses.  Recall the syntax of NT from \ref{eqn:tnt-syntax}:
+
+\begin{equation}
+  \begin{aligned}
+    \expr, \exprb \quad \mathrel{::=} \quad &
+      \nil  \mid
+      \Omega \mid
+      \Delta \mid
+      \Delta_{\sigma} \mid
+      \alpha . \expr  \mid
+      \expr + \exprb \mid
+      \expr \mathrel{\!|\!} \exprb \mid
+      \timeout{\expr}{\sigma}{\exprb} \mid \\
+    & \stimeout{\expr}{\sigma}{\exprb} \mid 
+      \mu X . \expr \mid
+      X \mid 
+      \expr \res{A} \mid
+      \locv{m}{\expr}{\exprb}{\vec{\sigma}} \mid
+      \ambop . \expr \\
+   \ambop \quad \mathrel{::=} \quad & \tntin{m} \mid \tntout{m} \mid \tntopen{m} \mid
+      \procin{\beta}{m} \mid \procout{\beta}{m} \mid \bin \mid
+      \bout \mid \bopen
+   \end{aligned}
+\end{equation}
+
+Each syntactic construct is mapped
 to an appropriate Java class, which provides the required
 functionality and relates to others via a common \texttt{Process}
 superclass.  Operation follows a top-down approach; the complete
