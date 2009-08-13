@@ -269,7 +269,13 @@ itself is not altered.  It provides support for:
     \item \textbf{Executors and Thread Pools}.  The new classes
       provide a framework for executing tasks in the form of the
       \texttt{Executor} interface.  This decouples the process of
-      submitting a task from how it is executed.  Tasks (in the form of an object which implements the \texttt{Runnable} interface) are submitted to an \texttt{Executor} instance, and then performed in a manner determined by the \texttt{Executor} implementation.  The \texttt{Executors} class provides a number of pre-defined instances:
+      submitting a task from how it is executed.  Tasks (in the form
+      of an object which implements the \texttt{Runnable} or
+      \texttt{Callable} interface) are submitted to an
+      \texttt{Executor} instance, and then performed in a manner
+      determined by the \texttt{Executor} implementation.  The
+      \texttt{Executors} class provides a number of pre-defined
+      instances:
       \begin{itemize}
         \item A single thread executor, which performs tasks sequentially.
         \item An executor with a fixed size pool of threads.
@@ -421,11 +427,12 @@ perfect but niche language.
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
 
-In this section, we show how the constructs of NT introduced in
-chapter \ref{nt} are mapped on to Java classes by the DynamiTE
+In this section, we show how the syntactic constructs of NT introduced
+in chapter \ref{nt} are mapped on to Java classes by the DynamiTE
 framework.  Within DynamiTE, developers can create concurrent
 applications simply by implementing the specific behaviour they
-require in appropriate subclasses.  Recall the syntax of NT from \ref{eqn:tnt-syntax}:
+require in appropriate subclasses.  Recall the syntax of NT from
+\ref{eqn:tnt-syntax}:
 
 \begin{equation}
   \begin{aligned}
@@ -450,13 +457,19 @@ require in appropriate subclasses.  Recall the syntax of NT from \ref{eqn:tnt-sy
    \end{aligned}
 \end{equation}
 
-Each syntactic construct is mapped
-to an appropriate Java class, which provides the required
-functionality and relates to others via a common \texttt{Process}
-superclass.  Operation follows a top-down approach; the complete
-system is represented by a single instance of one of these classes
-which, in most cases, will be an operator that composes together
-further instances as appropriate.
+Each syntactic construct is realised as a class that implements \texttt{Process}:
+
+\begin{verbatim}
+public interface Process
+{
+  Set<Transition> getPossibleTransitions();
+}
+\end{verbatim}
+
+Operation follows a top-down approach; the complete system is
+represented by a single instance of one of these classes which, in
+most cases, will be an operator that composes together further
+instances as appropriate.
 
 The simplest \texttt{Process} subclass is the representation of $\nil$,
 realised as a class \texttt{Nil} which provides process termination.
