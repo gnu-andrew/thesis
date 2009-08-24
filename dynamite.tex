@@ -752,3 +752,28 @@ a distributed implementation.
 %and implemented for the ambient calculus.
 
 \section{Conclusion}
+
+To conclude, we have presented the overall structure of the DynamiTE
+framework for concurrent systems, with particular note to its more
+interesting aspects involving the use of signalling (via clock ticks)
+and process migration.  We believe that the framework provides a
+unique way of developing concurrent systems.  It provides features
+which have already proved advantageous in a theoretical setting, such
+as the n-ary process synchronisation mechanism described in chapter
+\ref{globsync}.  The existence of a formal theory for DynamiTE's
+behaviour gives many advantages over more ad-hoc approaches, allowing
+the underlying mechanisms to be rigorously examined before being
+applied to the implementation.  The behaviour of the system may be
+established clearly and unambiguously in the underlying process
+calculus before implementation even begins, giving a solid grounding
+on top of which the individual tasks may be developed.
+
+The actual implementation of the DynamiTE framework is still in heavy
+development.  At its lowest level, it provides a means of simulating
+the operations of the Nomadic Time process calculus, allowing them to
+be more clearly understood.  In application, it can provide a useful
+mechanism for structuring concurrent programs, clearly dividing
+internal behaviour and interprocess communication.  The presence of
+signalling and code migration also means that fairly complex concepts
+can be leveraged by the programmer in the simple manner provided by
+the framework.

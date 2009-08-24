@@ -6,17 +6,27 @@
 
 \section{Introduction}
 
+A type system is a common addition to a process calculus.  This is
+especially true, when the intended use of the calculus is as the basis
+for a programming language or a distributed system, which is the case
+here.  In this final chapter of original research, we demonstrate how
+Nomadic Time may be extended with a type system based on the notion of
+groups.  Each process is assigned to a group, which then determines
+which environs it may \emph{reside} in, \emph{open}, \emph{leave} or
+\emph{enter}.
+
+Before we enter into the technicalities of how this system is
+implemented, we first present some existing type systems used in other
+process calculi, including the origins of this group-based system.
+
 \section{Existing Typed Calculi}
 \label{typedcalculi}
 
-A common addition to a process calculus is a type system, especially
-in recent literature which attempts to use such calculi as the basis
-for a programming language or a distributed system.  Type systems can
-be used to restrict the calculus in ways that aren't always possible
-via mere manipulation of the syntax and semantics.  Adding a type
-system can be as simple as formalising implicit notions, such as the
-use of $\ambin{m}$ as a capability and not as part of a path
-\cite{ambienttypes} or the fact that the $x$ in $x(y)$ should be
+Type systems can be used to restrict the calculus in ways that aren't
+always possible via mere manipulation of the syntax and semantics.
+Adding a type system can be as simple as formalising implicit notions,
+such as the use of $\ambin{m}$ as a capability and not as part of a
+path \cite{ambienttypes} or the fact that the $x$ in $x(y)$ should be
 represent a link and not a mere value \cite{sangiorgi:types-or}.  It
 may also provide more complex intuitions, by distinguishing individual
 entities, controlling mobility \cite{sangiorgi:mobsafeambients,
@@ -39,6 +49,7 @@ Sangiorgi \cite{sangiorgi:types-or} for the purpose of proving
 termination.
 
 \subsubsection{Sorts}
+\label{sorts}
 
 The earliest notion of types was introduced by Milner in
 \cite{milner:93polyadic, milner:pi}.  The discipline of \emph{sorts}
@@ -264,20 +275,19 @@ the expressivity of the formalism in order to ensure that unwanted
 constructs can not be created by making them untypeable.  This also
 makes it easier to prove properties of the calculus.  
 
-\section{A Type System for the Nomadic Time Process Calculus}
+\section{A Type System for Nomadic Time}
 \label{typesys}
 
 In this final section, we consider the specification of a simple type
 system for the calculus, which fulfils two main goals:
 
 \begin{enumerate}
-\item It ensures the sanity of a given TNT construction, which is
-  implicit in the examples above.  This is primarily achieved by
+\item It ensures the sanity of a given syntactic construction, which
+  is implicit in the earlier examples.  This is primarily achieved by
   ensuring that normal process primitives and the primitives used by
-  bouncers remain distinct.  For example,
-  $\tntin{n}.\bin.\nil$ should not be a valid bouncer,
-  especially as $\tntin{n}$ suggests that the bouncer (and its environ)
-  should move inside $n$.
+  bouncers remain distinct.  For example, $\tntin{n}.\bin.\nil$ should
+  not be a valid bouncer, especially as $\tntin{n}$ suggests that the
+  bouncer (and its environ) should move inside $n$.
 \item It extends and refines our control over mobility by adding a
       secondary mechanism orthogonal to the use of bouncers.
 \end{enumerate}
@@ -595,5 +605,7 @@ $n$, after $m$ is removed.
   \end{center}
   \shrule
 \end{table}
+
+\section{DynamiTE and the Type System}
 
 \section{Conclusion}

@@ -213,8 +213,8 @@ the existing tokens is returned.  Tokens are returned by executing the
 \texttt{up} operation.
 
 The \texttt{up} and \texttt{down} operations must be atomic; it should
-not be possible for such an operation to be interrupted.  If they can,
-then the whole purpose of the semaphore is defeated; a further
+not be possible for such an operation to be interrupted.  If they can
+be, then the whole purpose of the semaphore is defeated; a further
 solution would be needed to resolve the possible concurrency issues
 that may occur inside the semaphore itself.  Most operating systems
 provide such atomicity by using support available at the processor
@@ -261,14 +261,15 @@ interim.  The final call to \texttt{flock} releases the lock so the
 second process may now proceed.
 
 Semaphores also have signalling capabilities; threads waiting to
-perform a \texttt{down} operation are woken when an \texttt{up} occurs on the same
-semaphore.  They can then retry the \texttt{down} operation again and return,
-having decremented the value of the semaphore, should the operation
-succeed on this attempt.  Given that there may be multiple waiting
-threads, there is no guarantee that a thread will do so; for each \texttt{up}
-operation, only one \texttt{down} operation will be successful and any other
-threads will again be forced to wait.  Again, this race is why it is
-essential that the \texttt{down} operation itself is atomic.
+perform a \texttt{down} operation are woken when an \texttt{up} occurs
+on the same semaphore.  They can then retry the \texttt{down}
+operation again and return, having decremented the value of the
+semaphore, should the operation succeed on this attempt.  Given that
+there may be multiple waiting threads, there is no guarantee that a
+thread will become active; for each \texttt{up} operation, only one
+\texttt{down} operation will be successful and any other threads will
+again be forced to wait.  Again, this race is why it is essential that
+the \texttt{down} operation itself is atomic.
 
 Suppose we want to implement a bounded buffer which is accessed by
 multiple threads.  We need to use semaphores both to prevent possible
@@ -504,16 +505,16 @@ awoken by the \texttt{notifyAll()} call.  As before, if many threads
 are waiting, it may be the case that the buffer is already full again
 by the time a particular thread is allowed to execute.
 
-The \texttt{synchronized} blocks are the equivalent of the use of the
-\texttt{mutex} semaphore; the opening bracket is the \texttt{down}
-operation, while the closing bracket is the \texttt{up}.  Once a
-thread is executing code inside one of these blocks, another thread
-may not enter such a block, whether this be the same one or another in
-the same class.  Modifications to the \texttt{buffer} and
+The \texttt{synchronized} blocks behave in a way equivalent to those
+protected by the \texttt{mutex} semaphore; the opening bracket is the
+\texttt{down} operation, while the closing bracket is the \texttt{up}.
+Once a thread is executing code inside one of these blocks, no other
+thread may enter such a block, whether this be the same one or another
+in the same class.  Modifications to the \texttt{buffer} and
 \texttt{item} variables only take place within these blocks, thus
-ensuring that only one thread can do so at a time.  Both variables are
-marked \texttt{private}, making them invisible to code outside this
-class.
+ensuring that only one thread can change things at a time.  Both
+variables are marked \texttt{private}, making them invisible to code
+outside this class.
 
 What is clear from our comparison is that there are few advantages to
 using monitors; they are prone to similar low level errors to those we
@@ -521,15 +522,15 @@ saw with semaphores, and they also require support from the language
 being used, which may not always be available.  Ideally, we instead
 need to take a step back and limit the need for such locks altogether
 by reducing the number of shared resources and the amount of
-mutability inherent in our designs.  Not only are such designs prone
-to error, but they also reduce the advantages of concurrent processing
-(having to acquire a lock effectively makes operations single-threaded
-once again) and are reliant on the existence of some form of shared
-memory.  In distributed systems, shared resources do not exist
-naturally but must instead be created artifically and may make
-processing more inefficient.  In the future, we want to be able to
-utilise the advantages of massively parallel systems and this can only
-be achieved by reducing the need for resource contention.
+mutability inherent in our designs.  Not only are existing designs
+prone to error, but they also reduce the advantages of concurrent
+processing (having to acquire a lock effectively makes operations
+single-threaded once again) and are reliant on the existence of some
+form of shared memory.  In distributed systems, shared resources do
+not exist naturally but must instead be created artificially and may
+make processing more inefficient.  In the future, we want to be able
+to utilise the advantages of massively parallel systems and this can
+only be achieved by reducing the need for resource contention.
 
 \subsection{Interprocess Communication}
 \label{ipc}
@@ -537,9 +538,9 @@ be achieved by reducing the need for resource contention.
 To achieve this, we need to focus on more short-lived processes which
 interact directly with one another, rather than via the means of
 shared resources.  This is nothing new.  However, it has never
-achieved universal usage as a design paradigm because having to deal
-with the kind of concurrency issues outlined above has been avoidable.
-This is no longer the case.
+achieved universal acceptance as a design paradigm because having to
+deal with the kind of concurrency issues outlined above has
+traditionally been avoidable.  This is no longer the case.
 
 Although mainstream development has migrated from procedural programs
 to the \emph{object-oriented} paradigm, programs, once compiled, still
@@ -549,27 +550,27 @@ Simula\cite{simula}, where they are \emph{task-centric} units with
 their own behaviour.  Instead, it is one which is much more
 \emph{data-centric}.  These objects allow data to be separated out
 into neat little bundles and stimulate reuse by allowing hierarchies
-of derived behaviour to be created.  But, there is no relationship
+of derived behaviour to be created.  But there is no relationship
 between objects and threads; when a method of an object is called,
 control switches from one object to another.  If multiple threads are
 in use, then the objects are shared between them and we see the kind
 of problems described above.
 
-Solving this takes more than simply establishing a 1:1 relationship
-between threads and objects, because each unit is designed with a
-focus on the data being stored and not on the task being performed.
-Thus, for most designs, having an object per thread would be terribly
-inefficient and, in some cases, preposterous.  For example, an
-implementation of a library system would have a \texttt{Borrower}
-object.  A typical system may have thousands of such borrowers, many
-of which are inactive for weeks or months at a time.  Having a thread
-for each would be ridculously wasteful.  
+Solving this takes more than simply establishing a one-to-one
+relationship between threads and objects, because each unit is
+designed with a focus on the data being stored and not on the task
+being performed.  Thus, for most designs, having an object per thread
+would be terribly inefficient and, in some cases, preposterous.  For
+example, an implementation of a library system would have a
+\texttt{Borrower} object.  A typical system may have thousands of such
+borrowers, many of which are inactive for weeks or months at a time.
+Having a thread for each would be ridiculously wasteful.
 
-Instead, the solution is to again use objects which are task-centric.
+Instead, the solution is again to use objects which are task-centric.
 In the library example, the objects would focus on jobs such as
-issuing and returning books,and dependent tasks such as obtaining data
-on a borrower or book from the database.  In either scenario, there
-will be contention for database access, but in the task-centric
+issuing and returning books, and dependent tasks such as obtaining
+data on a borrower or book from the database.  In either scenario,
+there will be contention for database access, but in the task-centric
 variant, an object can be given the job of a database guardian,
 centralising all data storage issues in one place.
 
@@ -581,7 +582,7 @@ between processes, which originated from UNIX systems\footnote{Other
   MS-DOS which are single-tasking and thus can not actually pass data
   between two processes.  Instead, they make use of
   \emph{pseudo-pipelines}, where the first program outputs data to a
-  temporary file and the second then reads its input from that file.}
+  temporary file and the second then reads its input from that file.}.
 Early UNIX programs were developed with the aim of doing a single task
 and doing it well, unlike the feature bloat apparent in many of
 today's applications.  For example, the command \texttt{du}, which
@@ -603,7 +604,7 @@ another (\texttt{sort}).  Neither of the individual programs needs to
 be aware that this is happening.  As far as \texttt{du} is concerned,
 it is still sending output on its standard output channel.  The
 difference is that this channel has been changed externally so as to
-instead feed into a pipe, the other end of which forms \texttt{sort}'s
+feed instead into a pipe, the other end of which forms \texttt{sort}'s
 standard input channel.
 
 This is a very simple solution, yet it elegantly solves the problem of
@@ -632,10 +633,10 @@ instability by having this level of control.  This is especially true
 when such drivers are provided by third parties who are not as
 familiar with the operating system code as the core developers.
 
-Instead, in MINIX 3, device drivers operate as separate privileged
-processes.  Unlike normal user-level processes, they have the ability
-to request direct access to hardware but such access is achieved
-through passing messages to a minimal kernel.  The majority of the
+To combat this, in MINIX 3, device drivers operate as separate
+privileged processes.  Unlike normal user-level processes, they have
+the ability to request direct access to hardware but such access is
+achieved by passing messages to a minimal kernel.  The majority of the
 driver's operation takes place in userspace and any low-level access
 can be monitored and potentially prohibited.  Other components can
 operate with even fewer privileges; file systems and network protocols
@@ -647,8 +648,8 @@ similar approach with the central mantra being one of multiple
 servers, which provide different operating system services.  The GNU
 HURD kernel is currently based on Mach, though a number of more recent
 microkernels are now being considered, due to issues with Mach's
-design\cite{hurd:critique}.  Apple also adopted this design for XNU,
-the Mac OS X kernel, but, while basing it on Mach, they largely
+design \cite{hurd:critique}.  Apple also adopted this design for XNU,
+the Mac OS X kernel, but, while basing it on Mach, they greatly
 reduced the design to a single server running a monolithic BSD-based
 kernel.  MINIX 3, XNU and the HURD all try to implement a
 component-based design while retaining compatibility with existing
@@ -661,23 +662,24 @@ Designs based on intercommunication have always tended to be more
 elegant, but their usage has tended to be restricted to distributed
 systems such as web services.  In these circumstances, any design
 approach necessitates utilising a potentially slow connection to
-another system and having a central resource upon which all others
+another system, and having a central resource upon which all others
 rely becomes disadvantageous, due to the potential for failure.  That
 said, the most popular web services in use today do not follow the
 component-based design that would allow the dream of composite web
-services\cite{cashews-sem} to become a reality; the likes of Facebook,
-Twitter and Last.fm \cite{facebook, amazon, twitter, lastfm} all
-provide web service interfaces which simply wrap an earlier monolithic
-object-oriented design.  Others, such as Amazon\cite{amazon}, now
-focus on providing a utility service, offering processing power and
-storage for a price, while Google\cite{google} prefer to target users
-with complete applications.
+services \cite{cashews-sem} to become a reality; the likes of
+\emph{Facebook}, \emph{Twitter} and \emph{Last.fm} \cite{facebook,
+  amazon, twitter, lastfm} all provide web service interfaces which
+simply wrap an earlier monolithic object-oriented design.  Others,
+such as \emph{Amazon} \cite{amazon}, now focus on providing a utility
+service, offering processing power and storage for a price, while
+\emph{Google} \cite{google} prefer to target users with complete
+applications.
 
 We believe it is time to reevaluate the benefits of systems focused on
 intercommunication between specialised components.  With modern
 systems, the potential performance disadvantage is becoming outweighed
 by the benefits of a cleaner and more sustainable design.  With the
-increasing prevalance of truly concurrent systems, monolithic designs
+increasing prevalence of truly concurrent systems, monolithic designs
 will face a clear disadvantage, as the potential for parallelism is
 severely reduced by contention for shared resources.
 
@@ -780,11 +782,10 @@ Central to designing an application with DynamiTE is keeping two
 things in mind; firstly, the application should be composed of
 components, each capable of performing their own task, and secondly,
 the application itself should be capable of being used as a component
-by others.  The latter also comes with the implicit assumption that
-the application's features stick to their goal of playing music and
-don't branch out into other areas such as file management and video
-playback.  This makes the player more usable as a component of other
-applications which wish to play a song.
+by others.  The latter comes with the implicit assumption that the
+application's features are accessible by others, and that it remains
+relatively lightweight so as not to introduce unnecessary and
+burdensome requirements.
 
 In an object-oriented application design, the focus would be on the
 data i.e. the songs being played.  With a focus on function, we
@@ -819,13 +820,13 @@ extensions to such calculi: global synchronisation (\ref{globsync})
 and mobility (\ref{mobility}).
 
 In chapter \ref{nt}, we introduce our own research in the form of the
-Nomadic Time process calculus.  The following chapter (\ref{tnt})
-extends this with a type system to create TNT (Typed Nomadic Time),
-while the second part of our research is covered in chapter
-\ref{dynamite} with the development of the DynamiTE (Dynamic Theory
-Execution) framework.  Both of the latter two chapters also cover
-related work in these particular areas.  We close with suggestions for
-future work in chapter \ref{futurework}.
+Nomadic Time process calculus, while chapter \ref{dynamite} covers the
+development of the DynamiTE (Dynamic Theory Execution) framework.  The
+following chapter (\ref{tnt}) demonstrates how Nomadic Time may
+optionally be extended with a type system to create TNT (Typed Nomadic
+Time).  Both of the latter two chapters also cover related work in
+these particular areas.  We close with suggestions for future work in
+chapter \ref{futurework}.
 
 \section{Contributions to Knowledge}
 
@@ -837,17 +838,17 @@ knowledge which we believe to be novel:
   with \emph{compositional global synchronisation}, \emph{mobility}
   and security provision via the notion of `\emph{bouncers}'
   (see chapter \ref{nt}).
-\item The addition of a \emph{type system} to the aforementioned calculus
-  which provides movement restriction via the group membership of
-  processes (see chapter \ref{tnt}); we refer to this extended
-  version as Typed Nomadic Time (TNT).
-\item The realisation of TNT as a \emph{design framework}, DynamiTE,
-  through the implementation of its constructs as programmatic
-  elements in the Java programming language (see chapter
-  \ref{dynamite}).  This allows the specification of system
+\item The realisation of the aforementioned calculus as a \emph{design
+  framework}, DynamiTE, through the implementation of its constructs
+  as programmatic elements in the Java programming language (see
+  chapter \ref{dynamite}).  This allows the specification of system
   interactions to be shifted directly from the theoretical domain into
   an implementation backed by a formal methodology, helping in turn to
   improve industrial adoption of concurrent techniques.
+\item The optional addition of a \emph{type system} to Nomadic Time in
+  order to allow movement restriction to be based on the group
+  membership of processes (see chapter \ref{tnt}); we refer to this
+  extended version as Typed Nomadic Time (TNT).
 \end{enumerate}
 
 This work has already produced two peer-reviewed papers \cite{nt,

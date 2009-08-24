@@ -11,7 +11,7 @@ modelling concurrent systems.  The topics and ideas discussed here lay
 the foundations for the calculi we will discuss in chapters
 \ref{globsync} and \ref{mobility}, and, as a result, are of great
 importance in understanding the novel work presented in chapters
-\ref{nt}, \ref{tnt} and \ref{dynamite}.
+\ref{nt}, \ref{dynamite} and \ref{tnt}.
 
 Early computational models took a simple idealised view of the world,
 where events occur sequentially and in isolation.  Such a model is the
@@ -493,44 +493,30 @@ These sequential operators can also be used to convert a set of
 parallel-composed processes into their equivalent interleavings.
 
 CCS can model both sequential and concurrent programs, while still
-maintaining a minimal syntax.  However, the calculus is not
-Turing-complete\footnote{A finite axiomatisation can be defined, if
-  the simultaneous presence of parallel composition and recursion is
-  avoided \cite{milner:ccsaxiom}.}; there are limitations as to what
-may be expressed.  As discussed earlier, Turing completeness does not
-necessarily guarantee the suitability of a model for a particular
-task. Likewise, the lack of such completeness doesn't imply that the
-model is unsuitable.  As shown above, an appropriate model of the
-Dining Philosophers problem may be defined, without Turing
-completeness.  The lack of this in CCS is not necessarily a problem.
-It may even be an advantage in some cases, where this lack of
-expressivity simplifies the formal reasoning over the model.
-
-One fairly obvious limitation, and one that is relevant when
-discussing Turing completeness, is that there is no data in the model.
-The processes discussed so far don't explicitly communicate anything
-when they send or receive signals.  Instead, behaviour arises purely
-from synchronisation.  It is possible to extend CCS to represent this
-by adding the concept of value passing between processes.  A host of
+maintaining a minimal syntax.  A finite axiomatisation can even be
+defined, if the simultaneous presence of parallel compositon and
+recursion is avoided \cite{milner:ccsaxiom}.  However, one fairly
+obvious limitation is that there is no data in the model.  The
+processes discussed so far don't explicitly communicate anything when
+they send or receive signals.  Instead, behaviour arises purely from
+synchronisation.  It is possible to extend CCS to represent this by
+adding the concept of value passing between processes.  A host of
 other process calculi have been based on such a variant of CCS, and we
-will consider this in more detail as part of section \ref{mobility}.
+will consider this in more detail as part of chapter \ref{mobility}.
 
 CCS models are also relatively static; while processes may evolve
-(e.g. $a.P$ may become $P$) and the number of processes in the system
-may change (e.g. a process may branch using parallel composition), the
-communication structure doesn't.  Notably, if a process, $E$ knows
-about the channels $x$ and $y$ initially, while $F$ only knows about
-$x$ (due to restriction on $y$), this status can not change during the
-course of the various transitions inherent in the system.
-
-The effect of restriction is more generally known as \emph{scoping}
-and occurs frequently with reference to variables in programming
-languages.  CCS doesn't allow dynamic changes to the scoping of
-channels.  Instead, scoping is fixed to the static arrangement
-provided by the initial system, prior to any transitions.  The
-addition of dynamic scoping, often referred to as mobility, is the
-major contribution of the $\pi$ calculus, a language based on CCS
-covered in \ref{scopemobility}.
+(e.g. $a.P$ may become $P$), the communication structure doesn't.
+Notably, if a process, $E$ knows about the channels $x$ and $y$
+initially, while $F$ only knows about $x$ (due to restriction on $y$),
+this status can not change during the course of the various
+transitions inherent in the system.  The effect of restriction is more
+generally known as \emph{scoping} and occurs frequently with reference
+to variables in programming languages.  CCS doesn't allow dynamic
+changes to the scoping of channels.  Instead, scoping is fixed to the
+static arrangement provided by the initial system, prior to any
+transitions.  The addition of dynamic scoping, often referred to as
+mobility, is the major contribution of the $\pi$ calculus, a language
+based on CCS covered in \ref{scopemobility}.
 
 To conclude, there is another limitation of CCS which is less to do
 with a particular concept being absent from the language, instead
@@ -539,17 +525,17 @@ The problem here lies in the \emph{compositionality} of processes.
 While the structure of a CCS system remains compositional, because the
 result of parallel composition is determined by the behaviour of the
 composed processes together with the rules of the $|$ operator, this
-is not true of the synchronisation of multiple processes.
+is not true of the synchronisation of arbitrarily many processes.
 
-Consider the idea of broadcasting a signal to an arbitrary number of
-processes.  Ideally, a general \emph{broadcast agent} should be
-defined which provides this behaviour.  In CCS, there are at least two
-possible ways of defining semantics for the agent, but not one that
-provides a suitably compositional solution.  Perhaps the most obvious
-of these is simply to extend the familiar synchronisation of two
-processes.  An input and output pair can synchronize, so why not just
-create multiple pairs, one for each receiving process?  For example,
-transmitting a signal to two processes can be written simply as
+Consider broadcasting a signal to an arbitrary number of processes.
+Ideally, a general \emph{broadcast agent} should be defined which
+provides this behaviour.  In CCS, there are at least two ways of
+defining semantics for the agent, but not one that provides a suitably
+compositional solution.  Perhaps the most obvious is simply to extend
+the familiar synchronisation of two processes.  An input and output
+pair can synchronize, so why not just create multiple pairs, one for
+each receiving process?  For example, transmitting a signal to two
+processes can be written simply as
 
 \begin{equation}
 \mathbf{\overline{a}_1.\overline{a}_2.0}\ |\ a_1.P\ |\ a_2.Q
@@ -599,19 +585,25 @@ would continue to consume resources.
 
 The true solution to this problem is to enable some form of
 \emph{global synchronisation}.  This requires a separate entity,
-disparate from the processes involved in the communication, which can
-be used to co-ordinate the synchronisation.  In the next section, a
-branch of process calculi is considered which provides just such a facility.
+distinct from the processes involved in the communication, which can
+be used to co-ordinate the synchronisation.  In the next chapter, a
+branch of process calculi is considered which provides just such a
+facility.
 
 \section{Conclusion}
 
-In conclusion, this review has taken a brief look at the field of
-concurrency, largely from the perspective of process calculi.
-Initially, it was shown that, while universal Turing machines and the
-$\lambda$ calculus can simulate any recursive function, their inherent
-sequential behaviour makes them unsuitable for modelling concurrent
-systems.  CCS, in contrast, is less expressive but can model this kind
-of behaviour.
+In conclusion, this chapter has taken a brief look at the field of
+concurrency modelling, largely from the perspective of process
+calculi.  Initially, it was shown that, while universal Turing
+machines and the $\lambda$ calculus can simulate any recursive
+function, their inherent sequential behaviour makes them unsuitable
+for modelling concurrent systems.  CCS, in contrast, can model this
+kind of behaviour and in a succient manner.  However, its minimal
+syntax also leads to some limitations.  In the next two chapters, we
+will look at some more process calculi, many of which use CCS as their
+basis, and observe the benefits of features such as global
+synchronisation (see chapter \ref{globsync}) and mobility (see chapter
+\ref{mobility}).
 
 
 

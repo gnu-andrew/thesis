@@ -89,29 +89,27 @@ as with the clock hiding operator, the clock $\sigma$ is hidden outside
 the environ, $m$, causing its ticks to be visible only to $P$.  
 
 With this extension the set of visible clocks for a particular environ
-may be obtained by taking the union of its set of clocks and the sets of
-the parent environs.  For example, consider the more complex scenario:
+may be obtained by finding the set difference between $\timers$ and
+the union of the sets of clocks of its child environs.  For example,
+consider the more complex scenario:
 \begin{equation}
 \lcloc{n}{E\;|\;\lcloc{m}{F\;|\;\lcloc{k}{G}{\sigma}}{\rho}}{\gamma}
 \end{equation}
-where the top-level environ, $n$, contains a process $E$ and
-a further sub-environ, $m$.  Likewise, $m$ contains both a process,
-$F$, and the sub-environ, $k$.  Finally, $k$ contains just the single
-process, $G$.  The set of clocks for the environ $k$ is $\{\sigma\}$
-and its parents are $m$ (with the set $\{\rho\}$) and $n$ (with
-$\{\gamma\}$).  Thus, the set of visible clocks for $k$ is $\{\sigma\}
-\cup \{\rho\} \cup \{\gamma\}$ or simply $\{\sigma, \rho, \gamma\}$,
-which means that $G$, located in $k$, can see the ticks of all three
-clocks.
+where the top-level environ, $n$, contains a process $E$ and a further
+sub-environ, $m$.  Likewise, $m$ contains both a process, $F$, and the
+sub-environ, $k$.  Finally, $k$ contains just the single process, $G$.
+The set of clocks for the environ $k$ is $\{\sigma\}$ and its parents
+are $m$ (with the set $\{\rho\}$) and $n$ (with $\{\gamma\}$).  Thus,
+the set of visible clocks for $k$ is $\timers \backslash \emptyset$,
+as it has no child environs.  which means that $G$, located in $k$,
+can see the ticks of all clocks.
 
-$F$, by comparison, can only see the ticks of the clocks, $\rho$ and
-$\gamma$, as $\sigma$ is hidden outside $k$.  $E$, in the top-level
-environ, $n$, can only observe silent actions resulting from the two
-hidden clocks, $\rho$ and $\sigma$, but can see the ticks of $\gamma$.
-Taking this further, it is clear that the clock context, the set of
-clocks within the system, can be derived as the union of the sets of
-clocks associated with each environ ($\{\sigma, \rho, \gamma\}$ in
-this case).
+$F$, by comparison, can only see the ticks of the clocks, $\timers
+\backslash \{\sigma\}$ as $\sigma$ is hidden outside $k$.  $E$, in the
+top-level environ, $n$, can only observe silent actions resulting from
+the two hidden clocks, $\rho$ and $\sigma$, but can see the ticks of
+$\gamma$ and any other clocks in $\timers$, its set of visible clocks
+being $\timers \backslash \{\sigma, \rho\}$.
 
 \section{Adding Mobility}
 \label{addingmob}

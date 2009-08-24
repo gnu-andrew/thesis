@@ -3,94 +3,118 @@
 
 \section{Introduction}
 
-This chapter briefly discusses future work on the calculus, with regard
-to both the theoretical aspects (sections \ref{future:types} and
-\ref{future:equiv}) and its applications (section \ref{future:dynamite}).
+This chapter briefly discusses possible future work with regard to the
+process calculus Nomadic Time (\ref{future:nt}), DynamiTE
+(\ref{future:dynamite}) and the type system (\ref{future:types}).  We
+also touch on other possible applications for Nomadic Time
+(\ref{future:apps}).
 
-\section{The Type System}
-\label{future:types}
+\section{Nomadic Time}
+\label{future:nt}
 
-It would be interesting to consider further the
-typing of both actions and clocks.  At present, they just have the
-simplest of types, but this could be extended to provide more
-interesting behaviour.  Similarly, bouncers only have rudimentary types
-and may possibly be changed to include more detail.
+\subsection{Separation of Syntax}
 
-\subsection{Nomadic Time Extended with Data}
-\label{tnted}
-Chapter \ref{tnted} describes an optional data extension to the
-calculus which allows channels to also be typed.
-The addition of explicit data provision to the calculus via the
-  use of typed channels -- see \ref{tnted}.
+At present, the syntax represents bouncers as a form of process for
+simplicity.  This has the advantage of being minimal, but also means
+that there are number of possible constructs that we would prefer to
+deem illegal (e.g. the use of bouncers with the timeout operators or
+$\Omega$ being used as a `normal' process term).  In chapter
+\ref{tnt}, we showed how the type system could be used to make such
+terms invalid, but in hindsight it would better to have a more verbose
+syntax which rules these out from the start.
 
-\section{Equivalence}
+\subsection{Equivalence}
 \label{future:equiv}
 
-The main element lacking in the current version of TNT is some notion of
-equivalence.  An equivalence notion is necessary to be able to compare
-processes, with the additional benefit of being able to reduce them to a
-simpler form.
+The main element lacking in the current version of Nomadic Time is
+some notion of equivalence.  This is necessary to be able to compare
+processes, and brings the additional benefit of being able to reduce
+them to a simpler form.
 
-Any bisimulation theory for TNT will be based on the labelled transition
-system defined by the semantics.  In particular, the semantics share a
-lot in common with those of CaSE, for which a form of bisimulation-based
-equivalence (temporal observation congruence) already exists.  With
-respect to the changes involved in TNT, the additional transitions
-provided by the mobility primitives are all silent actions, which are
-discarded by an observation-based congruence.  As a result, it is
-unclear what changes will actually be necessary to provide the same
-behavioural theory for TNT as is defined by this congruence for CaSE.
+Any bisimulation theory for NT would be based on the labelled
+transition system defined by the semantics.  In particular, the
+semantics share a lot in common with those of CaSE, for which a form
+of bisimulation-based equivalence (\emph{temporal observation
+  congruence}) already exists.  Nomadic Time introduces a number of
+new transitions, including the three \emph{mobility transitions}
+($\tin$, $\tout$ and $\topen$) and the component transitions formed
+from terms in $\ambop$ which pair up to generate $\tin$, $\tout$ and
+$\topen$.  Thus, any equivalence theory would need to consider issues
+such as whether $\tntin{m}$ is equivalent to $\tntin{n}$; do we
+consider only that a `in' action is being performed or do we also take
+into account the specific environ involved?
 
 Mobility affects the topology of the process, and thus the difference
-between two processes which exhibit mobility is much clearer via a
-structural comparison.  Hence, structural congruence may end up being
-more important with respect to the addition of mobility.
+between two processes may not be fully realised simply by looking at
+transitions.  For example,
+$\locv{m}{\locv{n}{\tntin{m}.\nil}{\Omega}{\emptyset}}{\Omega}{\emptyset}$
+and $\locv{m}{\tntin{m}.\nil}{\Omega}{\emptyset}$ both produce a
+$\tntin{m}$ transition along with one for each member of $\timers$.
+Assuming $\timers$ is the same for both, the difference in topology is
+not discernable from merely the set of possible transitions.
 
 \section{DynamiTE}
 \label{future:dynamite}
 
-To conclude, we have presented the overall structure of the DynamiTE
-framework for concurrent systems, with particular note to its more
-interesting aspects involving the use of signalling (via clock ticks)
-and process migration.  We have also outlined its underlying theoretical
-basis in the form of the process calculus TNT, further details of which
-are provided in the cited references.
-
-We believe that the framework provides a unique way of developing
-concurrent systems.  It provides features which have already proved
-advantageous in a theoretical setting, such as the n-ary process
-synchronisation mechanism described in chapter \ref{globsync}.  The
-existence of a formal theory for DynamiTE's behaviour gives many
-advantages over more ad-hoc approaches, allowing the underlying
-mechanisms to be rigorously examined before being applied to the
-implementation.  For example, the equivalence of two processes may be
-established clearly and unambiguously in the underlying process
-calculus and then used to compare the implementation of a process to
-its specification.
-
-The DynamiTE framework is still in heavy development.  At its lowest
-level, it provides a means of simulating the operations of the TNT
-process calculus, allowing them to be more clearly understood.  In
-application, it can provide a useful mechanism for structuring
-concurrent programs, clearly dividing internal behaviour and
-interprocess communication.  The presence of signalling and code
-migration also means that fairly complex concepts can be leveraged by
-the programmer in the simple manner provided by the framework.
-
 There are still areas we wish to explore in the future.  One such
 proposition is the addition of data to the clock signals, allowing
 them not only to act as phasing signals but also as a mechanism for
-broadcast data.  It would also be interesting to further expand on the
-plugin frameworks mentioned, by providing more complex implementations
-such as interprocess communication via web services.
+broadcast data.  There is also plenty of room for further work on the
+implementation by providing more complex implementations of the plugin
+services such as interprocess communication via web services.
+
+\section{The Type System}
+\label{future:types}
+
+\subsection{More Advanced Types}
+
+It would be interesting to consider further the typing of both actions
+and clocks.  At present, they just have the simplest of types, but
+this could be extended to provide more interesting behaviour.
+Similarly, bouncers only have rudimentary types and may possibly be
+changed to include more detail.
+
+\subsection{Nomadic Time Extended With Data}
+\label{tnted}
+
+At present, the calculus does not explicitly represent the passing of
+data in any form.  When synchronisation occurs on a channel, $a$, it
+simply produces a $\tau$ transition.  Within DynamiTE, the transfer of
+a single \texttt{Object} from sender to receipient takes place.  This
+is clearly inefficient, and it would be preferable to transfer
+multiple items in a single synchronisation.  It would also be
+preferable if the type of the data was represented, so that the type
+expected by the receiver matches that sent by the sender.
+
+Both of these could be implemented via the type system.  The matching
+of the number of items being sent with those received could also be
+performed through additions to the syntax and semantics, but also has
+the downside of introducing a new set of names; we already have
+distinct sets of names ($\names$), co-names ($\conames$) and clocks
+($\timers$) along with the names used by environs.
+
+Such an extension would draw on Milner's work on sorts (see
+\ref{sorts}) and allow synchronisation to proceed only when the
+following holds for $a : \vec{x}$ and $\overline{a} : \vec{y}$:
+
+\begin{enumerate}
+\item The length $n$ of $\vec{x}$ ($\#x$) must equal the length of $\vec{y}$ ($\#y$).
+\item For each element $x_i$ in $\vec{x}$, the corresponding element in $\vec{y}$, $y_i$, must have the same type $t_i$.
+\end{enumerate}
+
+The types used in $\vec{x}$ and $\vec{y}$ are not members of $T$ (see
+\ref{typesys}), but are user-defined.  In DynamiTE, for example, $t_1$
+may be \texttt{String}.  Thus if $a$ is defined as having the type
+$(t_1, t_2, t_3)$, it can only synchronise with $\overline{a}$ if it
+also has the type $(t_1, t_2, t_3)$.  Clearly, the second rule could
+be widened to allow a subtyping relation between the two types, rather
+than equivalence.
 
 \section{Other Applications}
-there may
-be other domains in which TNT will find applicability.  Pervasive
-computing is thought to be one such area, and this may make more
-effective use of the type system than biological modelling.  In
-addition, its relation to P systems (\ref{psystems}) and the ability to
-encode it using a bigraph (\ref{bigraphs}) would form interesting areas
-of study.
+\label{future:apps}
 
-\section{Conclusion}
+There may be other domains in which our calculus will find
+applicability.  Pervasive computing may be one such area, as may
+biological modelling.  In addition, its relation to P systems
+(\ref{psystems}) and the ability to encode it using a bigraph
+(\ref{bigraphs}) would form interesting areas of study.
