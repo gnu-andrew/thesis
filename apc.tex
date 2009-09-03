@@ -291,10 +291,12 @@ is as defined above and $\mathop{\rightarrow} \mathrel{\subseteq}
 \procs \times \actions \times \procs$ is the transition relation
 defined in Table \ref{tab:ccssemantics}.  We use $E$ and $F$ to range
 over process terms ($\procs$), $\alpha$ over the set of actions
-($\actions$) and $a$ and $b$ over the set of names ($\names$).
+($\actions$), $\sigma$ over the set of clocks ($\timers$), $a$ and $b$
+over the set of names ($\names$) and and $\gamma$ over $\names \cup
+\timers$.
 
 \begin{table}
-  \caption{CCS Semantics}
+  \caption{CaSE Semantics}
  \label{tab:ccssemantics}
   \shrule
  \vspace{-2mm}

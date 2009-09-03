@@ -97,9 +97,7 @@ with restriction, to produce a hierarchy of components.  The actions
 of these subsystems can be represented purely as silent actions, and,
 when combined with the global form of maximal progress introduced by
 TPL and retained in CaSE, integrated into the `synchronous cycle'
-\cite{CaSE} of clocks at the level above.  CaSE is further discussed
-in \ref{case}, where it forms the basis for the calculus of
-\emph{Typed Nomadic Time} (TNT).
+\cite{CaSE} of clocks at the level above.
 
 \section{The Calculus of Synchronous Encapsulation (CaSE)}
 \label{case}
@@ -128,11 +126,12 @@ countable set of actions, $\actions = \names \cup \conames \cup
 drawn from an infinite set of \emph{names}, and $\conames$ is the
 corresponding set of \emph{co-names}, $\{\overline{a} \mid a \in
 \names\}$. $\timers$ is a countably infinite set of \emph{clocks} over
-which $\sigma$ ranges. $X$ ranges over a countably infinite set of variables, which are used to bind process
-behaviour in recursive process definitions. $\nil$, $\alpha . \expr$,
-$\expr + \exprb$, $\expr \mathrel{\!|\!} \exprb$, $\mu X
-. \expr$, $X$ and $\expr \setminus a$ retain their behaviour defined in
-CCS, but now exhibit additional actions due to the presence of clocks.
+which $\sigma$ ranges. $X$ ranges over a countably infinite set of
+variables, which are used to bind process behaviour in recursive
+process definitions. $\nil$, $\alpha . \expr$, $\expr + \exprb$,
+$\expr \mathrel{\!|\!} \exprb$, $\mu X . \expr$, $X$ and $\expr
+\setminus a$ retain their behaviour defined in CCS, but now exhibit
+additional actions due to the presence of clocks.
 
 There are now transitions for the $\nil$ process, as, while the
 process has no explicit behaviour, it can idle over the ticks of the
@@ -311,6 +310,133 @@ time $\sigma$ ticks.  Such clock hiding is central to the
 encapsulation of components present in CaSE.  When coupled with
 restriction, components can be made to emit only silent actions from
 the perspective of external processes.
+
+An operational semantics for CaSE can be given in terms of a labelled
+transition system, $(\procs, \actions \cup \timers, \rightarrow)$,
+where $\procs$ is the set of CCS expressions formed from the above
+syntax, $\actions$ and $\timers$ are as defined above and
+$\mathop{\rightarrow} \mathrel{\subseteq} \procs \times (\actions \cup
+\timers) \times \procs$ is the transition relation defined in Table
+\ref{tab:casesemantics}.  We use $E$ and $F$ to range over process
+terms ($\procs$), $\alpha$ over the set of actions ($\actions$),
+$\sigma$ and $\rho$ over the set of clocks ($\timers$), $a$ and $b$
+over the set of names ($\names$) and $\gamma$ over $\names \cup
+\timers$.
+
+\begin{table}
+  \caption{Semantics}
+ \label{tab:casesemantics}
+  \shrule
+ \vspace{-2mm}
+ \begin{center}
+ \begin{tabular}{rlrl}
+     \Rule{Idle}
+     {-}
+     {\nil \lderives{\sigma} \nil}
+     {}
+     &
+     \quad \Rule{Act}
+     {-}
+     {\alpha . E \derives{\alpha} E}
+     {}
+     \\[3ex]
+     \Rule{Patient\quad}
+     {-}
+     {a.E \derives{\sigma} a.E}
+     {}
+     &
+     \Rule{Stall}
+     {-}
+     {\Delta_{\sigma} \derives{\rho} \Delta_{\sigma}}
+     {\rho \ne \sigma}
+     \\[3ex]
+     \Rule{Sum1}
+     {E \derives{\alpha} E^\prime}
+     {E + F \derives{\alpha} E^\prime}
+     {}
+     &
+     \Rule{Sum2}
+     {F \derives{\alpha} F^\prime}
+     {E + F \derives{\alpha} F^\prime}
+     {}
+     \\[3ex]
+     \Rule{Sum3}
+     {E \derives{\sigma} E^\prime, F \derives{\sigma} F^\prime}
+     {E + F \derives{\sigma} E^\prime + F^\prime}
+     {}
+     &
+     \Rule{Par1}
+     {E \derives{\alpha} E^\prime}
+     {E \;|\; F \derives{\alpha} E^\prime \;|\; F}
+     {}
+     \\[3ex]
+     \Rule{Par2}
+     {F \derives{\alpha} F^\prime}
+     {E \;|\; F \derives{\alpha} E \;|\; F^\prime}
+     {}
+     &
+      \Rule{Par3}
+      {E \derives{a} E^\prime,
+        F \derives{\overline{a}} F^\prime}
+      {E \;|\; F \derives{\tau} E^\prime \;|\; F^\prime}
+      {}
+     \\[3ex]
+      \Rule{Par4}
+      {E \derives{\sigma} E^\prime,
+        F \derives{\sigma} F^\prime,
+        E \;|\; F \nderives{\tau}}
+      {E \;|\; F \derives{\sigma} E^\prime \;|\; F^\prime}
+      {}
+     &
+      \Rule{FTO1}
+      {E \nderives{\tau}}
+      {\timeout{E}{\sigma}{F} \derives{\sigma} F}
+      {}
+     \\[3ex]
+      \Rule{FTO2}
+      {E \derives{\gamma} E^\prime}
+      {\timeout{E}{\sigma}{F} \derives{\gamma} E^\prime}
+      {\gamma \ne \sigma}
+     &
+      \Rule{STO1}
+      {E \nderives{\tau}}
+      {\stimeout{E}{\sigma}{F} \derives{\sigma} F}
+      {}
+     \\[3ex]
+      \Rule{STO2}
+      {E \derives{\alpha} E^\prime}
+      {\stimeout{E}{\sigma}{F} \derives{\alpha} E^\prime}
+      {}
+     &
+      \Rule{STO3}
+      {E \derives{\rho} E^\prime}
+      {\stimeout{E}{\sigma}{F} \derives{\rho} \stimeout{E^\prime}{\sigma}{F}}
+      {\rho \ne \sigma}
+     \\[3ex]
+      \Rule{Rec}
+      {E \derives{\gamma} E^\prime}
+      {\mu X.E \derives{\gamma} E^\prime \{ \mu X.E / X\}}
+      {}
+      &
+      \Rule{Res}
+      {E \derives{\gamma} E^\prime}
+      {E \res{a} \derives{\gamma} E^\prime \res{a}}
+      {\gamma \ne a}
+     \\[3ex]
+     \Rule{Hid1}
+     {E \derives{\sigma} E^\prime}
+     {E / \sigma \derives{\tau} E^\prime / \sigma}
+     {}
+     &
+     \Rule{Hid2}
+     {E \derives{\gamma} E^\prime}
+     {E / \sigma \derives{\gamma} E^\prime / \sigma}
+     {\gamma \ne \sigma}
+     \\
+ \end{tabular}
+  \end{center}
+  \shrule
+\end{table}
 
 \section{Advantages and Disadvantages of Timed Calculi}
 \label{timelimit}
