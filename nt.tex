@@ -1164,7 +1164,7 @@ is exactly the same logic as we employed for the compositional
 broadcast agent in \ref{tpl}.  As a result, $In$ now looks like this:
 
 \begin{equation}
-  In \eqdef i.\mu X.\tau.\mu W.\timeout{\overline{o}.W}{\sigma}{X}
+  In \eqdef i.\mu X.\tau.\mu W.\stimeout{\overline{o}.W}{\sigma}{X}
 \end{equation}
 
 \noindent We bind $W$ to $\timeout{\overline{o}.W}{\sigma}{X}$ so that
@@ -1172,7 +1172,7 @@ each time $\overline{o}$ is performed, we return to our original state.
 When $In$ is running in parallel with $Out$ and $Analy$:
 
 \begin{equation}
-  IntSys \eqdef i.\mu X.(\tau.\mu W.\timeout{\overline{o}.W}{\sigma}{X} \pc o.\tau.\nil \pc o.\tau.\nil)
+  IntSys \eqdef i.\mu X.(\tau.\mu W.\stimeout{\overline{o}.W}{\sigma}{X} \pc o.\tau.\nil \pc o.\tau.\nil)
 \end{equation}
 
 \noindent the presence of both $o$ and $\overline{o}$ will allow a
@@ -1189,15 +1189,16 @@ solution to this is to also synchronise these two processes on
 $\sigma$:
 
 \begin{equation}
-  Out \eqdef o.\mu Y.\timeout{w.Y}{\sigma}{\tau.\nil}
+  Out \eqdef o.\stimeout{\Delta}{\sigma}{\tau.\nil}
 \end{equation}
 
 \noindent so that now, once input has been received on $o$, $Out$
-performs $w$ actions (a mneumonic for `wait') until $\sigma$ becomes
-unimpeded and is able to tick.  This should then allow all three
+waits until $\sigma$ becomes unimpeded and is able to tick; $\Delta$
+produces no transitions, so neither $STO2$ or $STO3$ can be applied,
+and $STO1$ requires the absence of any high priority transitions,
+which includes $\tau$ transitions. This should allow all three
 processes to continue with their internal processing.  The same
-definition can be applied to $Analy$ using a different bound variable
-for recursion.
+definition can be applied to $Analy$.
 
 Of course, we could provide a much simpler solution by just performing
 $\overline{o}$ twice.  The advantage of this solution, as we have
@@ -1213,7 +1214,8 @@ actions into calls to our internal system.  This can be as simple as:
   Intf \eqdef useri.(\overline{i}.\nil | In)
 \end{equation}
 
-But what does $useri$ synchronise with?  This comes from the user and is outside the system itself:
+But what does $useri$ synchronise with?  This comes from the user and
+is outside the system itself:
 
 \begin{equation}
    \procin{begin}{player}.0 \pc begin.\overline{useri}.\nil \pc \loc{player}{Intf}{\bin.\Omega}{\sigma}
@@ -1224,14 +1226,12 @@ start the player, a client must enter $player$ and synchronise on
 $useri$.  The bouncer of the $player$ environ allows only one process
 to enter, by providing only one $\bin$ with which to synchronise.
 $\sigma$ is hidden outside the environ so all the ticks from within
-$player$ appear as silent actions to those outside.  Almost all the
-other transitions performed by $Intf$ will also be silent actions,
-being a mix of internal $\tau$ actions and synchronisations between
-$i$ and $o$.  The exception is the wait action, $w$, but we can easily
-restrict this if necessary within the environ and such unpaired
-actions are not visible outside an environ's bounds (see $LHd1$,
-$LHd2$ and $LHd3$; only clock and high priority transitions are
-visible).
+$player$ appear as silent actions to those outside (see $LHd1$).  As
+all the other transitions performed by $Intf$ will also be silent
+actions, being a mix of internal $\tau$ actions and synchronisations
+between $i$ and $o$, processes outside $player$ can use the presence
+of these transitions to determine whether or not $Intf$ is active or
+not.
 
 We have deliberately kept the design as simple as possible to make it
 easier to digest and to reduce the complexity of the corresponding
