@@ -18,6 +18,7 @@ calculi which focus on abstract time and the use of \emph{clocks} for
 the primary purpose of global synchronisation (as described above).
 
 \section{Temporal Process Language (TPL)}
+\label{tpl}
 
 Hennessy's Temporal Process Language (TPL) \cite{hennessy:tpl} extends
 the CCS language discussed above with a single clock, akin to a
@@ -45,12 +46,12 @@ the other processes, as it is their behaviour which controls when the
 clock will tick).
 
 With these additions, the problem of defining a suitable compositional
-broadcast agent, as mentioned above, can be solved.  Recall the second
-solution, which used recursion.  Now, with the addition of an external
-entity (the clock) and a way of relating it to the processes involved
-(timeouts), a base case may be provided via recognition of the point
-when no more synchronisations may occur.  This can be added to the
-earlier recursive solution
+broadcast agent, as mentioned in \ref{ccslimit}, can be solved.
+Recall the second solution, which used recursion.  Now, with the
+addition of an external entity (the clock) and a way of relating it to
+the processes involved (timeouts), a base case may be provided via
+recognition of the point when no more synchronisations may occur.
+This can be added to the earlier recursive solution
 
 \begin{equation}
 \mu X.\timeout{\overline{o}.X}{\sigma}{0}\ |\ o.P\ |\ o.Q\ |\ o.R
