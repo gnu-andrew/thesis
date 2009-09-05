@@ -457,12 +457,14 @@ require in appropriate subclasses.  Recall the syntax of NT from
    \end{aligned}
 \end{equation}
 
-Each syntactic construct is realised as a class that implements \texttt{Process}:
+Each process term ($\expr, \exprb$) above becomes a class that implements \texttt{Process}:
 
 \begin{verbatim}
 public interface Process
+  extends State
 {
   Set<Transition> getPossibleTransitions();
+  Process substitute(String var, Process proc);
 }
 \end{verbatim}
 
@@ -471,8 +473,89 @@ represented by a single instance of one of these classes which, in
 most cases, will be an operator that composes together further
 instances as appropriate.
 
-The simplest \texttt{Process} subclass is the representation of $\nil$,
-realised as a class \texttt{Nil} which provides process termination.
+The \texttt{Process} interface itself extends the marker interface,
+\texttt{State}.  This, along with \texttt{Transition}, forms part of
+our implementation of a labelled transition system, found under the
+\texttt{lts} subpackage.  By making implementations of
+\texttt{Process} also implement \texttt{State}, they can be used as
+the start and finish state in the transitions represented by the
+\texttt{Transition} class.
+
+Each \texttt{Process} is required to implement
+\texttt{getPossibleTransitions()} and it is in this method where the
+operational semantics found in tables \ref{tab:casesubset} and
+\ref{tab:mobsubset} are realised in Java code.  The simplest
+implementation is found in the representation of $\Delta$, realised as
+the class \texttt{Delta}, as it has no transitions.
+
+\begin{verbatim}
+  public Set<Transition> getPossibleTransitions()
+  {
+    return Collections.emptySet();
+  }
+\end{verbatim}
+
+The other method in \texttt{Process},
+\texttt{substitute(String,Process)} is primarily used to implement
+recursion.  The arguments passed to \texttt{substitute} are the
+variable name and the process bound to that name respectively, and the
+implementation is expected to return the same process with this
+substitution applied.
+
+We implement substitution in this manner so that it is independent of
+the syntax of the calculus.  Nomadic Time is implemented in DynamiTE
+by deriving from classes which implement CaSE, which in turn derive
+from those implementing CCS.  Of these, only CCS has an implementation
+of recursion:
+
+\begin{verbatim}
+  public Set<Transition> getPossibleTransitions()
+  {
+    Set<Transition> trans = new HashSet<Transition>();
+    for (Transition t : proc.getPossibleTransitions())
+      {
+        Process end = (Process) t.getFinish();
+        trans.add(new Transition(this,
+                                 end.substitute(var, this),
+                                 t.getLabel()));
+      }
+    return trans;
+  }
+\end{verbatim}
+
+\noindent as the same rule is used in all three calculi.  Because the
+new constructs in CaSE and Nomadic Time all provide an implementation
+of \texttt{substitute}, the call to \texttt{substitute} in the CCS
+implementation of recursion (provided by a class called \texttt{Rec}
+with variables \texttt{proc} and \texttt{var}) will still work, even
+when one of these forms the final state, \texttt{end}.
+
+The above implementation of recursion highlights a common pattern in
+the semantics, which is visible both in their formal representation
+and the Java version; the rules reference one or more component
+processes, and create new transitions based on the transitions of
+these processes.  As a result, most of the implementations of
+\texttt{getPossibleTransitions()} in DynamiTE operate by looping over
+the set of transitions from each component process, checking if they
+meet the prerequisties for one of the rules and then creating new
+transitions.
+
+Recursion is probably one of the simplest examples of this.  From its semantics,
+\begin{center}
+      \Rule{Rec}
+      {E \derives{\gamma} E'}
+      {\mu X.E \derives{\gamma} E' \{ \mu X.E / X\}}
+      {}
+\end{center}
+\noindent we can see that it applies its transformation to all
+transitions ($\gamma$ ranges over all possible labels), and the only
+change it makes is to apply substitution to $E'$, represented in Java
+as the final state of the \texttt{Transition} object
+(\texttt{t.getFinish()}).  Thus, all the new transitions returned use
+the same label (\texttt{t.getLabel()}), the current instance of
+\texttt{Rec} as the start state and a version of the original final
+state with substitution applied.
+
 The internal action $\tau$ is realised as an abstract class \texttt{Tau}
 and this is where the user can implement arbitrary sequential behaviour
 as required, by providing a subclass. The observable actions form part
