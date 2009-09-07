@@ -482,7 +482,9 @@ our implementation of a labelled transition system, found under the
 \texttt{lts} subpackage.  By making implementations of
 \texttt{Process} also implement \texttt{State}, they can be used as
 the start and finish state in the transitions represented by the
-\texttt{Transition} class.
+\texttt{Transition} class.  The label used by the transition is
+provided by a subclass of \texttt{Action}, which also allows for the
+possibility of side effects, which we cover in \ref{dyn:evolvers}.
 
 Each \texttt{Process} is required to implement
 \texttt{getPossibleTransitions()} and it is in this method where the
@@ -520,7 +522,7 @@ of recursion:
         Process end = (Process) t.getFinish();
         trans.add(new Transition(this,
                                  end.substitute(var, this),
-                                 t.getLabel()));
+                                 t.getAction()));
       }
     return trans;
   }
@@ -555,10 +557,10 @@ semantics,
 transitions ($\gamma$ ranges over all possible labels), and the only
 change it makes is to apply substitution to $E'$, represented in Java
 as the final state of the \texttt{Transition} object
-(\texttt{t.getFinish()}).  Thus, all the new transitions returned use
-the same label (\texttt{t.getLabel()}), the current instance of
-\texttt{Rec} as the start state and a version of the original final
-state with substitution applied.
+(\texttt{t.getFinish()}).  Thus, all the new transitions returned
+perform the same action (\texttt{t.getAction()}), have the current
+instance of \texttt{Rec} as the start state and a final state derived
+from the original via substitution.
 
 Implementing the $\mid$ operator, via the \texttt{Par} class, is a
 more involved task.  In CCS alone, $\mid$ features in three of its
@@ -585,39 +587,45 @@ the CCS implementation here for brevity:
     for (Transition t : left.getPossibleTransitions())
       {
         Process nextLeft = (Process) t.getFinish();
-        trans.add(new Transition(this, new Par(nextLeft, right), t.getLabel()));
+        trans.add(new Transition(this,
+                                 new Par(nextLeft, right),
+                                 t.getAction()));
       }
     // Par2
     for (Transition t : right.getPossibleTransitions())
       {
         Process nextRight = (Process) t.getFinish();
-        trans.add(new Transition(this, new Par(left, nextRight), t.getLabel()));
+        trans.add(new Transition(this,
+                                 new Par(left, nextRight),
+                                 t.getAction()));
       }
     // Now find pairs for synchronisation (Par3)
     Set<Transition> syncTrans = new HashSet<Transition>();
     for (Transition t : trans)
       {
-        String label = t.getLabel().getText();
+        String label = t.getAction().getLabel().getText();
         if (Context.getContext().isRegisteredName(label))
           {
             for (Transition t2 : trans)
               {
-                String label2 = t2.getLabel().getText();
+                String label2 = t2.getAction().getLabel().getText();
                 if (Context.isConame(label2) &&
                     label.equals(Context.convertLabelToName(label2)))
                   {
                     Par finish1 = (Par) t.getFinish();
                     Par finish2 = (Par) t2.getFinish();
+                    Action sync = new Sync(t.getAction(), t2.getAction());
+                    Transition[] derivs = new Transition[] { t, t2 };
                     if (!finish1.left.equals(left) &&
                         !finish2.right.equals(right))
                       syncTrans.add(new Transition(this,
-                                                   new Par(finish1.left, finish2.right),
-                                                   CCSLabel.TAU));
+                        new Par(finish1.left, finish2.right),
+                        sync, derivs));
                     else if (!finish1.right.equals(right) &&
                              !finish2.left.equals(left))
                       syncTrans.add(new Transition(this,
-                                                   new Par(finish2.left, finish1.right),
-                                                   CCSLabel.TAU));
+                        new Par(finish2.left, finish1.right),
+                        sync, derivs));
                   }
               }
           }
@@ -632,8 +640,8 @@ processes as \texttt{left} and \texttt{right}.  Thus, $Par1$ and
 $Par2$ are implemented by iterating over the transitions of these
 processes, as with recursion.  For each original transition, each
 iteration produces a new transition, with the \texttt{Par} instance as
-the start state, the same transition label as the original
-(\texttt{t.getLabel()} and a new \texttt{Par} instance as the final
+the start state, the same transition action as the original
+(\texttt{t.getAction()} and a new \texttt{Par} instance as the final
 state, where one argument is the unchanged process (either
 \texttt{left} or \texttt{right}) and the other is the final state of
 the original transition.  Looking at $Par1$,
@@ -670,13 +678,14 @@ each one it finds, it iterates over the transitions again, this time
 in search of the corresponding coname.  If it finds a match, and both
 transitions originate from different processes, then it creates a new
 $\tau$ transition, using this instance of \texttt{Par} as the start
-state, the \texttt{CCSLabel.TAU} singleton as the label and a final
-state created by joining together the two final states from each
-transition in a new \texttt{Par} instance.
+state, an instance of \texttt{Sync} as the action and a final state
+created by joining together the two final states from each transition
+in a new \texttt{Par} instance.  The two transitions from which the
+transition was derived, \texttt{t} and \texttt{t2}, are also stored.
 
 The \texttt{Par} implementations for CaSE and Nomadic Time are created
 by extending this class and creating further transitions, based on
-their additional rules.  The other constructs, such as $+$, the
+their additional rules.  The other constructs, including $+$, the
 timeout operators and clock hiding are also implemented in much the
 same way.  DynamiTE itself is concerned with more than just generating
 the transitions of a process from its semantics, however, and in the
@@ -687,8 +696,241 @@ introduced in the implementation of \texttt{Par} above:
 \section{The Context of the Calculus}
 \label{dyn:context}
 
+Beyond the operational semantics, there are two important issues
+involved in representing a process calculus programatically:
+
+\begin{enumerate}
+\item We need to know the \emph{context} in which algebraic
+  constructions in the calculus will operate.  This includes the sets
+  of names and co-names (from CCS), the set of clocks (from CaSE) and
+  the environ names (from Nomadic Time); the foundations on which our
+  semantic rules are built.  Although this is not essential for
+  implementing CCS, where the names and co-names appear as part of the
+  prefix construct $\alpha.E$, it is a necessary part of both CaSE and
+  Nomadic Time.  Both these calculi have rules defined with respect to
+  the set of clocks, but this set is not defined by other constructs
+  in the calculus.  Instead, time is always present and we need to
+  know the set of clocks to derive even the transitions for the $\nil$
+  process using the $Idle$ rule.  The \texttt{Context} class maintains
+  these, and more, in DynamiTE and we will look at this in more depth
+  in the remainder of this section.
+\item We need to know the \emph{execution semantics} for each process.
+  These answer questions such as: what happens when there are multiple
+  transitions from a particular process? And are there any
+  side-effects to performing a transition?  In DynamiTE, these
+  semantics are encoded using the \texttt{Evolver} franework, which we
+  cover in \ref{dyn:evolvers}.
+\end{enumerate}
+
+In the implementation of \texttt{Par} in the previous section, we saw
+how the current \texttt{Context} instance could be used to find out
+whether or not a label referred to a name, using
+\texttt{isRegisteredName(String)}.  In our implementation of CCS, all
+names and co-names are registered with the \texttt{Context}.  This
+happens automatically on the user's behalf as part of the construction
+of a \texttt{Name} or \texttt{Coname} instance, or as part of
+generating the transitions for the renaming operation, $E[f]$.  This
+centralised checking of names and co-names gives two primary
+advantages over just allowing the use of any arbitrary string:
+
+\begin{enumerate}
+\item We can prevent the silent action, $\tau$, being used as a name
+  or co-name.  In CaSE and Nomadic Time, we can also prevent conflicts
+  with clock names, locality names and the new mobility primitives
+  such as $\tntin$.
+\item We can enforce registration (and thus existence of the name or
+  co-name) as a pre-requisite for other methods.  This is especially
+  useful in working with channels (see \ref{dyn:plugin}).
+\end{enumerate}
+
+As a repository for names and co-names, \texttt{Context} becomes an
+appropriate place for other methods related to their use.  As a
+result, it also includes a number of static utility methods which are
+used with co-names; these are \texttt{convertLabelToName(String)},
+\texttt{convertConameToLabel(String)} and \texttt{isConame(String)}.
+In our implementation, we differentiate names from co-names by marking
+each letter with a combining macron (so $a$ becomes $\overline{a}$).
+\texttt{convertConameToLabel(String)} creates these labels from the
+original name, and \texttt{convertLabelToName(String)} returns the
+original name by removing the macrons.  The \texttt{isConame(String)}
+method is a simple method which just checks to see if any macrons are
+present in the name.  The benefit of abstracting all these methods out
+into the \texttt{Context} class is that we can later change the way
+co-names are represented by modifying just one class.
+
+The other main use for the \texttt{Context} is as the user's interface
+to the plugin framework.  We have already touched on how DynamiTE
+supplies implementations for multiple calculi: CCS, CaSE and Nomadic
+Time.  One way this is made possible is by making the implementation
+as generic as possible; we avoid relying on the specific structure or
+types in a particular calculus, separating them out into methods which
+can be overridden by other implementations as with
+\texttt{substitute(String,Process)}.  Another aspect of this is
+allowing the user to select which calculus they want to work with at
+run-time.  This is made possible by a plugin framework.
+
 \subsection{The Plugin Abstraction}
 \label{dyn:plugin}
+
+You may have noticed that, in the \texttt{Par} implementation in
+\ref{dyn:maptheory}, we obtain an instance of \texttt{Context} not by
+calling a construct but using \texttt{Context.getContext()}.  In using
+DynamiTE, only one instance of \texttt{Context} usually
+exists\footnote{Should DynamiTE be used across multiple host virtual
+  machines, then there may be multiple instances, and it will be these
+  that allow communication between each host.}.  This is created at
+startup by a \texttt{ContextFactory}.  As with \texttt{Context}, an
+instance of \texttt{ContextFactory} is obtained using a static method
+rather than a constructor.  The user calls
+\texttt{ContextFactory.getInstance(String,String,String)}, supplying
+the name of a process calculus, a \emph{channel implementation} and a
+\emph{locality implementation}.  The two latter arguments are used to
+determine the execution semantics for synchronisation and movement
+respectively.  The returned \texttt{ContextFactory} will be able to
+supply a \texttt{Context} instance for the specified process calculus
+which uses the given channel and locality implementations.  If one can
+not be found, a \texttt{UnsupportedContextException} is thrown.
+
+DynamiTE supplies an implementation of \texttt{ContextFactory} in the
+form of the \texttt{DynamiTEContextFactory}.  It in turn probes for
+classes which implement \texttt{Calculus}, \texttt{ChannelFactory} and
+\texttt{LocalityFactory} and an instance of it is returned to the user
+if it finds an implementation of each which meets the user's
+requirements.  Once the user has obtained an instance of
+\texttt{ContextFactory}, they can call \texttt{getContext} on it to
+return a \texttt{Context} instance, which can then be supplied to the
+\texttt{Context.setContext(Context)} method to later be returned by
+\texttt{Context.getContext()}.
+
+Although this may sound convoluted and unnecessary, it makes the
+framework much more flexible and ready for future extension, while
+giving the user greater freedom of choice.  A new calculus can be
+implemented simply by creating an implementation of \texttt{Process}
+for each construct and an instance of \texttt{Calculus}.  The same
+goes for new channel and locality implementations, and the option is
+there for the entire \texttt{ContextFactory} to be replaced if needed.
+From the user's perspective, everything can be handled in a single
+line of code:
+
+\begin{verbatim}
+Context.setContext(ContextFactory.getInstance("CCS",
+  "threaded", "dummy").getContext());
+\end{verbatim}
+
+\noindent which supplies an implementation of CCS with threaded
+channels and a dummy locality implementation.
+
+One advantage of using Java is that support for dynamically probing
+for implementations at runtime is built into its class library.  The
+library itself already includes a number of frameworks which work in
+this fashion (including image I/O, sound and XML support) and the
+\texttt{java.util.ServiceLoader} API provided in 1.6 makes it easy for
+developers to define new ones.  In the \texttt{plugin} subpackage,
+DynamiTE provides a means of using this API to support plugins:
+
+\begin{verbatim}
+public static <T extends Probeable> Map<String,T>
+  probePlugins(ServiceLoader<T> sl)
+{
+  Map<String,T> map = new HashMap<String,T>();
+  for (T probeable : sl)
+    {
+      Config.logger.config(String.format("Loaded plugin: " +
+        "%s %d.%d.%d%s", probeable.getName(),
+        probeable.getMajorVersion(), probeable.getMinorVersion(),
+        probeable.getMicroVersion(), probeable.getAdditionalInfo()));
+      map.put(probeable.getName(), probeable);
+    }
+  return Collections.unmodifiableMap(map);
+}
+\end{verbatim}
+
+\noindent Plugins are required to implement the interface
+\texttt{Probeable}, so that the name and version information can be
+obtained programatically.  In DynamiTE, the \texttt{Calculus},
+\texttt{ChannelFactory} and \texttt{LocalityFactory} interfaces all
+extend \texttt{Probeable} so \texttt{DynamiTEContextFactory} need only
+call the above method with an appropriate service loader for the
+interface and it will receive back a \texttt{Map} linking names to
+instances of implementations of that interface.  Most of the actual
+work is done by \texttt{ServiceLoader} which reads from a text file
+named after the interface, which contains a list of implementing
+classes.  The DynamiTE framework supplies such text files for its
+implementations of \texttt{ContextFactory}, \texttt{Calculus},
+\texttt{ChannelFactory} and \texttt{LocalityFactory}.  The
+\texttt{ServiceLoader} loads a listed class each time its
+\texttt{next()} method is called\footnote{This happens indirectly in
+  \texttt{probePlugins} via each iteration of the for-each loop}, and
+returns an instance of it, which \texttt{probePlugins} then stores in
+the map.
+
+The \texttt{Context} class stores and provides indirect access to the
+implementations chosen via the \texttt{ContextFactory}.  For instance,
+calling \texttt{getSyntax()} on the current \texttt{Context} instance
+will return the set of syntactic constructs which form the calculus
+currently in use.  The \texttt{Calculus} instance is also used in the
+process of registering a name; the \texttt{Context} calls the
+\texttt{Calculus} implementation to obtain the transition label for
+the name, which gives the \texttt{Calculus} chance to veto the choice.
+This is used by the \texttt{CCS} class to prevent $\tau$ being used as
+a name, by returning an instance of \texttt{CCSLabel}, the constructor
+of which contains the following check:
+
+\begin{verbatim}
+if (label.equals(TAU))
+  throw new IllegalArgumentException(TAU +
+                                     " is a reserved label.");
+\end{verbatim}
+
+\noindent where \texttt{TAU} is a unique instance of
+\texttt{CCSLabel}.  The other instances maintained by \texttt{Context}
+are used in the execution semantics which we will cover next.
+
+\section{The Evolver Framework}
+\label{dyn:evolvers}
+
+For DynamiTE to actually be useful to users for building concurrent
+applications, it needs to do something more than just evaluating an
+algebraic construct and providing the possible transitions according
+to the semantics of the calculus.  For an application, such as our
+music player example (see \ref{app:req} and \ref{app:nt}), to actually
+work, the user needs to be able to define their own internal behaviour
+and share the results.
+
+The evolver and channel frameworks provide this facility.  An
+implementation of the \texttt{Evolver} interface implements the method
+\texttt{evolve(Process)} according to its own particular execution
+semantics.  Through this method, it is the \texttt{Evolver} instance
+that makes decisions such as which transition to follow to find the
+next state and also whether to process any side effects.  Side effects
+take the form of additional methods which may optionally be called
+after a transition has been followed.  As we saw in
+\ref{dyn:maptheory}, each transition references an \texttt{Action};
+this is an abstract class which provides a method \texttt{perform()}
+for the purpose of implementing side effects.
+
+The channel framework is accessed through four subclasses of
+\texttt{Action}, three of which are also used in \texttt{Prefix}, the
+implementation of $\alpha.E$:
+
+\begin{enumerate}
+\item The class \texttt{Name} is used to represent the use of a name
+  as part of the process $\alpha.E$.  It is also a subclass of
+  \texttt{Action} and implements \texttt{perform()} by reading from an
+  \texttt{InputChannel} and storing the result.
+\item Likewise, the class \texttt{Coname} represents the use of a
+  co-name in $\alpha.E$ and implements \texttt{perform()} by
+  retrieving a value from storage and transmitting it over an
+  \texttt{OutputChannel}.
+\item The \texttt{Tau} class is the last of the three classes used in
+  $\alpha.E$ and is used for the internal action, $\tau$.
+  Implementing \texttt{perform()} for \texttt{Tau} is left to the
+  user, who can use it to implement arbitrary sequential behaviour as
+  required.
+\item The \texttt{Sync} class is created through \texttt{Par} (see
+  \ref{dyn:maptheory}) and implements \texttt{perform()} using the two
+  synchronising actions provided to it on construction.
+\end{enumerate}
 
 \section{A Prototypical Application in DynamiTE}
 \label{app:dynamite}
@@ -717,26 +959,27 @@ a distributed implementation.
 \section{Conclusion}
 
 To conclude, we have presented the overall structure of the DynamiTE
-framework for concurrent systems, with particular note to its more
-interesting aspects involving the use of signalling (via clock ticks)
-and process migration.  We believe that the framework provides a
-unique way of developing concurrent systems.  It provides features
-which have already proved advantageous in a theoretical setting, such
-as the n-ary process synchronisation mechanism described in chapter
-\ref{globsync}.  The existence of a formal theory for DynamiTE's
-behaviour gives many advantages over more ad-hoc approaches, allowing
-the underlying mechanisms to be rigorously examined before being
-applied to the implementation.  The behaviour of the system may be
-established clearly and unambiguously in the underlying process
-calculus before implementation even begins, giving a solid grounding
-on top of which the individual tasks may be developed.
+framework for concurrent systems, including the process framework for
+implementing operational semantics and the evolver framework for
+working with execution semantics.  We believe that the framework
+provides a unique way of developing concurrent systems.  It provides
+features which have already proved advantageous in a theoretical
+setting, such as the n-ary process synchronisation mechanism described
+in chapter \ref{globsync}.  The existence of a formal theory for
+DynamiTE's behaviour gives many advantages over more ad-hoc
+approaches, allowing the underlying design to be rigorously examined
+before being applied to the implementation.  The behaviour of the
+system may be established clearly and unambiguously in the underlying
+process calculus before implementation even begins, giving a solid
+grounding on top of which the individual tasks may be developed.
 
 The actual implementation of the DynamiTE framework is still in heavy
 development.  At its lowest level, it provides a means of simulating
 the operations of the Nomadic Time process calculus, allowing them to
 be more clearly understood.  In application, it can provide a useful
 mechanism for structuring concurrent programs, clearly dividing
-internal behaviour and interprocess communication.  The presence of
-signalling and code migration also means that fairly complex concepts
-can be leveraged by the programmer in the simple manner provided by
-the framework.
+internal behaviour and interprocess communication.  The possibility to
+add further implementations of the channel and locality factories, via
+the plugin mechanism, also means that fairly complex concepts can then
+be leveraged by the programmer in the simple manner provided by the
+framework.
