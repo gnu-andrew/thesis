@@ -29,7 +29,10 @@ syntax which rules these out from the start.
 The main element lacking in the current version of Nomadic Time is
 some notion of equivalence.  This is necessary to be able to compare
 processes, and brings the additional benefit of being able to reduce
-them to a simpler form.
+them to a simpler form.  This would also ripple through to DynamiTE in
+the implementation of an \texttt{equals} method for the Nomadic Time
+implementations of \texttt{Process}, which currently only return true
+where both objects are the same instance.
 
 Any bisimulation theory for NT would be based on the labelled
 transition system defined by the semantics.  In particular, the
@@ -56,12 +59,26 @@ not discernable from merely the set of possible transitions.
 \section{DynamiTE}
 \label{future:dynamite}
 
-There are still areas we wish to explore in the future.  One such
-proposition is the addition of data to the clock signals, allowing
-them not only to act as phasing signals but also as a mechanism for
-broadcast data.  There is also plenty of room for further work on the
-implementation by providing more complex implementations of the plugin
-services such as interprocess communication via web services.
+As we hinted at in chapter \ref{dynamite}, there are still a number of
+areas we wish to explore in the future.  These include:
+
+\begin{itemize}
+\item The development of further \texttt{Evolver} implementations
+  which implement a variety of execution semantics.  This gives the
+  possibility of experimenting with additional constraints and levels
+  of priority, which may later be formally adopted in the calculus.
+\item Expanding the locality framework so that we actually move code
+  and data between processes or even hosts via a network.
+\item The addition of data to the clock signals, allowing them not
+  only to act as phasing signals but also as a mechanism for broadcast
+  data.  
+\end{itemize}
+
+There is also plenty of possibilities for further work in providing
+more complex implementations of the plugin services such as
+interprocess communication via web services and supporting other
+process calculi.  Hopefully, third parties may also wish to get
+involved in this area.
 
 \section{The Type System}
 \label{future:types}
@@ -98,8 +115,10 @@ Such an extension would draw on Milner's work on sorts (see
 following holds for $a : \vec{x}$ and $\overline{a} : \vec{y}$:
 
 \begin{enumerate}
-\item The length $n$ of $\vec{x}$ ($\#x$) must equal the length of $\vec{y}$ ($\#y$).
-\item For each element $x_i$ in $\vec{x}$, the corresponding element in $\vec{y}$, $y_i$, must have the same type $t_i$.
+\item The length $n$ of $\vec{x}$ ($\#x$) must equal the length of
+  $\vec{y}$ ($\#y$).
+\item For each element $x_i$ in $\vec{x}$, the corresponding element
+  in $\vec{y}$, $y_i$, must have the same type $t_i$.
 \end{enumerate}
 
 The types used in $\vec{x}$ and $\vec{y}$ are not members of $T$ (see

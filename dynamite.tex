@@ -20,7 +20,7 @@ library.
 Over the course of this chapter, we will describe how NT processes are
 mapped onto Java objects (see \ref{dyn:maptheory}) and then show how
 DynamiTE can be used to create an implementation of the application we
-introduced in \ref{protoapp} (see \ref{app:dynamite}).  But first, we
+introduced in \ref{app:req} (see \ref{app:dynamite}).  But first, we
 discuss why we chose Java as the host language for DynamiTE and what
 advantages and disadvantages this brings to its implementation.
 
@@ -128,6 +128,7 @@ which was introduced by the addition of `\emph{generics}' in Java 5.
 We thus hope that they may make an appearance in Java 8.
 
 \subsection{Concurrency Provision}
+\label{java:concurrency}
 
 From the perspective of implementing DynamiTE, one advantage of Java
 is its broad support for concurrency.  Java is one of the few
@@ -614,18 +615,17 @@ the CCS implementation here for brevity:
                   {
                     Par finish1 = (Par) t.getFinish();
                     Par finish2 = (Par) t2.getFinish();
-                    Action sync = new Sync(t.getAction(), t2.getAction());
-                    Transition[] derivs = new Transition[] { t, t2 };
+                    Action sync = new Sync(t, t2);
                     if (!finish1.left.equals(left) &&
                         !finish2.right.equals(right))
                       syncTrans.add(new Transition(this,
                         new Par(finish1.left, finish2.right),
-                        sync, derivs));
+                        sync);
                     else if (!finish1.right.equals(right) &&
                              !finish2.left.equals(left))
                       syncTrans.add(new Transition(this,
                         new Par(finish2.left, finish1.right),
-                        sync, derivs));
+                        sync);
                   }
               }
           }
@@ -681,7 +681,8 @@ $\tau$ transition, using this instance of \texttt{Par} as the start
 state, an instance of \texttt{Sync} as the action and a final state
 created by joining together the two final states from each transition
 in a new \texttt{Par} instance.  The two transitions from which the
-transition was derived, \texttt{t} and \texttt{t2}, are also stored.
+transition was derived, \texttt{t} and \texttt{t2}, are stored by the
+\texttt{Sync} action.
 
 The \texttt{Par} implementations for CaSE and Nomadic Time are created
 by extending this class and creating further transitions, based on
@@ -909,9 +910,54 @@ after a transition has been followed.  As we saw in
 this is an abstract class which provides a method \texttt{perform()}
 for the purpose of implementing side effects.
 
-The channel framework is accessed through four subclasses of
-\texttt{Action}, three of which are also used in \texttt{Prefix}, the
-implementation of $\alpha.E$:
+DynamiTE provides a simple implementation of \texttt{Evolver} called
+\texttt{Simulator} which ignores side effects.  While this is of
+little use for applications, it is useful for testing design
+constructs as it allows the possible transitions from a process to be
+visualised.  All \texttt{Simulator} does is take a \texttt{Process}
+and loop over its transitions, calling itself recursively with each
+final state.  In this way, it explores the possible transitions in a
+depth-first manner, until it reaches a process with either no
+transitions or where all transitions have equal start and end states.
+The latter condition prevents it looping forever over states with just
+clock transitions or simple forms of infinite recursion, such as $\mu
+X.a.X$.
+
+\begin{verbatim}
+  public void evolve(Process p)
+  {
+    System.out.println("Evolving process: " + p);
+    Set<Transition> trans = p.getPossibleTransitions();
+    System.out.println("Possible transitions: " + trans);
+    for (Transition t : trans)
+      {
+        State f = t.getFinish();
+        if (f instanceof Process)
+          {
+            if (f.equals(p))
+              System.out.println("Not following transition " + t);
+            else
+              {
+                System.out.println("Following transition " + t);
+                evolve((Process) f);
+              }
+          }
+      }
+  }
+\end{verbatim}
+
+A more practical \texttt{Evolver} is a more complex undertaking.  It
+has to make choices over which transition to pick when several are
+presented; although CaSE and Nomadic Time have a notion of priority in
+maximal progress, choices must still be made between the ticks of
+different clocks, or between a clock tick and an action.  These
+choices form the execution semantics of an \texttt{Evolver}
+implementation, and there is plenty of room for further
+experimentation in this area.
+
+Returning to the notion of side effects, the channel framework is
+accessed through four subclasses of \texttt{Action}, three of which
+are also used in \texttt{Prefix}, the implementation of $\alpha.E$:
 
 \begin{enumerate}
 \item The class \texttt{Name} is used to represent the use of a name
@@ -928,9 +974,164 @@ implementation of $\alpha.E$:
   user, who can use it to implement arbitrary sequential behaviour as
   required.
 \item The \texttt{Sync} class is created through \texttt{Par} (see
-  \ref{dyn:maptheory}) and implements \texttt{perform()} using the two
-  synchronising actions provided to it on construction.
+  \ref{dyn:maptheory}) and is a subclass of \texttt{Tau} which
+  implements \texttt{perform()} using the two synchronising
+  transitions provided to it on construction.
 \end{enumerate}
+
+The \texttt{InputChannel} and \texttt{OutputChannel} instances are
+obtained from the \texttt{ChannelFactory}, via the \texttt{Context},
+and provide \texttt{read()} and \texttt{write(Object)} methods
+respectively.  Although there is currently no realisation of data
+within the formal layer of the calculus, this only matters to the
+extent that we wish transmitted data to alter the constructs
+themselves via substitution\footnote{The $\pi$ calculus (see
+  \ref{picalculus}) is an obvious example of such behaviour, which
+  goes to the extreme of not only allowing data to be transferred but
+  also references to channels which can then later be used in the
+  language constructs.  This, in essence, provides the form of
+  mobility present in the $\pi$ calculus.}.  Data can be transferred
+between processes and used within internal actions without having to
+be explicitly realised at the formal level.  The operation of these
+I/O operations, and the creation of a suitable environment in which
+this may happen, is left to the implementation of the
+\texttt{ChannelFactory} and there are a multitude of ways of doing so.
+These range from simple mechanisms like files and sockets to complex
+interprocess communication protocols such as Java's Remote Method
+Invocation (RMI), the Common Object Request Broker Architecture
+(CORBA) and web services.  The plugin nature of the channel
+architecture means that any of these possibilities may be used and
+more besides.
+
+DynamiTE provides a sample implementation,
+\texttt{ThreadedChannelFactory}, built on a \texttt{SynchronousQueue};
+the \texttt{read} and \texttt{write} operations are performed by
+synchronising two different threads and transferring the data
+directly.  Thus, if \texttt{read} is called, and another thread is not
+already waiting in the \texttt{write} method, it will block until this
+is the case.  The same is true for \texttt{write}.  As noted above,
+the \texttt{ChannelFactory} is also responsible for creating the
+necessary environment for these operations, so the
+\texttt{ThreadedChannelFactory} has to ensure that appropriate threads
+are created and used.  A hook, \texttt{runInParallel(Process,
+  Process)} is used for this purpose and is called indirectly by the
+constructor of \texttt{Par}.
+
+Data storage is also provided by the \texttt{ChannelFactory}.  The
+channel I/O operations are automated side-effects of following a
+transition labelled with a name or co-name, so user code (implemented
+in a \texttt{Tau} subclass) must be able to access any values
+retrieved and store new ones when it is itself performed.  The
+\texttt{ChannelFactory} provides storage repositories, keyed by the
+name of the channel, for this purpose.  When a user wishes to transmit
+a value, they call \texttt{store(String,Object)}, where the first
+argument is the channel name and the second the data to store.  Later,
+the performance of a \texttt{Coname} with that channel name will
+lookup the data and transmit it to the corresponding \texttt{Name}.
+User code in a further \texttt{Tau} implementation can then retrieve
+this using \texttt{retrieve(String)}, passing to it the name of the
+channel and receiving back the data.  The
+\texttt{ThreadedChannelFactory} implements this by storing data in a
+\texttt{ThreadLocal}, so that it is only retrievable by the same
+thread that stored it:
+
+\begin{verbatim}
+  public void store(String name, Object data)
+  {
+    ThreadLocal<Object> store = repositories.get(name);
+    if (store == null)
+      {
+        ThreadLocal<Object> newStore = new ThreadLocal<Object>();
+        store = repositories.putIfAbsent(name, newStore);
+        if (store == null)
+          store = newStore;
+      }
+    store.set(data);
+  }
+\end{verbatim}
+
+The \texttt{repositories} variable stores an instance of
+\texttt{ConcurrentHashMap}, which guarantees that retrieval operations
+will always return results which reflect the most recently completed
+operations.  As we described in \ref{java:concurrency},
+\texttt{ConcurrentHashMap} is thread-safe while also being much more
+efficient than \texttt{Hashtable} which locks the entire collection on
+any operation.  These guarantees do not, however, help in performing a
+sequence of operations on the map; specifically, the map may still be
+changed by another thread in the interim period between performing a
+\texttt{get} and a \texttt{put}.
+
+This applies to the method above, as we need to check whether or not a
+\texttt{ThreadLocal} instance has been created for a particular
+channel name, and if not, create one.  The initial \texttt{get}
+operation will return \texttt{null} if we have not yet created a mapping
+between that channel name and a \texttt{ThreadLocal}.  However, in the
+time it takes for this thread to check the return value and create a
+\texttt{ThreadLocal}, another thread may have added such a mapping.
+The \texttt{ConcurrentMap} interface (which \texttt{ConcurrentHashMap}
+implements) provides an additional operation for just this issue:
+\texttt{putIfAbsent}.  This provides an atomic version of the
+following code:
+
+\begin{verbatim}
+if (map.containsKey(key))
+  return map.get(key);
+else
+  return map.put(key, value);
+\end{verbatim}
+
+If, as in the most likely case, a mapping has not been added since our
+initial \texttt{get}, then the \texttt{putIfAbsent} call folds down to
+a normal \texttt{put} call.  The \texttt{put} method returns either
+the previous value of the mapping or \texttt{null} if there wasn't
+one.  In this case, it will always return \texttt{null} as the
+\texttt{containsKey} call has already ensured no mapping exists.
+Thus, if \texttt{null} is returned, we know that our new
+\texttt{ThreadLocal} was used for the mapping.  If the return value is
+not \texttt{null}, then another thread managed to add a mapping before
+us, and the \texttt{ThreadLocal} we created is simply discarded when
+we leave the scope of the \texttt{if} block in which it was created.
+
+The complexity of this operation again shows how difficult it can be
+to make operations involving shared objects thread-safe.  The
+advantage of using DynamiTE is that the user doesn't have to come into
+contact with this.  They merely store a value and the framework
+handles the thread safety issues involved.  Providing these kind of
+reusable generic constructs makes it much easier to build concurrent
+applications that are thread-safe.
+
+From this discussion, it should now be clear how concurrent
+applications are created in DynamiTE; the user constructs
+\texttt{Process} instances which match their design constructed in the
+process calculus, and provides \texttt{Tau} subclasses for the actual
+work performed by the application.  Data is passed between
+\texttt{Tau} subclasses via the channel framework.
+
+DynamiTE also provides hooks for a locality framework, which allows
+side effects to take place on the performance of mobility actions,
+just as the channel framework provides side effects for
+synchronisation.  At present, DynamiTE simply has a dummy
+implementation for this, but this has great scope for being used to
+implement process migration.  Migrating an active process is not a
+simple operation -- not only must the continuation of the code be
+transferred, but any local data must also migrate.  Using the Nomadic
+Time process calculus as our basis allow us to achieve a significant
+amount of simplification here; the transferred process is already
+separated from other code within the system by virtue of the moving
+process being in the form of a \texttt{Prefix} instance.  When the
+action is matched to the one used for the mobility operation, the
+\texttt{Process} instance is transferred to its new location.  There
+is no need to deal with code that is currently being executed.  We
+also know exactly what data to be transferred, as this is centrally
+managed by the channel framework.  Again, this is an interesting area
+for future work.
+
+Now we have explored DynamiTE, the next section provides a walkthrough
+example of creating an application using the framework, following on
+from \ref{app:req} and \ref{app:nt}.  We also compare this
+implementation with a standard implementation using low-level
+concurrency primitives, thus allowing us to evaluate whether our
+claims made in \ref{solution} hold true.
 
 \section{A Prototypical Application in DynamiTE}
 \label{app:dynamite}
@@ -938,11 +1139,9 @@ implementation of $\alpha.E$:
 \section{Related Work}
 \label{dyn:relatedwork}
 
-There has already been a significant body of research into providing
-concurrent frameworks, including those based on process calculi.
-However, we believe our work to be novel in approaching the
-implementation of both global discrete time, via clock signalling, and
-mobility.
+In this final section, we look briefly at the existing body of
+research concerned with providing concurrent frameworks, including
+those based on process calculi.  
 
 The $\pi$ calculus has been the subject of much of this work, primarily
 due to its status as the most prevalant mobile process calculus.  Obliq
@@ -955,6 +1154,9 @@ related to the ambient calculus, a machine framework (PAN
 implemented.  Process calculi, such as the Seal calculus \cite{seal}
 have also been developed specifically to provide a formal framework for
 a distributed implementation.
+
+We believe our work to be novel in approaching the implementation of a
+calculus with both global discrete time and mobility.
 
 \section{Conclusion}
 
