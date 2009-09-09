@@ -544,7 +544,11 @@ these processes.  As a result, most of the implementations of
 \texttt{getPossibleTransitions()} in DynamiTE operate by looping over
 the set of transitions from each component process, checking if they
 meet the prerequisties for one of the rules and then creating new
-transitions.
+transitions\footnote{It is possible to make the implementations shown
+  here more efficient, firstly by retrieving the transitions of the
+  subprocesses simultaneously using separate threads and secondly by
+  caching the result so that future calls don't recompute the
+  transitions.}.
 
 Recursion is probably one of the simplest examples of this.  From its
 semantics,
@@ -1135,13 +1139,393 @@ claims made in \ref{solution} hold true.
 
 \section{A Prototypical Application in DynamiTE}
 \label{app:dynamite}
-                                   
+
+In \ref{app:nt}, we created a design for the music player application
+using the Nomadic Time calculus.  This resulted in a system defined by
+the following equations:
+
+\begin{equation}
+\label{app:eqn}
+\begin{aligned}
+  & Out \eqdef o.\stimeout{\Delta}{\sigma}{\tau.\nil} \\
+  & Analy \eqdef o.\stimeout{\Delta}{\sigma}{\tau.\nil} \\
+  & IntSys \eqdef i.\mu X.(\tau.\mu W.\stimeout{\overline{o}.W}{\sigma}{X} \pc Out \pc Analy) \\
+  & Intf \eqdef useri.(\overline{i}.\nil | IntSys) \\
+  & App \eqdef \loc{player}{Intf}{\bin.\Omega}{\sigma} 
+\end{aligned}
+\end{equation}
+
+In this section, we will see how these constructions can be turned
+into Java objects.  The process is fairly simple, and results in a
+system which leverages the existing concurrency work performed in the
+development of the DynamiTE framework.  We then look at how the same
+application could be written without the framework, using objects in
+shared memory.
+
+The operators in the above all map to Java classes as we saw in
+\ref{dyn:maptheory}; $\Delta$ is implemented by \texttt{Delta}, the
+stable timeout by \texttt{STo}, recursion by \texttt{Rec} and the
+environ by \texttt{Env}.  The channels, $i$, $o$ and $useri$ are
+represented using instances of \texttt{Name} and
+\texttt{Coname}. Thus, all that remains is the internal silent actions
+$\tau$.
+
+Each silent action is represented by a different subclass of
+\texttt{Tau} and its \texttt{perform()} method is implemented so as to
+do the actual work required of the application.  The implementation
+for the silent action used in $Out$ looks something like this:
+
+\begin{verbatim}
+public class Out
+  extends Tau
+{
+  public void perform()
+  {
+    Context ctx = Context.getContext();
+    Object soundData = ctx.retrieve("o");
+    if (soundData != null && soundData instanceof byte[])
+    {
+      play((byte[]) soundData);
+    }
+    else
+    {
+      throw new InternalError("Didn't receive sound data.");
+    }
+  }
+}
+\end{verbatim}
+
+The \texttt{perform()} method first retrieves the data from the
+\texttt{``o''} repository, where it should have been placed earlier by
+the $o$ action.  If it is successfully, the data is played out on the
+speakers.  In the unlikely case that something went wrong, and the
+expected data is not held in the repository, we throw an error.
+
+The implementation for the silent action in $Analy$ is identical,
+except that the sound data retrieved is visualised rather than played.
+The one for $In$ is slightly more complicated, as we have to both
+store and retrieve from different repositories:
+
+\begin{verbatim}
+public class In
+  extends Tau
+{
+
+  private InputStream is;
+
+  public void perform()
+    throws IOException
+  {
+    if (is == null)
+    {
+      Context ctx = Context.getContext();
+      Object fileName = ctx.retrieve("i");
+      is = new FileInputStream((String) fileName);
+    }
+    byte[] soundData = readAndProcessData(is);
+    ctx.store("o", soundData);
+  }
+}
+\end{verbatim}
+
+This time we allow the use of the retrieved value by the file routines
+throw up any issues.  If this is the first time the $\tau$ action is
+encountered, then the filename is retrieved from the \texttt{``i''}
+repository where it was stored by the earlier $i$ action and an
+\texttt{InputStream} created so that data may be read from the file.
+After this, and on each subsequent invocation, data is read from the
+stream, processed and store in a \texttt{byte} array in the
+\texttt{``o''} repository.
+
+Now we have our silent actions, we can construct our processes:
+
+\begin{verbatim}
+Context.setContext(ContextFactory.getInstance("NT",
+  "threaded", "dummy").getContext());
+Context ctx = Context.getContext();
+Clock sigma = new Clock("\u03C3");
+Name output = new Name("o");
+Process out = new Prefix(output,
+  new STo(Delta.DELTA, sigma, new Prefix(new Out(), Nil.NIL));
+Process analy = new Prefix(output,
+  new STo(Delta.DELTA, sigma, new Prefix(new Analy(), Nil.NIL));
+Process inLoop = new Prefix(new In(), new Rec("W",
+  new STo(new Prefix(new Coname("o"), new Var("W")), sigma,
+          new Var("X"))));
+Process intSys = new Prefix(new Name("i"),
+  new Rec("X", new Par(new Par(inLoop, out), analy)));
+Process intf = new Prefix(new Name("useri",
+  new Par(new Prefix(new Coname("i"), Nil.NIL), intSys)));
+Set<Clock> hiddenClocks = new HashSet<Clock>();
+hiddenClocks.add(sigma);
+Process app = new Env("player", intf,
+  new MobPrefix(MobPrim.BOUNCER_IN, Omega.OMEGA),
+  hiddenClocks);
+\end{verbatim}
+
+If the above is compared with Eqn. \ref{app:eqn}, it should be clear
+how each term is turned into a instance of a Java class.  The
+references to \texttt{Delta.DELTA}, \texttt{Nil.NIL},
+\texttt{MobPrim.BOUNCER\_IN} and \texttt{Omega.OMEGA} refer to
+singleton instances, as none of these have any variable attributes.
+At the end of running this code, we are left with a \texttt{Context}
+containing $\names = \{i,o,useri\}$, $\conames = \{i,o\}$, $\timers =
+\{\sigma\}$ and the environ, $player$, and an instance \texttt{app}
+which can be passed to an \texttt{Evolver} instance to run the
+application.
+
+The same application can be implemented without DynamiTE in
+innumerable ways, but one thing holds for all of them; they must
+either include provisions to ensure thread safety or be purely single
+threaded.  Writing such an application using a single thread produces
+an unworkable result; while the sound data is being output, nothing
+else can be done so any visualiser will be out of sync with the sound
+being played.  Additionally, no data will be being read while this is
+happening, so the application has to rely on there being enough time
+between the data has been sent to the speakers and the actual sound
+finishing for it to read more data and send it.  This becomes even
+more unlikely when the visualiser is factored in.
+
+Thus, we will assume that any sensible implementation, like our
+DynamiTE-based application, will use a thread for each of the input,
+output and visualisation processes.  Unlike with DynamiTE, we now have
+to consider how the sound data will be stored and how it will be
+shared between threads.  For simplicity, we start by just considering
+the input and output threads:
+
+\begin{verbatim}
+public class Player
+{
+
+  private BlockingQueue<byte[]> queue;
+
+  private String fileName;
+
+  public void input()
+  {
+    InputStream is = new FileInputStream((String) fileName);
+    while (true)
+    {
+      byte[] soundData = readAndProcessData(is);
+      queue.put(soundData);
+    }
+  }
+
+  public void output()
+  {
+    while (true)
+    {
+       byte[] soundData = queue.take();
+       play(soundData);
+    }
+  }
+
+  public static void main(String[] args)
+  {
+    fileName = args[0];
+    queue = new LinkedBlockingQueue();
+    Thread input = new Thread(new Runnable()
+    {
+      public void run() { input(); }
+    }, "input");
+    Thread output = new Thread(new Runnable()
+    {
+      public void run() { output(); }
+    }, "output");
+    input.join();
+    output.join();
+  }
+}     
+\end{verbatim}
+
+We've kept the implementation as close as possible to that for
+\texttt{In} and \texttt{Out} above, including not handling the end of
+the file.  Realistically, the thread should terminate when this
+happens.  Although the similarities between the two should be clear,
+so should the differences.  In this example, we have had to consider
+both how data is stored and how the methods are run; these are handled
+by the channel and evolver frameworks respectively in DynamiTE.  The
+\texttt{BlockingQueue} is thread-safe, so the threads can not corrupt
+the data structure if they happen to try and perform an operation on
+the queue at the same time.  This is the same as the locks used in
+\ref{semaphores} with the locking occurring inside the collection
+rather than visibly in the surrounding code.  The \texttt{take}
+operation also blocks if the queue is empty until an item is
+added\footnote{The \texttt{put} operation also blocks if a capacity is
+  given for the list on creation; we don't do so here.}; again the
+behaviour inside the queue is akin to what we saw with signalling in
+\ref{semaphores}.
+
+This works fine for this example, but there is an immediate problem if
+we want to introduce the visualiser into the mix; the \texttt{take}
+operation performed on the queue by both \texttt{output} and the new
+\texttt{visualise} method will remove the item from the queue so one
+thread will get a particular value and the other one won't.  There are
+a number of possible solutions to this:
+
+\begin{enumerate}
+\item We can replace the queue with an indexed collection and remember
+  which index was last used.  The new collection also has to be
+  thread-safe and we put ourselves at risk of running out of memory as
+  the queue will only ever increase in size.
+\item We add each item to the queue twice.  This makes the
+  \texttt{input} method dependent on the number of consuming threads.
+  It also means we have to add our own external locking to ensure that
+  one of the consumers does not perform a \texttt{take} while the
+  items are being added, and we have to check on each iteration that
+  we are getting a new value and not a copy of the previous one still
+  waiting to be taken by the other thread.
+\end{itemize}
+
+Below we provide an implementation of the second solution:
+
+\begin{verbatim}
+public class Player
+{
+
+  private static final int NUMBER_OF_CONSUMERS = 2;
+
+  private Queue<byte[]> queue;
+
+  private String fileName;
+
+  public void input()
+  {
+    InputStream is = new FileInputStream((String) fileName);
+    while (true)
+    {
+      byte[] soundData = readAndProcessData(is);
+      synchronized (this)
+      {
+        for (int a = 0; a < NUMBER_OF_CONSUMERS; ++a)
+          queue.offer(soundData);
+        notifyAll();
+      }
+    }
+  }
+
+  public void output()
+  {
+    byte[] soundData = null;
+    while (true)
+    {
+       synchronized (this)
+       {
+         while (queue.peek() == soundData ||
+                queue.peek() == null)
+         {
+           wait();
+         }
+         soundData = queue.poll();
+         notifyAll();
+       }
+       play(soundData);
+    }
+  }
+
+  public void visualise()
+  {
+    byte[] soundData = null;
+    while (true)
+    {
+       synchronized (this)
+       {
+         while (queue.peek() == soundData ||
+                queue.peek() == null)
+         {
+           wait();
+         }
+         soundData = queue.poll();
+         notifyAll();
+       }
+       visualise(soundData);
+    }
+  }
+
+  public static void main(String[] args)
+  {
+    fileName = args[0];
+    queue = new LinkedList();
+    Thread input = new Thread(new Runnable()
+    {
+      public void run() { input(); }
+    }, "input");
+    Thread output = new Thread(new Runnable()
+    {
+      public void run() { output(); }
+    }, "output");
+    Thread analy = new Thread(new Runnable()
+    {
+      public void run() { visualise(); }
+    }, "analy");
+    input.join();
+    output.join();
+  }
+}     
+\end{verbatim}
+
+This is clearly more complicated than the example with just input and
+output.  We dispense with the \texttt{BlockingQueue} as we need to
+obtain a lock anyway to ensure the atomicity of the multiple
+\texttt{offer} calls in \texttt{input} and the checks in
+\texttt{output} and \texttt{visualise}.  Both the \texttt{output} and
+\texttt{visualise} methods are very similar and it would be a very
+good idea to generalise these in a \texttt{Consumer} superclass; as we
+noted in \ref{semaphores}, the correct placement of locking and
+signalling constructs is prone to simple errors so anything we can do
+to simplify this and minimise the risk is advantageous.
+
+The consumer methods now loop until \texttt{peek} returns a new unseen
+value.  When we reach this loop, \texttt{peek} may return one of three
+things:
+
+\begin{enumerate}
+\item It may be \texttt{null} if nothing has yet been added or both
+  values from the last run have been retrieved.
+\item It may equal the previous value, indicating that the other
+  consumer has not yet read its data.
+\item It may be a new unseen value which is neither \code{null} or
+  equal to \code{soundData}.  In this case, we exit the loop, remove
+  the value from the queue and notify any waiting threads that the
+  thread has changed.
+\end{enumerate}
+
+If either of the first two conditions hold, \texttt{wait} is called,
+causing the thread to relinquish its lock and sleep until notified by
+a call to \texttt{notifyAll}.  This solution should be thread safe as
+presented, but it should also be obvious how a simple misplaced call
+could break this; thread safety is a very fragile property.
+
+It should be clear from this example that DynamiTE makes implementing
+this a lot simpler; not only do we not have to worry about locking the
+data structure and signalling other processes at the correct points,
+we have a solution which works for any number of consumers without
+changing \texttt{input}.  The only way that would be possible here is
+by a hack to use the names of threads as identifiers as to whether
+they are consumers or not; not a very elegant solution.  The
+abstraction in DynamiTE also means that a simple one line change to
+the channel factory being used can turn an application communicating
+between threads as above, to one communicating over a network with no
+other changes to the application.
+
+In summary, we think DynamiTE has achieved its goals; it abstracts
+away many complex and fragile pieces of code which ensure thread
+safety, in much the same way as the concurrency collection classes do
+in the class library.  They are replaced by simple abstract concepts
+such as \texttt{store} and \textt{retrieve} calls to the repositories.
+In implementing DynamiTE, we believe we have also made it approachable
+for existing Java programmers, either to use to build their own
+applications or even to contribute to DynamiTE itself.  By learning
+the meaning of a small number of algebraic concepts, they can leverage
+the power of DynamiTE to create applications limited only by the
+plugin factories being used.
+
 \section{Related Work}
 \label{dyn:relatedwork}
 
 In this final section, we look briefly at the existing body of
 research concerned with providing concurrent frameworks, including
-those based on process calculi.  
+those based on process calculi.
 
 The $\pi$ calculus has been the subject of much of this work, primarily
 due to its status as the most prevalant mobile process calculus.  Obliq
