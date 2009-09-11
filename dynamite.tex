@@ -1375,7 +1375,7 @@ a number of possible solutions to this:
   items are being added, and we have to check on each iteration that
   we are getting a new value and not a copy of the previous one still
   waiting to be taken by the other thread.
-\end{itemize}
+\end{enumerate}
 
 Below we provide an implementation of the second solution:
 
@@ -1484,8 +1484,8 @@ things:
   values from the last run have been retrieved.
 \item It may equal the previous value, indicating that the other
   consumer has not yet read its data.
-\item It may be a new unseen value which is neither \code{null} or
-  equal to \code{soundData}.  In this case, we exit the loop, remove
+\item It may be a new unseen value which is neither \texttt{null} or
+  equal to \texttt{soundData}.  In this case, we exit the loop, remove
   the value from the queue and notify any waiting threads that the
   thread has changed.
 \end{enumerate}
@@ -1512,7 +1512,7 @@ In summary, we think DynamiTE has achieved its goals; it abstracts
 away many complex and fragile pieces of code which ensure thread
 safety, in much the same way as the concurrency collection classes do
 in the class library.  They are replaced by simple abstract concepts
-such as \texttt{store} and \textt{retrieve} calls to the repositories.
+such as \texttt{store} and \texttt{retrieve} calls to the repositories.
 In implementing DynamiTE, we believe we have also made it approachable
 for existing Java programmers, either to use to build their own
 applications or even to contribute to DynamiTE itself.  By learning
@@ -1527,20 +1527,362 @@ In this final section, we look briefly at the existing body of
 research concerned with providing concurrent frameworks, including
 those based on process calculi.
 
-The $\pi$ calculus has been the subject of much of this work, primarily
-due to its status as the most prevalant mobile process calculus.  Obliq
-\cite{obliq} and Pict \cite{daveturner:phd} are both programming
-languages with semantics founded in the $\pi$ calculus, while Nomadic
-Pict \cite{wojciechowski:phd} takes this further, introducing
-distribution not usually present in the $\pi$ calculus.  Within research
-related to the ambient calculus, a machine framework (PAN
-\cite{sangiorgi:safeambientsmachine}) has been developed and
-implemented.  Process calculi, such as the Seal calculus \cite{seal}
-have also been developed specifically to provide a formal framework for
-a distributed implementation.
+The $\pi$ calculus has been the subject of much of this work,
+primarily due to its status as the most prevalant mobile process
+calculus.  Obliq \cite{obliq} and Pict \cite{daveturner:phd} are both
+programming languages with semantics founded in the $\pi$ calculus,
+while Nomadic Pict \cite{wojciechowski:phd} extends Pict by
+introducing distribution, a feature not usually present in the $\pi$
+calculus.
 
-We believe our work to be novel in approaching the implementation of a
-calculus with both global discrete time and mobility.
+\subsection{Obliq}
+Obliq was originally developed by Luca Cardelli in 1995, prior to his
+work on the ambient calculus.  While being an object-oriented
+language, it has no notion of classes in the same way that languages
+like C++ and Java do.  Objects are instead constructed directly and
+assigned to variables:
+
+\begin{verbatim}
+let o = 
+  { 
+    x => 3,
+    inc => meth(s,y) s.x := s.x+y; s end
+    next => meth(s) s.inc(1).x end 
+  }
+\end{verbatim}
+
+In the above example, an object is created with two methods,
+\texttt{inc} and \texttt{next}.  The first argument of a method is
+explicitly named (\texttt{s} in the above) but always contains a
+reference to the object itself (\texttt{this} in Java), rather than
+some argument passed by the method call.  The object instance is
+assigned to \texttt{o}, so the only way of executing its methods or
+manipulating its values is via either \texttt{o} itself or a clone of
+it (created by \texttt{clone(o)}.  The method \texttt{inc} increases
+the value of \texttt{x} by \texttt{y}, while the method \texttt{next}
+uses this method to give the next value of \texttt{x}.  Methods
+implicitly return the value computed by their body; \texttt{s} and
+\texttt{s.inc(1).x} respectively in this case.
+
+Objects in Obliq contain only fields, but these fields can contain
+\emph{methods}, \emph{aliases} and \emph{values}.  The latter
+including procedures, which differ from methods in not having a
+reference to the object as their first argument.  Fields are
+dynamically typed, so, for example, even if \texttt{x} is given the
+value \texttt{3} initially, it can later be assigned a method.  An
+alias allows an operation to be redirected; for example \texttt{a.x :=
+  alias y of b end} makes any attempt to access \texttt{a.x}
+equivalent to accessing \texttt{b.y}.
+
+The main feature of Obliq is that it contains concurrency and remote
+invocation primitives.  The following implements the producer/consumer
+queue we saw in \ref{semaphores} in Obliq:
+\begin{verbatim}
+let queue =
+  (let nonEmpty = condition();
+   var q = [];
+
+   { protected, serialized
+     write =>
+       meth(s,elem)
+         q := q @ [elem];
+         signal(nonEmpty);
+       end,
+     read =>
+       meth(s)
+         watch nonEmpty until #(q)>0 end;
+         let q0 = q[0];
+         q := q[1 for #(q)-1];
+         q0;
+       end;
+   }
+  );
+\end{verbatim}
+The field \texttt{nonEmpty} is assigned a condition queue, like the
+implicit one provided to all objects in Java, while \texttt{q} stores
+the data.  The \texttt{protected} modifier prevents external
+modification to the fields (the equivalent of declaring them all
+\texttt{private} in Java), while \texttt{serialized} is akin to
+acquiring a mutex at the beginning of each method and releasing it at
+the end.  The latter thus ensures that the queue is only manipulated
+by one thread at a time, and also works in tandem with the condition
+queue.  The \texttt{watch} statement is equivalent to \texttt{wait},
+except that it is slightly safer as the need to loop over a condition
+is tied to the waiting process by the use of unique syntax as opposed
+to a method call.  The statement translates to \texttt{while
+  (q.length() == 0) \{ wait(); \}} in Java.  Likewise, \texttt{signal}
+is equivalent to \texttt{notifyAll}.
+
+The following code:
+\begin{verbatim}
+let t = fork(proc() queue.read() end, 0);
+queue.write(3);
+let result = join(t);
+\end{verbatim}
+shows how the queue can be used.  A separate thread, \texttt{t}, is
+forked to read from the queue.  This is necessary as the call will
+block until the queue's length becomes greater than zero.  We then
+write the value 3 to the queue, and wait using a \texttt{join} call
+for \texttt{t}. Once \texttt{t} has awoken and read from the queue, it
+should return a result of 3 which ends up in \texttt{result}.
+
+Remote invocation works in the same style as protocols such as CORBA
+and Java RMI; a name server allows objects to be registered with a
+name, allowing them to be looked up and retrieved.  The following
+Obliq code implements object migration:
+
+\begin{verbatim}
+let migrateProc =
+  proc(obj, engineName)
+    let engine = net_importEngine(engineName, namer);
+    let remoteObj = engine(proc(arg) clone(obj) end);
+    redirect obj to remoteObj end;
+    remoteObj;
+  end;
+\end{verbatim}
+
+The procedure takes two arguments: the object to migrate
+(\texttt{obj}) and the remote site to migrate it to
+(\texttt{engineName}).  The invocation of \texttt{net\_importEngine}
+obtains a reference to an \emph{execution engine} from the name
+server, \texttt{namer}.  Execution engines accept a procedure as an
+argument, which is then run at the remote site; thus
+\texttt{clone(obj)} is run not locally but at the site of
+\texttt{engineName} so that \texttt{remoteObj} ends up being a
+reference to the remote clone.  The \texttt{redirect} statement then
+acts as a shorthand for aliasing each field in the local \texttt{obj}
+to point to \texttt{remoteObj} so that future invocations on
+\texttt{obj} access the remote clone.
+
+Obliq has two advantages over traditional languages:
+
+\begin{enumerate}
+\item Threads, condition queues and remote invocation are built into
+  the language as primitives, so developers do not have to depend on
+  external libraries.
+\item It can be given a semantics using the $\pi$ calculus
+  \cite{obliqsem}, which allow its form of migration, known as
+  \emph{object surrogation}, described above to be proved correct.
+\end{enumerate}
+
+However, on the downside, Obliq requires the user to learn the syntax
+and semantics of a completely new language, as well as giving up any
+existing libraries that may be available for development in the
+language they traditionally work in.  It also doesn't particularly
+simplify anything; locking still has to be performed at the same
+intricate level of granularity as in a language like Java, while
+foregoing the much greater base of experience and libraries available
+in that language.  This is unlike our framework, DynamiTE, where
+locking and transmission of data is abstracted away via the use of
+storage repositories, and the user can work in the familiar Java
+programming language, thus having only to learn a fairly small API in
+order to use the framework.  In all, Obliq is interesting as a piece
+of early research in this area, but we don't see it being of much
+practical use.
+
+\subsection{Nomadic Pict}
+
+Pict is a programming language based on the asynchronous $\pi$
+calculus (see \ref{pivariants}).  Nomadic Pict extends this by adding
+in a notion of distribution; users can create \emph{agents} which
+migrate between \emph{sites}, and channels are located at a particular
+site.  An example Nomadic Pict program looks like this:
+
+\begin{verbatim}
+new answer : ^String
+  def spawn [s:Site prompt:String] =
+    (agent b =
+      (migrate to s
+       <a@s'>answer!(sys.read prompt))
+     in
+      ()
+    )
+  (spawn ! [s1 "How are you? - "]
+  |spawn ! [s2 "When does the meeting start? - "]
+  |answer ?* s = print!s)
+\end{verbatim}
+
+The code runs inside an agent \texttt{a} located at the site
+\texttt{s'}.  It defines a function \texttt{spawn} which, when called,
+creates an agent \texttt{b} which migrates to the supplied site
+\texttt{s}.  Once at \texttt{s}, the agent attempts to output on the
+channel \texttt{answer} which is located back at site \texttt{s'} and
+attached to agent \texttt{a}, having being created by the \texttt{new}
+statement.  The value transmitted is first input by the user, who is
+first prompted with the string supplied to the \texttt{spawn}
+function.
+
+The agent \texttt{a} itself spawns three processes, two of which call
+\texttt{spawn}.  The third forms the other end of the communication
+with agent \texttt{b} by waiting for input on \texttt{answer}.  The
+use of \texttt{?*} for input as opposed to just \texttt{?} makes the
+input replicated using the $!$ operator from the $\pi$ calculus, so it
+is always available.  When the program is run, the first two processes
+will migrate to \texttt{s1} and \texttt{s2} respectively.  They then
+prompt the user with their respective messages, and return the user's
+input to agent \texttt{a} via the \texttt{answer} channel.  The third
+process in \texttt{a} prints whatever is received.
+
+Perhaps the clearest thing about Nomadic Pict from this example is
+that it is not the most readable of languages.  Being designed
+primarily as a way of programming in the $\pi$ calculus rather than as
+a usable language means that the syntax lleads something to be desired
+and is fairly unaccessible for those who don't know the calculus in
+detail.  On the positive side, this does give the language a strong
+formal background and semantics, and unlike Obliq, it has a rich type
+system with polymorphism and subtyping. This can be seen above where
+\texttt{answer} is declared as \texttt{\textasciicircum String}, a channel type which
+both inputs and outputs values of type \texttt{String}.  This type
+itself is a subtype of both \texttt{!String} (an output channel which
+sends a \texttt{String}) and \texttt{?String} (an input channel
+expecting a \texttt{String}).
+
+Most of the criticisms we had of Obliq do apply to Nomadic Pict
+however.  While it represents interesting research, and could prove
+very useful in some areas, it's not suitable as a general purpose
+language for the masses.
+
+\subsection{The Safe Ambients Abstract Machine}
+
+Something closer to our work on DynamiTE is the abstract machine PAN
+for safe ambients \cite{sangiorgi:safeambientsmachine}).  Safe
+ambients were discussed back in \ref{ambvariants}; they provide a form
+of the ambient calculus which is protected from \emph{grave
+  interferences} by requiring each mobility action ($in$, $out$ and
+$open$) to be matched by a corresponding co-action.  We adopt the same
+idea ourselves in Nomadic Time with bouncers, but unlike the
+co-actions in the safe ambient calculus, ours must only be used by the
+bouncer which is located on each environ.
+
+There are also similarities between our implementation, DynamiTE, and
+PAN, as both are implemented in Java.  They differ, however, in that
+with PAN, the implementation takes the form of an abstract machine
+which is first formally specified and then implemented in Java.
+Rather than attaching Java code to certain terms in the calculus, as
+in DynamiTE, PAN users write their programs in the abstract machine,
+and the code is then compiled and executed by the Java implementation,
+which maintains a 1:1 relationship between ambients and threads.  As
+this means the input to PAN is a slightly extended form of the safe
+ambient calculus, the present implementation described in
+\cite{sangiorgi:safeambientsmachine} would need to be extended further
+`to embed this core language into a real language'.  Interestingly,
+the authors also mention that an `orthogonal direction would be to
+make the ambient constructs into a framework'; this sounds very
+similar to what we have now with DynamiTE.  Sadly, we have been unable
+to find any details of further work beyond this paper.
+
+The majority of the paper is concerned with the design of the abstract
+machine itself, rather than the implementation.  The main focus is on
+clearly defining the separation between the logical distribution of
+the ambients derived from terms in the safe ambient calculus, and the
+physical distribution used by the machine.  This work is fairly
+generic, and could also be applied as a means to formalise and clarify
+the use of environs within DynamiTE; these also have a logical
+distribution given by Nomadic Time and a physical distribution as
+defined by the \texttt{LocalityFactory}.
+
+A term in the safe ambient calculus is mapped onto a flat physical
+topology of \emph{located ambients}.  For example, given the following
+safe ambient construct:
+
+\begin{equation}
+\lncloc{n}{P_1 \pc P_2 \pc \lncloc{m_1}{Q_1} \pc \lncloc{m_2}{Q_2}}
+\end{equation}
+
+A located ambient has the form $\lclocv{h:n}{P}{k}$, where $h$ is the
+location of the ambient and $k$ is the location of the parent.  For
+the above, we end up with three locations: $h$, $k_1$ and $k_2$, all
+of which co-exist at the same level; there is no hierarchical topology
+to the locations as there is for the ambients.  This gives us
+$\lclocv{h:n}{P_1 \pc P_2}{root}$, $\lclocv{k_1:m_1}{Q_1}{h}$ and
+$\lclocv{k_2:m_2}{Q_2}{h}$, where the subambient relationship between
+$n$ and $m_1$, and likewise $n$ and $m_2$, is represented by the use
+of $h$ in the latter two terms rather than by physical placement.
+
+This changes how the mobility operations proceed as well; $in$ and
+$out$ have no effect on the physical structure, as they simply change
+the parent location.  The $open$ operation does cause a physical move,
+as the processes within the destroyed ambient are moved into the
+parent.  For example, if $P_1 = \ambopen{k_1}.P_1'$ and $P_2 =
+\sambopen{k_1}.P_2'$, then $k_1$ would be destroyed and $Q_1$ would
+move into $h$, giving $\lclocv{h:n}{P_1' \pc P_2' \pc Q_1}{root}$.
+
+This representation makes a lot of sense, and relates closely to how
+we foresee a full \texttt{LocalityFactory} implementation operation
+mapping the logical to the physical.  Thus, although work on the
+implementation of PAN seems to have come to a halt, we can make use of
+the research the project produced by feeding it into the development
+of DynamiTE.
+
+\subsection{JavaSeal}
+
+The final piece of related work we will consider is the seal calculus
+\cite{seal}.  This is probably the closest of those covered here to
+DynamiTE; it was designed with implementation in mind \cite{javaseal},
+specifically `secure distributed applications', and uses a similar
+technique of `cherry-picking' some of the best features from other
+calculi to create a new one that best fits the proposed goal of the
+project.
+
+The implementation of the seal calculus, the JavaSeal Mobile Agent
+Kernel, also uses a similar approach to DynamiTE, with the constructs
+of the calculus represented as objects:
+
+\begin{verbatim}
+public abstract class Seal
+  implements Runnable, Serializable
+{
+  public static Seal currentSeal();
+  public static void dispose(Name subseal);
+  public static void rename(Name subseal, Name subseal);
+  public static SAF wrap(Name subseal);
+  public void run();
+}
+\end{verbatim}
+
+A \texttt{Seal} instance is \emph{wrapped} for migration by stopping
+its threads and serialising its contents into a byte array.  Both when
+a seal is created and when it is \emph{unwrapped} following migration,
+a \texttt{Strand} is created for it and the \texttt{run method
+  invoked}.  Each \texttt{Strand} instance is bound to the particular
+\texttt{Seal} instance that created it, and provides the necessary
+mapping on to Java threads.
+
+Formally, just as Nomadic Time combines the ambient calculus with
+CaSE, the seal calculus takes the synchronous polyadic $\pi$ calculus,
+and adds localities to it, in the form of \emph{seals}.  One of the
+main differences with the seal calculus is that it retains the focus
+on communication by channels from the $\pi$ calculus, rather than
+applying the ambient set of mobility primitives ($in$, $out$ and
+$open$).  Instead, seal migration takes place objectively over
+channels, with the local process as the sender and the remote process
+as the recipient.  Access restriction can be enforced via the use of
+\emph{portals} and the $open_n x$ syntax.
+
+As with PAN, it seems that development on the seal calculus has
+stopped, especially as regards the implementation work.  Further
+research into the calculus itself has been performed
+\cite{seal01,seal02} since the initial publication of the seal
+calculus, but this now also seems to have finished.  Unfortunately, it
+seems common in the academic community for implementations to be
+written as a proof of concept, but then not taken any further.
+Outside academia, even the newest approaches are still relatively
+low-level; the latest offering is CUDA \cite{cuda}, a C-style parallel
+processing language for programming NVIDIA graphics processing units
+(GPUs).  The develpment direction with frameworks and languages like
+CUDA is usually the inverse of the academic case; little research goes
+into formalising it but it does get heavily used in real-world
+situations to produce results.
+
+As far as implementations go, we believe our work to be novel in
+approaching the task of translating a calculus with both global
+discrete time and mobility into a usable programming framework.  We
+also seem to be one among only a few research projects who create an
+implementation in an existing programming language and allow users to
+work with it in that language; of the above, this only applies to
+JavaSeal.  This is a shame, as it means otherwise good ideas are let
+down by the implementation being simply unapproachable for the
+majority of software developers.
 
 \section{Conclusion}
 
@@ -1560,9 +1902,11 @@ process calculus before implementation even begins, giving a solid
 grounding on top of which the individual tasks may be developed.
 
 The actual implementation of the DynamiTE framework is still in heavy
-development.  At its lowest level, it provides a means of simulating
-the operations of the Nomadic Time process calculus, allowing them to
-be more clearly understood.  In application, it can provide a useful
+development; the code is available at
+\url{https://savannah.nongnu.org/projects/dynamite/} and patches are
+welcome.  At its lowest level, it provides a means of simulating the
+operations of the Nomadic Time process calculus, allowing them to be
+more clearly understood.  In application, it can provide a useful
 mechanism for structuring concurrent programs, clearly dividing
 internal behaviour and interprocess communication.  The possibility to
 add further implementations of the channel and locality factories, via
