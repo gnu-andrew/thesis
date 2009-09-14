@@ -7,9 +7,9 @@
 \section{Introduction}
 \label{timing}
 
-Initially, the use of the word `timed', within the context of the
-calculi considered here, is a bit of a misnomer.  The notion of `time'
-is generally associated with concrete real values, in units such as
+The use of the word `timed' within the context of the calculi
+considered here is a bit of a misnomer.  The notion of `time' is
+generally associated with concrete real values, in units such as
 minutes and seconds.  Real-time process calculi, such as those
 described in \cite{aceto:timing, beaten:timing, brics:lee,
   lee:realtime, tccs, satoh:phd, satoh:distrib}, attempt to model
@@ -246,7 +246,7 @@ a process $a.P$ has two possible derivations:
 
 \begin{enumerate}
   \item $a.P \derives{a} P$
-  \item $a.P \derives{\sigma} P$
+  \item $a.P \derives{\sigma} a.P$
 \end{enumerate}
 
 \noindent with a clock context containing only $\sigma$.  To ensure
@@ -452,11 +452,11 @@ successfully integrated together to form new components.
 Global synchronisation allows the problem of defining a compositional
 broadcast agent, cited earlier in \ref{ccslimit}, to be solved, but
 these timed calculi still retain the other problems with CCS we
-mentioned there.  Neither TPL, PMC, CSA nor CaSE explicitly include
-data within the model.  This is not necessarily a disadvantage; it is
-possible to model data implicitly, via the use of silent actions, and
-including data in the model complicates formal reasoning and
-equivalence theories.
+mentioned there.  None of TPL, PMC, CSA or CaSE explicitly includes
+data within the model.  This is not necessarily a disadvantage, as it
+is possible to model data implicitly, via the use of silent actions.
+Including data explicitly in the model complicates formal reasoning
+and equivalence theories, so we will also adopt the implicit approach.
 
 More importantly, these calculi all still retain a static structure.
 The scope of restriction or clock hiding doesn't change as the
@@ -471,8 +471,3 @@ illustrated, can model \emph{mobile systems}.
 
 \section{Conclusion}
 
-Discrete timed calculi can overcome this.  An example using TPL to
-model a compositional broadcasting agent, using semantics suitable for
-any arbitrary number of processes, is provided in \ref{timing}.
-Extensions to TPL, such as CaSE, may scale even further using
-synchronous encapsulation to create systems of multiple components.

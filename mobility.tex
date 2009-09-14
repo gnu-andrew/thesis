@@ -45,9 +45,9 @@ calculi in more detail.
 
 The $\pi$ calculus follows on from Milner's earlier work on CCS
 discussed in \ref{ccs}. Essentially, it is a value-passing form of CCS
-with a generalisation from values and channels to simple \emph{pure
-  names}.  Thus, channels can be passed between processes, as well as
-values, which means that their scope may change during execution.
+in which values and channels are replaced simply by \emph{pure names}.
+Thus, channels can be passed between processes, as well as values,
+which means that their scope may change during execution.
 
 To make this clearer, consider the syntax of the form of $\pi$ calculus
 given in \cite{funcproc}
@@ -245,15 +245,26 @@ The asynchronous $\pi$ calculus \cite{boudol:asynchrony,
 \seml cy.P \semr & \eqdef c(yr).(\overline{r}\;|\;P)
 \end{align}
 
-\noindent where $r$ is not free in $P$.  The output is encoded as the
-transmission of a tuple containing two names: $x$, the original name
-being sent, and $r$, a new channel created to receive the
-acknowledgement from the recipient.  This runs in parallel with
-another process that awaits an input on $r$\footnote{$r$ is a
-  syntactic abbreviation for $r()$ i.e. the input is an empty tuple.}
-before continuing with $P$.  Thus, the original synchronous behaviour
-is emulated, as $P$ will not evolve until the receiver has obtained
-the private channel, $r$, and replied.
+\noindent where $r$ is not free in $P$ and $r.P$ is a syntactic
+abbreviation for $r().P$ i.e. the input is an empty tuple.  The output
+is encoded as the transmission of a tuple containing two names: $x$,
+the original name being sent, and $r$, a new channel created to
+receive the acknowledgement from the recipient.  This runs in parallel
+with another process that awaits an input on $r$ before continuing
+with $P$.  For example,
+
+\begin{equation}
+\begin{aligned}
+& \overline{c}x.P \pc cy.Q \\
+\equiv \quad & (r)(\overline{c}xr\;|\;r.P) \pc c(ys).(\overline{s}\;|\;Q) \\
+\derives{} \quad & (r) (r.P \pc \overline{r} \pc Q\{x/y\}) \\
+\derives{} \quad & P \pc Q\{x/y\}
+\end{aligned}
+\end{equation}
+
+\noindent Thus, the original synchronous behaviour is emulated, as $P$
+will not evolve until the receiver has obtained the private channel,
+$r$, and replied.
 
 Other changes to the calculus are also commonly adopted to reduce its
 expressivity, thus making more proofs feasible.  These include:
@@ -495,9 +506,7 @@ on something which seems common within the literature
 expressiveness of the $\pi$ calculus is interesting, it is necessary
 to restrict it in order to actually have something which is generally
 useful for reasoning over or using as the basis for a full programming
-language.  Specifically, to prove termination for the $\pi$ calculus,
-it is necessary to employ the asynchronous variant with uniform
-receptiveness and the input-guarded replication operator.
+language.
 
 Another problem with the $\pi$ calculus is that it carries with it a
 trait from CCS.  Namely, it can't be used to model synchronisation
@@ -1145,7 +1154,7 @@ In another example from the same paper,
 
 \noindent the resulting process includes a process, either $\ambopen{n}.Q$
 or $\ambopen{n}.P$, which is stuck until such a time as another ambient
-named $n$ appears as a parent.  This may never occur.  These kinds of
+named $n$ appears as a child.  This may never occur.  These kinds of
 interference, referred to in \cite{sangiorgi:mobsafeambients} as
 \emph{plain interferences}, may occur in other calculi.  The equivalent
 in the $\pi$ calculus would be:
@@ -1256,11 +1265,15 @@ n[(x)^pP \pc p[\langle M \rangle \pc (x)Q \pc q[\langle N
 \rangle^\uparrow ]]]
 \end{equation}
 
-\noindent where $n$, $p$ and $q$ are ambients, $(x)$ is an input and
-$\langle M \rangle$ and $\langle N \rangle$ represent outputs.  $(x)Q$
-may synchronize with either $\langle M \rangle$ locally or the upward
-communication from $\langle N \rangle$.  $(x)^pP$ must synchronize with
-$\langle M \rangle$, as the only output in $p$.
+\noindent where $n$, $p$ and $q$ are ambients, both $(x)$s are inputs
+and $\langle M \rangle$ and $\langle N \rangle$ represent outputs.
+The use of the superscript on $(x)^p$ indicates a downward
+communication into the ambient $p$, while the use of $\uparrow$ in
+$\langle N \rangle^\uparrow$ indicates an upward communication
+directed at the parent ambient.  Thus, $(x)Q$ may synchronize with
+either $\langle M \rangle$ locally or the upward communication from
+$\langle N \rangle$.  $(x)^pP$ must synchronize with $\langle M
+\rangle$, as the only output in $p$.
 
 The ideas behind the boxed ambients calculus result in a formalism which
 is more suited to communication-focused modelling, where the destruction
@@ -1477,14 +1490,14 @@ calculus (\ref{ambientcalculus}) and P systems (\ref{psystems}) are
 especially useful for representing the structure of real-world
 biological entities.
 
-Such modelling is becoming common place within the
-literature\cite{biospi, cardelli:bioambients, fran}, where concurrent
-models represent an alternative to the use of ordinary differential
-equations (ODEs).  The usual approach is to create a model of the
-system within the formalism and then perform simulations.  Such
-simulations rely on reducing the non-determinism within the model by
-introducing a stochastic semantics.  In each of the biochemical
-stochastic $\pi$ calculus \cite{biospi}, the BioAmbient variant
+Such modelling is becoming commonplace within the literature
+ \cite{fran, cardelli:bioambients, biospi}, where concurrent models
+represent an alternative to the use of ordinary differential equations
+(ODEs).  The usual approach is to create a model of the system within
+the formalism and then perform simulations.  Such simulations rely on
+reducing the non-determinism within the model by introducing a
+stochastic semantics.  In each of the biochemical stochastic $\pi$
+calculus \cite{biospi}, the BioAmbient variant
 \cite{cardelli:bioambients} and P systems \cite{fran}, these are based
 on Gillespie's algorithm \cite{gillespie}.
 
@@ -1572,28 +1585,28 @@ natural numbers are used.}:
 \begin{align*}
   \Pi_{vf} & = (O, \{e,b\}, \mu, (w_1, e), (w_2, b), \dots,
   (w_{n+1},b),\mathcal{R}_b, \mathcal{R}_e) \\
-  O & = \{OHHL, LuxR, LuxR\text{-}OHHL, LuxBox, LuxBox\text{-}LuxR\text{-}OHHL\} \\
+  O & = \{\OHHL, \LuxR, \LuxR\text{-}\OHHL, \LuxBox, \LuxBox\text{-}\LuxR\text{-}\OHHL\} \\
   w_1 & = \emptyset \\
-  w_i & = \{LuxBox\}\ \text{where}\ 2 \le i \le n + 1 \\
+  w_i & = \{\LuxBox\}\ \text{where}\ 2 \le i \le n + 1 \\
 \end{align*}
 
 \noindent where each bacteria is represented as a membrane, $b$, within
 an environment membrane, $e$.  The alphabet, $O$, contains the signal,
-$OHHL$, the protein, $LuxR$ and the regulatory region, $LuxBox$, in
-addition to the protein-signal complex ($LuxR-OHHL$) formed and its
-regulatory region, $LuxBox-LuxR-OHHL$.  The initial configuration shown
-above leaves the environment empty and places just the genome, $LuxBox$,
+$\OHHL$, the protein, $\LuxR$ and the regulatory region, $\LuxBox$, in
+addition to the protein-signal complex ($\LuxR$-$\OHHL$) formed and its
+regulatory region, $\LuxBox$-$\LuxR$-$\OHHL$.  The initial configuration shown
+above leaves the environment empty and places just the genome, $\LuxBox$,
 inside each bacteria membrane to start production of the signal and the
 protein.  $\mathcal{R}_b$ and $\mathcal{R}_e$ contain the rules which
 affect the bacteria and the environment respectively.  The reader is
 referred to the full paper for full details of these.
 
-This model seems much more natural and has a clearer correspondence with
-the real-world representation.  The main issue, as noted earlier in
-\ref{psystems}, is that the theory of P systems is not as well developed
-as that of the $\pi$ calculus (upon which the BioAmbients calculus is
-essentially based).  This can prove problematic, especially when model
-checking such models.
+This model seems much more natural and has a clearer correspondence
+with the real-world representation.  The main issue, as noted earlier
+in \ref{psystems}, is that the theory of P systems is not as well
+developed as that of the $\pi$ calculus (upon which the BioAmbients
+calculus is essentially based).  This can prove problematic,
+especially when model checking such models.
 
 \section{Bigraphs}
 \label{bigraphs}
@@ -1695,6 +1708,8 @@ formalism that provides a more natural form of mobility via structural
 changes.
 
 Biology was also considered briefly (see \ref{bioapps}), as a
-potential application area.  P systems seem the most natural
-formalism, but they lack some of the proven theoretical aspects of
-process calculi.
+motivating paradigm.  P systems seem the most natural of these
+formalisms, but they lack some of the proven theoretical techniques
+used in process calculi.  There are clear parallels between P systems
+and ambient calculi, especially in their use of structure.  We adapt
+these to our calculus in the next chapter.

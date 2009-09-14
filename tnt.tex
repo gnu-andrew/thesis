@@ -672,9 +672,9 @@ syntax classes.  All but \texttt{ProcessType} are simple classes with
 a singleton instance for that type.  To represent $P$, there are three
 further classes: \texttt{Group}, \texttt{SumType} and
 \texttt{ProdType}; we dispense with $\pi_L P$ and $\pi_R P$ for the
-implementation as we can obtain the appropriate group directly from
-\texttt{SumType}.  To handle the constraints imposed by group
-membership, such as $m \in g(\mathscr{E})$, \texttt{ProcessType}
+implementation as we can obtain the group directly from the
+appropriate composed process.  To handle the constraints imposed by
+group membership, such as $m \in g(\mathscr{E})$, \texttt{ProcessType}
 requires its subclasses to implement the follow methods:
 
 \begin{verbatim}
@@ -713,6 +713,56 @@ the classes \texttt{Nil}, \texttt{Delta} and \texttt{Stall} (those
 that don't contain an instance of \texttt{Process}) gain an additional
 constructor which records the group of the process.  This has the
 effect of making \texttt{Nil} and \texttt{Delta} no longer singletons.
+Instead, the class is implemented as follows:
 
+\begin{verbatim}
+public class Delta
+  extends Process
+{
+  public static final Delta DELTA = new Delta();
 
+  private Delta() 
+  { 
+    this(null); 
+  }
+  
+  public Delta(Group g) 
+  { 
+    this.g = g; 
+  }
+
+  public Type getType()
+  {
+    return g;
+  }
+}
+\end{verbatim}
+
+We still allow instances of these classes to be constructed without a
+group (\texttt{getType()} will return \texttt{null}) so as to still
+support Nomadic Time.  The other classes likewise implement
+\texttt{getType()} in accordance with the typing rules, so that the
+group of the overall process is derived from that of its constituents.
+For example, the implementation for \texttt{Sum} looks like this:
+
+\begin{verbatim}
+public Type getType()
+{
+  return new SumType(left.getType(), right.getType());
+}
+\end{verbatim}
+
+\noindent where \texttt{left} and \texttt{right} are the processes
+composed by the $+$ operator.
+
+All the implementations of \texttt{getType()} we have shown so far
+always succeed.  This is not the case with the mobility typing rules
+implemented in subclasses of \texttt{ModPrefix}.  For example, we
+implement \texttt{InEnv} as follows:
+
+\begin{verbatim}
+public Type getType()
+{
+\end{verbatim}
+  
 \section{Conclusion}
