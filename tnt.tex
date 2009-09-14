@@ -278,8 +278,8 @@ makes it easier to prove properties of the calculus.
 \section{A Type System for Nomadic Time}
 \label{typesys}
 
-In this final section, we consider the specification of a simple type
-system for the calculus, which fulfils two main goals:
+In this section, we consider the specification of a simple type
+system for Nomadic Time, which fulfils two main goals:
 
 \begin{enumerate}
 \item It ensures the sanity of a given syntactic construction, which
@@ -320,7 +320,9 @@ components of the group $g$.
 The type system is presented in Table \ref{tab:basictypes}; the general
 syntax for a type $T$ is given by
 
-\begin{equation*}\begin{aligned}
+\begin{equation*}
+\label{eqn:tnt:typesyntax}
+\begin{aligned}
 T \mathrel{::=} & \quad P \mid Act \mid Clock \mid Name \mid Bouncer \mid
  Environ \\
 P \mathrel{::=} & \quad g \mid P \oplus P \mid P \otimes P \mid \pi_L P \mid
@@ -607,5 +609,110 @@ $n$, after $m$ is removed.
 \end{table}
 
 \section{DynamiTE and the Type System}
+
+Extending DynamiTE to support the type system of Typed Nomadic Time
+(TNT), and type systems in general is relatively simple.  We first
+extend the \texttt{Process} interface to create a new interface,
+\texttt{TypedProcess}:
+
+\begin{verbatim}
+public interface TypedProcess
+  extends Process
+{
+  Type getType()
+    throws UntypeableProcessException;
+}
+\end{verbatim}
+
+With \texttt{TypedProcess}, we extend the contract for implementing a
+process by one method: \texttt{getType}.  This either returns the type
+of the process, or throws an exception if the process is untypeable.
+The type of a process is represented by a new hierarchy of classes,
+all of which implement the \texttt{Type} marker interface.  Thus, in
+the same way the syntax of a calculus is represented as a set of
+classes which implement \texttt{Process}, so its type system is
+represented by a set of classes which implement \texttt{Type}.  The
+\texttt{Calculus} interface (introduced in \ref{dyn:plugin}) becomes:
+
+\begin{verbatim}
+public interface Calculus
+  extends Probeable
+{
+  public Collection<Class<? extends Process>> getSyntax();
+  public Collection<Class<? extends Type>> getTypeSystem();
+  public Label getLabel(String label);
+}
+\end{verbatim}
+
+The methods \texttt{getSyntax} and \texttt{getLabel(String)} were both
+provided before, and return the syntax and transition labels for the
+calculus respectively, the latter also acting as a validation
+mechanism.  The new method is \texttt{getTypeSystem} which returns the
+classes that represents valid types; for TNT, \texttt{getTypeSystem}
+represents $T$ (see \ref{eqn:tnt:typesyntax}) just as
+\texttt{getSyntax} represents the process terms $E$ and $F$ (see
+\ref{eqn:nt:syntax}).  We implement the method for TNT as follows:
+
+\begin{verbatim}
+  public Collection<Class<? extends Type>> getTypeSystem()
+  {
+    Set<Class<? extends Type>> types = new HashSet<Class<? extends Type>>();
+    types.add(ProcessType.class);
+    types.add(ActionType.class);
+    types.add(ClockType.class);
+    types.add(NameType.class);
+    types.add(BouncerType.class);
+    types.add(EnvironType.class);
+    return types;
+  }
+\end{verbatim}
+
+The classes have a common suffix of `Type' to avoid conflicts with the
+syntax classes.  All but \texttt{ProcessType} are simple classes with
+a singleton instance for that type.  To represent $P$, there are three
+further classes: \texttt{Group}, \texttt{SumType} and
+\texttt{ProdType}; we dispense with $\pi_L P$ and $\pi_R P$ for the
+implementation as we can obtain the appropriate group directly from
+\texttt{SumType}.  To handle the constraints imposed by group
+membership, such as $m \in g(\mathscr{E})$, \texttt{ProcessType}
+requires its subclasses to implement the follow methods:
+
+\begin{verbatim}
+public interface ProcessType
+  extends Type
+{
+  boolean canResideIn(String environ);
+  boolean canOpen(String environ);
+  boolean canLeave(String environ);
+  boolean canEnter(String environ);
+}
+\end{verbatim}
+
+These are implemented in \texttt{Group} using sets provided by the
+user.  For \texttt{SumType}, the environ name must appear in either of
+the composed groups, and for \texttt{ProdType}, it must appear in
+both, thus being a member of the Cartesian product of the two sets.
+The implementations of \texttt{getType} for each process term follow
+fairly straightforwardly from the type system given in
+\ref{tab:basictypes}, \ref{tab:totypes}, \ref{tab:botypes} and
+\ref{tab:mobtypes}.  For instance, implementing $BNil$ is just a
+matter of adding the following method to the \texttt{Omega} class:
+
+\begin{verbatim}
+public Type getType()
+{
+  return BouncerType.BOUNCER;
+}
+\end{verbatim}
+
+Those which contain the $g : Group$ prerequisite are more complicated.
+Just as with names, clocks and environs, the available groups are
+created by the user and registered with the \texttt{Context}.  To
+create the association between a process and a group to begin with,
+the classes \texttt{Nil}, \texttt{Delta} and \texttt{Stall} (those
+that don't contain an instance of \texttt{Process}) gain an additional
+constructor which records the group of the process.  This has the
+effect of making \texttt{Nil} and \texttt{Delta} no longer singletons.
+
 
 \section{Conclusion}

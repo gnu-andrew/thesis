@@ -1267,7 +1267,9 @@ If the above is compared with Eqn. \ref{app:eqn}, it should be clear
 how each term is turned into a instance of a Java class.  The
 references to \texttt{Delta.DELTA}, \texttt{Nil.NIL},
 \texttt{MobPrim.BOUNCER\_IN} and \texttt{Omega.OMEGA} refer to
-singleton instances, as none of these have any variable attributes.
+singleton instances, as none of these have any variable attributes,
+and the constructors of \texttt{Name}, \texttt{Coname}, \texttt{Clock}
+and \texttt{Env} register the new entity with the \texttt{Context}.
 At the end of running this code, we are left with a \texttt{Context}
 containing $\names = \{i,o,useri\}$, $\conames = \{i,o\}$, $\timers =
 \{\sigma\}$ and the environ, $player$, and an instance \texttt{app}
@@ -1816,7 +1818,7 @@ of DynamiTE.
 
 \subsection{JavaSeal}
 
-The final piece of related work we will consider is the seal calculus
+The final piece of related work we will consider is the Seal calculus
 \cite{seal}.  This is probably the closest of those covered here to
 DynamiTE; it was designed with implementation in mind \cite{javaseal},
 specifically `secure distributed applications', and uses a similar
@@ -1824,7 +1826,7 @@ technique of `cherry-picking' some of the best features from other
 calculi to create a new one that best fits the proposed goal of the
 project.
 
-The implementation of the seal calculus, the JavaSeal Mobile Agent
+The implementation of the Seal calculus, the JavaSeal Mobile Agent
 Kernel, also uses a similar approach to DynamiTE, with the constructs
 of the calculus represented as objects:
 
@@ -1843,36 +1845,70 @@ public abstract class Seal
 A \texttt{Seal} instance is \emph{wrapped} for migration by stopping
 its threads and serialising its contents into a byte array.  Both when
 a seal is created and when it is \emph{unwrapped} following migration,
-a \texttt{Strand} is created for it and the \texttt{run method
-  invoked}.  Each \texttt{Strand} instance is bound to the particular
+a \texttt{Strand} is created for it and the \texttt{run} method is
+invoked.  Each \texttt{Strand} instance is bound to the particular
 \texttt{Seal} instance that created it, and provides the necessary
 mapping on to Java threads.
 
 Formally, just as Nomadic Time combines the ambient calculus with
-CaSE, the seal calculus takes the synchronous polyadic $\pi$ calculus,
+CaSE, the Seal calculus takes the synchronous polyadic $\pi$ calculus,
 and adds localities to it, in the form of \emph{seals}.  One of the
-main differences with the seal calculus is that it retains the focus
-on communication by channels from the $\pi$ calculus, rather than
-applying the ambient set of mobility primitives ($in$, $out$ and
-$open$).  Instead, seal migration takes place objectively over
-channels, with the local process as the sender and the remote process
-as the recipient.  Access restriction can be enforced via the use of
-\emph{portals} and the $open_n x$ syntax.
+main differences between Nomadic Time and the Seal calculus is that
+the latter uses channels for migration, rather than applying the
+ambient set of mobility primitives ($in$, $out$ and $open$).  Seal
+migration takes place objectively over channels, with the local
+process as the sender and the remote process as the recipient.  
 
-As with PAN, it seems that development on the seal calculus has
-stopped, especially as regards the implementation work.  Further
-research into the calculus itself has been performed
-\cite{seal01,seal02} since the initial publication of the seal
-calculus, but this now also seems to have finished.  Unfortunately, it
-seems common in the academic community for implementations to be
-written as a proof of concept, but then not taken any further.
-Outside academia, even the newest approaches are still relatively
-low-level; the latest offering is CUDA \cite{cuda}, a C-style parallel
-processing language for programming NVIDIA graphics processing units
-(GPUs).  The develpment direction with frameworks and languages like
-CUDA is usually the inverse of the academic case; little research goes
-into formalising it but it does get heavily used in real-world
-situations to produce results.
+The action prefix, $\alpha.E$, in the Seal calculus has four forms:
+
+\begin{enumerate}
+\item $\overline{x}^\eta(\vec{y})$
+\item $x^\eta(\lambda \vec{y})$
+\item $\overline{x}^\eta\{y\}$
+\item $x^\eta\{\vec{y}\}$
+\end{enumerate}
+
+The first two handle the communication of names, as in the $\pi$
+calculus, and the second two are for the transmission of seals.
+Channels exist within a certain location, and $\eta$ is used to direct
+the communication.  It takes one of three values: $\eta ::= \star |
+\uparrow n$, where $star$ refers to a local channel, $\uparrow$ to a
+channel in the parent seal and $n$ to a channel in a child seal.
+Communication occurs between either a pair of corresponding local
+prefixes, or between a local prefix and a remote prefix such as
+$x^\star(\lambda y)$ and $\overline x^n(z)$, or $x^\star(\lambda z)$
+and $\overline{x}^\uparrow(y)$.  Access restriction can be enforced
+via the use of \emph{portals} and the $open_\eta x$ syntax; for remote
+interaction to take place, the corresponding $open$ action must be
+provided by a process running in parallel with the process offering
+the local prefix, in the same way that a co-capability must be
+provided in the Safe Ambients calculus or a bouncer in Nomadic Time.
+For example, in
+
+\begin{equation}
+  open_n \overline{x}.S_1 \pc x^\star(\lambda z).\overline{z}^n().S_2 \pc 
+  n[\overline{x}^\uparrow(y).open_\uparrow \overline{y}.P_1 \pc y^\star ().P2]
+\end{equation}
+
+\noindent the provision of $open_n \overline{x}$ allows communication
+to occur between $x^\star(\lambda z)$ and $\overline{x}\uparrow(y)$,
+and $open_\uparrow \overline{y}$ does likewise for $\overline{z}^n()$
+and $y^\star ()$.
+
+  As with PAN, it seems that development on the Seal calculus has
+  stopped, especially as regards the implementation work.  Further
+  research into the calculus itself has been performed
+  \cite{seal01,seal02} since the initial publication of the Seal
+  calculus, but this now also seems to have finished.  Unfortunately,
+  it seems common in the academic community for implementations to be
+  written as a proof of concept, but then not taken any further.
+  Outside academia, even the newest approaches are still relatively
+  low-level; the latest offering is CUDA \cite{cuda}, a C-style
+  parallel processing language for programming NVIDIA graphics
+  processing units (GPUs).  The develpment direction with frameworks
+  and languages like CUDA is usually the inverse of the academic case;
+  little research goes into formalising it but it does get heavily
+  used in real-world situations to produce results.
 
 As far as implementations go, we believe our work to be novel in
 approaching the task of translating a calculus with both global
@@ -1902,14 +1938,17 @@ process calculus before implementation even begins, giving a solid
 grounding on top of which the individual tasks may be developed.
 
 The actual implementation of the DynamiTE framework is still in heavy
-development; the code is available at
-\url{https://savannah.nongnu.org/projects/dynamite/} and patches are
-welcome.  At its lowest level, it provides a means of simulating the
-operations of the Nomadic Time process calculus, allowing them to be
-more clearly understood.  In application, it can provide a useful
-mechanism for structuring concurrent programs, clearly dividing
-internal behaviour and interprocess communication.  The possibility to
-add further implementations of the channel and locality factories, via
-the plugin mechanism, also means that fairly complex concepts can then
-be leveraged by the programmer in the simple manner provided by the
+development; the code is available at:
+\begin{center}
+\url{https://savannah.nongnu.org/projects/dynamite/} 
+\end{center}
+\noindent and patches are welcome.  At its lowest level, it provides a
+means of simulating the operations of the Nomadic Time process
+calculus, allowing them to be more clearly understood.  In
+application, it can provide a useful mechanism for structuring
+concurrent programs, clearly dividing internal behaviour and
+interprocess communication.  The possibility to add further
+implementations of the channel and locality factories, via the plugin
+mechanism, also means that fairly complex concepts can then be
+leveraged by the programmer in the simple manner provided by the
 framework.
