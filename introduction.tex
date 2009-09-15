@@ -717,6 +717,19 @@ will be largely monolithic, they won't see much of a performance
 increase in their new purchase; the same application will still be
 running on a single processor of about the same speed.
 
+We are not the only ones to observe this need to make concurrency more
+central to the design process.  With the recent release of Mac OS 10.6
+(\emph{Snow Leopard}), Apple have introduced a new application
+programming interface (API) called \emph{Grand Central}
+\cite{grandcentral}, which shifts the responsibility for managing
+threads to the operating system.  Developers instead design their code
+as a series of tasks, which are submitted to the operating system
+through the API.  They are then later scheduled and executed using a
+pool of threads; this allows threads to be reused and thus increases
+performance by reducing the amount of thread creation that takes
+place.  A similar approach is available to Java developers, which we
+discuss in detail in as part of \ref{java:concurrency}.
+
 Thus, software designers need to seriously start thinking about how
 they can best utilise this new hardware and this undoubtably requires
 a shift in the underlying design.  What we propose here is a

@@ -1,9 +1,11 @@
 LATEX=latex
 TEX=thesis.pdf
+DEPS=introduction.tex apc.tex globalsynchronisation.tex mobility.tex \
+ nt.tex dynamite.tex tnt.tex futurework.tex literature.bib
 
-all: $(TEX)
+all: thesis.pdf
 
-%.pdf: %.tex 
+%.pdf: %.tex $(DEPS)
 	rm -vf $<.bbl $<.pdf
 	$(LATEX) $*
 	bibtex $*
