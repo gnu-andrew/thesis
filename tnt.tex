@@ -11,9 +11,10 @@ especially true, when the intended use of the calculus is as the basis
 for a programming language or a distributed system, which is the case
 here.  In this final chapter of original research, we demonstrate how
 Nomadic Time may be extended with a type system based on the notion of
-groups.  Each process is assigned to a group, which then determines
-which environs it may \emph{reside} in, \emph{open}, \emph{leave} or
-\emph{enter}.
+groups (see \ref{typesys}) and how this may then be used in DynamiTE
+(see \ref{dyn:type}).  Each process is assigned to a group, which then
+determines which environs it may \emph{reside} in, \emph{open},
+\emph{leave} or \emph{enter}.
 
 Before we enter into the technicalities of how this system is
 implemented, we first present some existing type systems used in other
@@ -34,9 +35,7 @@ entities, controlling mobility \cite{sangiorgi:mobsafeambients,
 full subtyping relation \cite{sangiorgi:typing, boxedamb02}.  This
 section considers a few examples of such type systems for both the
 $\pi$ calculus (\ref{pitypes}) and the ambient calculus
-(\ref{ambienttypes}).
-
-\subsection{Type Systems for the $\pi$ Calculus}
+(\ref{ambienttypes}).\subsection{Type Systems for the $\pi$ Calculus}
 \label{pitypes}
 
 Various type systems have been introduced for the $\pi$ calculus in
@@ -558,9 +557,9 @@ $n$, after $m$ is removed.
   \\[3ex]
   \multicolumn{4}{c}{
      \Rulea{EnvIn}
-     {\Gamma \vdash m : Environ,
-  \Gamma \vdash E : g : Group,
-  m \in g(\mathscr{E})}
+     { \Gamma \vdash m : Environ,
+       \Gamma \vdash E : g : Group,
+       m \in g(\mathscr{E})}
      {\Gamma \vdash \tntin{m}.E : g}
      {}
   }
@@ -609,6 +608,7 @@ $n$, after $m$ is removed.
 \end{table}
 
 \section{DynamiTE and the Type System}
+\label{dyn:type}
 
 Extending DynamiTE to support the type system of Typed Nomadic Time
 (TNT), and type systems in general is relatively simple.  We first
@@ -656,7 +656,8 @@ represents $T$ (see \ref{eqn:tnt:typesyntax}) just as
 \begin{verbatim}
   public Collection<Class<? extends Type>> getTypeSystem()
   {
-    Set<Class<? extends Type>> types = new HashSet<Class<? extends Type>>();
+    Set<Class<? extends Type>> types =
+      new HashSet<Class<? extends Type>>();
     types.add(ProcessType.class);
     types.add(ActionType.class);
     types.add(ClockType.class);
@@ -758,11 +759,64 @@ composed by the $+$ operator.
 All the implementations of \texttt{getType()} we have shown so far
 always succeed.  This is not the case with the mobility typing rules
 implemented in subclasses of \texttt{ModPrefix}.  For example, we
-implement \texttt{InEnv} as follows:
+implement \texttt{getType()} in \texttt{InEnv} as follows:
 
 \begin{verbatim}
 public Type getType()
 {
+  ProcessType procType = proc.getType();  
+  if (EnvironType.isEnviron(env) &&
+      procType != null &&
+      procType.canEnter(env))
+  {
+    return procType;
+  }
+  else
+  {
+    throw new UntypeableProcessException(this);
+  }
+}
+ 
 \end{verbatim}
-  
+
+\noindent In the above, the call to \texttt{EnvironType.isEnviron}
+corresponds to $\Gamma \vdash m : Environ$ and checks that the given
+name has been registered as an environ.  We could do such a check
+directly, but this method allows the means of ensuring $\Gamma \vdash
+m : Environ$ to change without effecting every \texttt{getType()}
+implementation.  The call to \texttt{procType.canEnter(String)}
+ensures that $m \in g(\mathscr{E})$ holds.  The actual code executed
+by the call depends on the type of \texttt{procType}; for a
+\texttt{Group}, the check only searchs the single $\mathcal{E}$ set
+belonging to that group, but for \texttt{ProdType}, it must ensure
+that $m$ is in the $\mathcal{E}$ set of both composed groups.
+
+Finally, the type checks may be performed at runtime by an evolver
+that supports them.  We add an additional interface,
+\texttt{TypedEvolver} to correspond to \texttt{TypedProcess}:
+
+\begin{verbatim}
+public interface TypedEvolver
+{
+  void evolve(TypedProcess p);
+}
+\end{verbatim}
+
+\noindent When the checks are made and how the evolver reacts to them
+are left up to each implementation.
+
 \section{Conclusion}
+
+In this chapter, we consider a number of type systems from the
+literature, including the use of sorts for typing communication (see
+\ref{sorts}) and the use of groups to restrict ambient movement (see
+\ref{ambienttypes}).  We then adapted the later to create a type
+system for Nomadic Time, resulting in the typed variant Typed Nomadic
+Time or TNT (see \ref{typesys}). Finally, we showed how DynamiTE could
+be modified to support this (see \ref{dyn:type}).  To conclude, we
+believe that our type system provides a useful optional addition to
+the calculus.  It can be employed, when needed, to provide a finer
+level of access control than the simple approach of enumerating
+possible actions, as used by bouncers.  There are possibilities for
+extending the type system further, which we will cover as part of the
+next and final chapter on future work.
