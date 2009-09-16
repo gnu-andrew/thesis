@@ -31,7 +31,7 @@ processes may be contained within one \emph{locality}, a notion which is
 often used in the modelling of \emph{distribution}.  This idea, which
 can be taken to its logical conclusion by forming a hierarchy of such
 localities, has echoes of the notion of \emph{clock hiding} within CaSE,
-as just described.
+as described in \ref{case}.
 
 Thus, the first step in the evolution towards NT is to combine these
 two hierarchical concepts by effectively localising CaSE.  The notion of
@@ -58,14 +58,15 @@ syntax for localised CaSE is thus:
     \lclocv{m}{\expr}{\vec{\sigma}}
   \end{aligned}
 \end{equation}
-where $m$ represents an arbitrary environ name\footnote{Note
-that although names are added to the environs here, this is not really
-necessary at this stage; they provide nothing more than a way to refer
-to environs in talking about a system.  However, they are necessary
-for providing migration as discussed in \ref{migration}}.  In
-particular, $m$ may be equal to the empty string, $\epsilon$, thus
-facilitating the use of anonymous environs.  This allows the semantics
-of CaSE's clock hiding to be encoded:
+where $\vec{\sigma}$ is a set of clocks and $m$ represents an
+arbitrary environ name\footnote{Note that although names are added to
+  the environs here, this is not really necessary at this stage; they
+  provide nothing more than a way to refer to environs in talking
+  about a system.  However, they are necessary for providing migration
+  as discussed in \ref{migration}}.  In particular, $m$ may be equal
+to the empty string, $\epsilon$, thus facilitating the use of
+anonymous environs.  This allows the semantics of CaSE's clock hiding
+to be encoded:
 
 \begin{equation}
 \seml E / \sigma \semr \eqdef \lcloc{}{E}{\sigma}
@@ -76,8 +77,11 @@ environs form a forest structure, due to the ability to nest
 environs to an arbitrary depth and the possibility of multiple
 environs occurring at the top level.
 
-Recall the example of clock hiding above (\ref{clockhidingex}).  This
-becomes:
+Recall the example of clock hiding given in (\ref{clockhidingex}):
+\begin{equation}
+  (P / \sigma)\;|\;Q
+\end{equation}
+This becomes:
 \begin{equation}
   \lcloc{}{P}{\sigma}\;|\;Q
 \end{equation}
@@ -105,7 +109,7 @@ the set of visible clocks for $k$ is $\timers \backslash \emptyset$,
 as it has no child environs.  which means that $G$, located in $k$,
 can see the ticks of all clocks.
 
-$F$, by comparison, can only see the ticks of the clocks, $\timers
+$F$, by comparison, can only see the ticks of the clocks in $\timers
 \backslash \{\sigma\}$ as $\sigma$ is hidden outside $k$.  $E$, in the
 top-level environ, $n$, can only observe silent actions resulting from
 the two hidden clocks, $\rho$ and $\sigma$, but can see the ticks of
@@ -251,14 +255,14 @@ may move into a sibling environ with the name, $m$.  Given the context,
 \begin{equation}
 \lncloc{m}{E}\;|\;\lncloc{n}{\nil}
 \end{equation}
-$E$ may be defined as
+if $E$ is defined as
 \begin{equation}
 E \eqdef \tntin{n}.E^\prime
 \end{equation}
-allowing the derivation
+then this will allow the derivation
 \begin{equation}
-\lncloc{m}{E}\;|\;\lncloc{n}{\nil} \derives{\tntin{n}} 
-\lncloc{n}{\lncloc{m}{E^\prime}\;|\;\nil}
+\lncloc{m}{\tntin{n}.E^\prime \pc \lncloc{n}{\nil}} \derives{\tntin{n}} 
+\lncloc{n}{\lncloc{m}{E^\prime} \pc \nil}
 \end{equation}
 to occur.  Similarly, defining $E^\prime$ to be
 \begin{equation}
@@ -266,7 +270,7 @@ E^\prime \eqdef \tntout{n}.E^{\prime\prime}
 \end{equation}
 allows the converse
 \begin{equation}
-\lncloc{n}{\lncloc{m}{E^\prime}\;|\;\nil} \derives{\tntout{n}}
+\lncloc{n}{\lncloc{m}{\tntout{n}.E^{\prime\prime}\;|\;\nil}} \derives{\tntout{n}}
 \lncloc{m}{E^{\prime\prime}}\;|\;\lncloc{n}{\nil}
 \end{equation}
 to take place, $\tntout{m}$ allowing the surrounding environ
@@ -285,7 +289,7 @@ E \eqdef \tntopen{n}.E^\prime
 \end{equation}
 and thus may cause the environ, $n$, to be destroyed
 \begin{equation}
-\lcloc{m}{E\;|\;\lcloc{n}{F}{\sigma}}{\rho} \derives{\tntopen{n}}
+\lcloc{m}{\tntopen{n}.E^\prime \;|\;\lcloc{n}{F}{\sigma}}{\rho} \derives{\tntopen{n}}
 \lcloc{m}{E'^\prime\;|\;F}{\sigma, \rho}
 \end{equation}
 and the two clock environments to merge.  As a result, not
@@ -330,10 +334,10 @@ In NT, the mobility prefix is further extended as follows:
       \mid \procin{\beta}{m} \mid \procout{\beta}{m}
 \end{equation}
 
-\noindent where $\beta \in \mathcal{N}$ and thus refers to an action.
-While the location mobility described above is \emph{subjective} (the
-process who requests the move does the move), process mobility, in this form,
-is \emph{objective}.  The process which emits one of the two new
+\noindent where $\beta \in \mathcal{N}$ refers to an action.  While
+the location mobility described above is \emph{subjective} (the
+process requesting the move does the move), process mobility, in this
+form, is \emph{objective}.  The process which emits one of the two new
 capabilities synchronises with a partner process on the given action,
 and it is this partner which actually moves.  The partner will be a
 process in the same environ, due to the scoping of actions described
@@ -364,10 +368,9 @@ F \eqdef leave.F^\prime \pc \procout{leave}{m}
 where the process on the right moves the one on the left outside $m$.
 In context, this performs as follows:
 \begin{equation}
-E \pc \lcloc{m}{leave.F^\prime \pc \procout{leave}{m}.\nil \pc
- \nil}{\sigma} 
+E \pc \lcloc{m}{leave.F^\prime \pc \procout{leave}{m}.\nil}{\sigma} 
 \derives{\procout{leave}{m}}
-E \pc F^\prime \pc \lcloc{m}{\nil \pc \nil}{\sigma}
+E \pc F^\prime \pc \lcloc{m}{\nil}{\sigma}
 \end{equation}
 to give a final process which is very similar to the original.
 
@@ -396,7 +399,7 @@ with a limited choice of available constructs\footnote{This limited
 structured selection of co-primitives ($\bin$, $\bout$ and $\bopen$),
 similar to those in \cite{sangiorgi:mobsafeambients} (see section
 \ref{ambvariants}) and dictates which mobility transitions may occur,
-and when..
+and when.
 
 The full syntax of NT may now be given as:
 
@@ -441,10 +444,12 @@ With the addition of bouncers, this becomes:
 \nloc{m}{\tntin{n}.E^\prime}{\Omega}\;|\;\nloc{n}{\nil}{\bin.\Omega}
 \end{equation}
 where, again, a syntactic abbreviation of $\nloc{m}{E}{F}$ for
-$\loc{m}{E}{F}{}$ is used when the clock context is empty. $m$ has
-$\Omega$ as its bouncer, as no movement affects that environ.  The
+$\loc{m}{E}{F}{}$ is used when the clock context is empty. The environ
+$m$ has $\Omega$ as its bouncer, as no movement affects it\footnote{In
+  contrast, the most permissive bouncer is $\mu X.(\bin .X + \bout .X
+  + \bopen .X)$ which always allows any movement to occur.}.  The
 bouncer for $n$ is defined as $\bin.\Omega$, which allows the movement
-of $m$ in to $n$ to occur:
+of $m$ into $n$ to occur:
 \begin{equation}
 \nloc{m}{\tntin{n}.E^\prime}{\Omega}\;|\;\nloc{n}{\nil}{\bin.\Omega}
  \derives{\tin}
@@ -470,14 +475,14 @@ of such labels rather than simply using $\tau$ throughout means will can
 still distinguish between synchronisations and movements.
 
 Using bouncers, it becomes possible to specify how many entities
-(processes or environs) may enter a environ.  For example, the
-bouncer:
+(processes or environs) may enter or leave an environ.  As bouncers
+can recurse, the number can be unlimited.  For example, the bouncer:
 \begin{equation}
 \mu X.\bin.\bin.\bout.\bout.X
 \end{equation}
-allows two entities to enter, but two must then leave before
-another can enter.  On the subject of exiting an environ, the
-synchronisation with $\bout$ works in the same way as $\bin$:
+allows two entities to enter, but two must then leave before another
+can enter.  On the subject of exiting an environ, the synchronisation
+with $\bout$ works in the same way as $\bin$:
 \begin{equation}
 \nloc{n}{\nloc{m}{\tntout{n}.E^{\prime \prime}}{\Omega} \pc \nil}{\bout.\Omega}
  \derives{\tout}
@@ -507,111 +512,23 @@ itself.
 \label{ntsemantics}
 
 This section gives NT an operational semantics in terms of a labelled
-transition system, $(\procs, \labels, \rightarrow)$, defined
-up to structural congruence.  $\procs$ is the set of NT expressions; $\labels$ the
-alphabet comprising actions, clocks and mobility primitives; and $\rightarrow$ the
-transition relation.  Transitions with labels in
-$\actions$ are known as \emph{action transitions}, those in $\timers$ as
-\emph{clock transitions} and those in $\mobprim$ as \emph{mobility
-transitions}.  The transition relation, $\mathop{\rightarrow} \mathrel{\subseteq}
-\procs \times \labels \times \procs$ is defined in Table \ref{tab:casesubset}.
-We use $E$, $F$ and $G$ to range over process terms; $\sigma$ and $\rho$ over the
-set of clocks ($\timers$); $\alpha$ over the set of actions
-($\actions$); $h$ over $\highpris$; $a$ and $b$ over 
-$\symbols \eqdef
-\left(\labels \setminus \{\tau\}\right) 
-\cup 
-\{ \tntin{m}, \tntout{m}, \tntopen{m} \} 
-\cup
-\{ \procin{\beta}{m}, \procout{\beta}{m} \}
-$;
-$\kappa$ over $\actions \cup \mobprim$;
-and $\gamma$ over $\actions \cup \timers \cup \mobprim$.
-
-\begin{proposition}
-The semantics exhibit the following properties:
-\begin{enumerate}
-\item prioritisation;
-$E \derives{\sigma}$ implies $E \nderives{h}$ 
-\item time determinacy; $E \derives{\sigma} E'$ and $E
-\derives{\sigma} E''$ implies $E' = E''$.\qed
-\end{enumerate}
-\end{proposition}
-
-Structural congruence is the least congruence relation that satisfies
-the laws given in Table \ref{tab:structcong}, allowing structural
-rearrangement and simplification of process terms. $A$, $B$ and $C$
-range over subsets of \symbols.  Notably, the rules allow multiple
-restriction operators to be combined into a single set (StrResRes).
-
-\begin{table}
- \caption{Structural Congruence Laws}
- \label{tab:structcong}
-  \shrule \centering
-  \begin{tabular}{rcrcl}
-  StrSum1 & \quad\quad &  
-  $E + F$              & $\equiv$ & $F + E$
-\\
-  StrSum2 &&  
-  $E + (F + G)$        & $\equiv$ & $(E + F) + G$
-\\
-  StrPar1 &&  
-  $E \pc F$            & $\equiv$ & $F \pc E$
-\\
-  StrPar2 &&  
-  $E \pc (F \pc G)$    & $\equiv$ & $(E \pc F) \pc G$
-\\
-  StrIdent &&  
-  $E \pc \nil$         & $\equiv$ & $E$
-\\
-  StrResRem &&  
-  $\nil \res{A}$       & $\equiv$ & $\nil$
-\\
-  StrResRes &&  
-  $E \res{A} \res{B}$  & $\equiv$ & $E \res{A \cup B}$
-  \end{tabular}
-  \shrule
-\end{table}
-
-Table \ref{tab:casesubset} shows the operational semantics, some of
-which are inherited from CaSE.  $Idle$ and $Patient$ represent
-the progress of time over $\nil$ and action prefixes respectively.
-$Act$ allows an action to be performed, with an appropriately labelled
-transition, with the process continuing as $E$.  $Stall$ represents
-the stopping of a specific clock, $\sigma$, allowing transitions to
-occur for any other clock, $\rho$.
-
-Commutativity is now implied by the presence of structural congruence,
-so $Sum1$ and $Par1$are sufficient to describe the behaviour of the
-summation and parallel composition operators for single actions.  $Sum2$
-and $Par3$ represent the passage of time over these two operators.  Note
-that time must be able to pass on both sides, and that the restriction
-$E \mid F \nderives{h}$ enforces prioritisation.
-
-$Par2$ encapsulates synchronisation; when one of the processes can
-perform an action and the other can perform the matching co-action, a
-silent action is performed and both evolve.  $FTO1$ and $STO1$ are
-identical, allowing the dissolution of the timeout via a tick of the
-associated clock, $\sigma$, on the provision that $E \nderives{h}$.
-The difference between the two timeouts is shown by $FTO2$, $STO2$ and
-$STO3$.  $FTO2$ is a general rule for the fragile timeout, which allows
-$E$ to be performed and the timeout removed on the occurrence of any
-transition other than the clock tick.  For the stable timeout, the
-effect of clocks and actions are separated.  According to $STO3$, clocks
-other than $\sigma$ may tick, but the timeout stays in place.  $STO2$
-handles the removal of the stable timeout, due to an action performed by
-$E$.
-
-Recursion is provided by $Rec$, which performs substitution of $X$ for
-the body of the recursion as soon as any transition, $\gamma$, occurs.
-The $Res$ rules defines restriction, which disallows any transitions for
-the given name.  Rule $LHd1$ provides the conversion of ticks emitted by
-the hidden clocks to silent actions: if $E$ can perform a $\sigma$
-transition, then it performs a $\tau$ transition in any context where
-$\sigma$ is hidden.  Also included in the table is the rule $SCong$,
-which links the structural congruence rules to the labelled transition
-system, and rules which allow the mobility prefix, $\ambop$, to evolve,
-thus completing the semantics for expressions.
+transition system, $(\procs, \labels, \rightarrow)$, defined up to
+structural congruence.  $\procs$ is the set of NT expressions;
+$\labels$ the alphabet comprising actions, clocks and mobility
+primitives; and $\rightarrow$ the transition relation.  Transitions
+with labels in $\actions$ are known as \emph{action transitions},
+those in $\timers$ as \emph{clock transitions} and those in $\mobprim$
+as \emph{mobility transitions}.  The transition relation,
+$\mathop{\rightarrow} \mathrel{\subseteq} \procs \times \labels \times
+\procs$ is defined in Tables \ref{tab:casesubset} and
+\ref{tab:mobsubset}.  We use $E$, $F$ and $G$ to range over process
+terms; $\sigma$ and $\rho$ over the set of clocks ($\timers$);
+$\alpha$ over the set of actions ($\actions$); $h$ over $\highpris$;
+$a$ and $b$ over $\symbols \eqdef \left(\labels \setminus
+\{\tau\}\right) \cup \{ \tntin{m}, \tntout{m}, \tntopen{m} \} \cup \{
+\procin{\beta}{m}, \procout{\beta}{m} \} $; $\kappa$ over $\actions
+\cup \mobprim$; $\gamma$ over $\actions \cup \timers \cup \mobprim$
+and $A$ ranges over a subset of $\symbols$.
 
 \begin{table}
   \caption{Semantics}
@@ -738,28 +655,6 @@ thus completing the semantics for expressions.
   \shrule
 \end{table}
 
-The remaining semantics in Table \ref{tab:mobsubset} focus on mobility.
-$InEnv$ allows a $\tin$ transition to occur and $n$ to move into $m$ if
-matching $\tntin{m}$ and $\bin$ transitions are available from the
-process $\tntin{m}.E$ and bouncer, $B_1$.  Conversely, $OutEnv$ concerns
-the interaction between $\tntout{m}.E$ and $\bout$, allowing a $\tout$
-transition to occur and $n$ to move outside $m$.  Likewise,
-$\tntopen{m}$ causes a $\topen$ transition to occur when both an
-$\tntopen{m}$ and an $\bopen$ transition are available.  The named
-environ, $m$, is destroyed and the two clock contexts unified.
-
-Finally, $ProcIn$ and $ProcOut$ describe the movement of processes
-between environs.  In both rules, $E$ moves due to a mobility primitive
-which is part of $F$.  This occurs if an $a$ transition takes place in
-the presence of matching $\procin{a}{m}$ and $\bin$, or $\procout{a}{m}$
-and $\bout$, actions.  An appropriate mobility transition ($\tin$ or
-$\tout$) is emitted as a result of this three-way synchronisation.
-Process mobility, in this form, is \emph{objective}.  The process which
-emits the mobility primitive synchronises with a partner process, and it
-is this partner which actually moves.  The partner is necessarily a
-process in the same environ, due to the scoping of actions described
-above.
-
 \begin{table}
   \caption{Mobility Semantics}
  \label{tab:mobsubset}
@@ -825,6 +720,119 @@ above.
   \shrule
 \end{table}
 
+Structural congruence is the least congruence relation that satisfies
+the laws given in Table \ref{tab:structcong}, allowing structural
+rearrangement and simplification of process terms. $A$, $B$ and $C$
+range over subsets of \symbols.  Notably, the rules allow multiple
+restriction operators to be combined into a single set (StrResRes).
+
+\begin{table}
+ \caption{Structural Congruence Laws}
+ \label{tab:structcong}
+  \shrule \centering
+  \begin{tabular}{rcrcl}
+  StrSum1 & \quad\quad &  
+  $E + F$              & $\equiv$ & $F + E$
+\\
+  StrSum2 &&  
+  $E + (F + G)$        & $\equiv$ & $(E + F) + G$
+\\
+  StrPar1 &&  
+  $E \pc F$            & $\equiv$ & $F \pc E$
+\\
+  StrPar2 &&  
+  $E \pc (F \pc G)$    & $\equiv$ & $(E \pc F) \pc G$
+\\
+  StrIdent &&  
+  $E \pc \nil$         & $\equiv$ & $E$
+\\
+  StrResRem &&  
+  $\nil \res{A}$       & $\equiv$ & $\nil$
+\\
+  StrResRes &&  
+  $E \res{A} \res{B}$  & $\equiv$ & $E \res{A \cup B}$
+  \end{tabular}
+  \shrule
+\end{table}
+
+Table \ref{tab:casesubset} shows the operational semantics, some of
+which are inherited from CaSE.  $Idle$ and $Patient$ represent
+the progress of time over $\nil$ and action prefixes respectively.
+$Act$ allows an action to be performed, with an appropriately labelled
+transition, with the process continuing as $E$.  $Stall$ represents
+the stopping of a specific clock, $\sigma$, allowing transitions to
+occur for any other clock, $\rho$.
+
+Commutativity is now implied by the presence of structural congruence,
+so $Sum1$ and $Par1$ are sufficient to describe the behaviour of the
+summation and parallel composition operators for single actions.  $Sum2$
+and $Par3$ represent the passage of time over these two operators.  Note
+that time must be able to pass on both sides, and that the restriction
+$E \mid F \nderives{h}$ enforces prioritisation.
+
+Consequently,
+
+\begin{proposition}
+The semantics exhibit the following properties:
+\begin{enumerate}
+\item prioritisation;
+$E \derives{\sigma}$ implies $E \nderives{h}$ 
+\item time determinacy; $E \derives{\sigma} E'$ and $E
+\derives{\sigma} E''$ implies $E' = E''$.\qed
+\end{enumerate}
+\end{proposition}
+
+$Par2$ encapsulates synchronisation; when one of the processes can
+perform an action and the other can perform the matching co-action, a
+silent action is performed and both evolve.  $FTO1$ and $STO1$ are
+essentially identical, allowing the dissolution of the timeout via a
+tick of the associated clock, $\sigma$, on the provision that $E
+\nderives{h}$.  The difference between the two timeouts is shown by
+$FTO2$, $STO2$ and $STO3$.  $FTO2$ is a general rule for the fragile
+timeout, which allows $E$ to be performed and the timeout removed on
+the occurrence of any transition other than the clock tick.  For the
+stable timeout, the effect of clocks and actions are separated.
+According to $STO3$, clocks other than $\sigma$ may tick, but the
+timeout stays in place.  $STO2$ handles the removal of the stable
+timeout, due to an action performed by $E$.
+
+Recursion is provided by $Rec$, which performs substitution of $X$ for
+the body of the recursion as soon as any transition, $\gamma$, occurs.
+The $Res$ rule defines restriction, which disallows any transitions for
+the given name.  Rule $LHd1$ provides the conversion of ticks emitted by
+the hidden clocks to silent actions: if $E$ can perform a $\sigma$
+transition, then it performs a $\tau$ transition in any context where
+$\sigma$ is hidden.  Also included in the table is the rule $SCong$,
+which links the structural congruence rules to the labelled transition
+system, and rules which allow the mobility prefix, $\ambop$, to evolve,
+thus completing the semantics for expressions.
+
+
+The remaining semantics in Table \ref{tab:mobsubset} focus on
+mobility.  $InEnv$ allows a $\tin$ transition to occur and $n$ to move
+into $m$ if matching $\tntin{m}$ and $\bin$ transitions are available
+from the process $\tntin{m}.E$ and bouncer, $B_1$.  Conversely,
+$OutEnv$ concerns the interaction between $\tntout{m}.E$ and $\bout$,
+allowing a $\tout$ transition to occur and $n$ to move outside $m$.
+Likewise, $\tntopen{m}$ causes a $\topen$ transition to occur when
+both an $\tntopen{m}$ and an $\bopen$ transition are available.  The
+named environ, $m$, is destroyed along with its bouncer, and the two
+clock contexts are unified.
+
+Finally, $ProcIn$ and $ProcOut$ describe the movement of processes
+between environs.  In both rules, $E$ moves due to a mobility
+primitive which is part of $F$.  This occurs if an $a$ transition
+takes place in the presence of matching $\procin{a}{m}$ and $\bin$, or
+$\procout{a}{m}$ and $\bout$, actions.  An appropriate mobility
+transition ($\tin$ or $\tout$) is emitted as a result of this
+three-way synchronisation.  In both, we include the use of restriction
+on $E \pc G$ so as to show how $E$ escapes its scope.  Process
+mobility, in this form, is \emph{objective}.  The process which emits
+the mobility primitive synchronises with a partner process, and it is
+this partner which actually moves.  The partner is necessarily a
+process in the same environ, due to the scoping of actions described
+above.
+
 \section{A Simple Example}
 \label{example}
 
@@ -864,7 +872,7 @@ The environ structure is represented graphically by Fig. \ref{fig:gameenv}
 and in the calculus by the equation shown below.
 \begin{equation}
 \loc{room}{\nloc{chair}{\nil}{CB} \pc \nloc{chair}{\nil}{CB}
-\pc \nloc{sin bin}{\nil}{SB} \pc P \pc P \pc GM}{\Omega}{\sigma}
+\pc \nloc{sinbin}{\nil}{SB} \pc P \pc P \pc GM}{\Omega}{\sigma}
 \end{equation}
 where $\nloc{m}{E}{F}$ is abbreviated from $\loc{m}{E}{F}{}$.  The
 players themselves are represented by \emph{processes}.  This allows
@@ -873,8 +881,11 @@ process is also introduced.  This doesn't play an active role in the
 game itself, but is instead responsible for performing the
 administrative duties of removing chairs from the game and controlling
 player movement.  The process definitions are summarised in Table
-\ref{tab:musicalchairs}, and make use of the derived syntax for a clock
-prefix, $\sigma.P$, shown in \ref{clockcontrol}.
+\ref{tab:musicalchairs}, and make use of the derived syntax for a
+clock prefix, $\sigma.P$, shown in \ref{clockcontrol}.  Their names
+are shorthand for Chair Bouncer ($CB$), Sinbin Bouncer ($SB$), Games
+Master x ($GMx$), Player ($P$), Moving Player ($MP$), Player in Chair
+($PiC$), Player Leaving Chair ($PLC$) and Leaver ($L$).
 
 \begin{table}[h]
   \caption{Summary of Processes and Derived Syntax for Musical Chairs}
@@ -907,16 +918,16 @@ prefix, $\sigma.P$, shown in \ref{clockcontrol}.
     \sigma.\sigma.MP \label{player} \\
     MP &
     \eqdef
-    \stimeout{sit.PIC}{\sigma}{L} \label{mplayer}\\
-   PIC &
+    \stimeout{sit.PiC}{\sigma}{L} \label{mplayer}\\
+   PiC &
     \eqdef 
     \sigma.\sigma.PLC \label{pinchair} \\
    PLC &
    \eqdef
-   \procout{stand}{chair}.0|stand.P \label{pleavechair} \\
+   \procout{stand}{chair}.\nil|stand.P \label{pleavechair} \\
    L &
     \eqdef 
-    leave.0 \label{loser} 
+    leave.\nil \label{loser} 
   \end{align}
   \shrule
 \end{table}
@@ -932,17 +943,17 @@ as a single room environ, and prevents other processes or environs
 from interfering with its behaviour.
 
 The definition of appropriate bouncers is essential for the chairs
-(\ref{chairb}) and the sin bin (\ref{sinb}).  It is the chair bouncer
+(\ref{chairb}) and the $sinbin$ (\ref{sinb}).  It is the chair bouncer
 that enforces the implicit predicate that only one player may inhabit a
-chair at any one time, while the sin bin bouncer prevents players
-leaving the sin bin once they have entered.
+chair at any one time, while the $sinbin$ bouncer prevents players
+leaving the $sinbin$ once they have entered.
 
 To model stage one of the game, $n$ player processes and $n$ chair
 environs are placed in the room.  The advantage of using NT for this
 model is that the actual number of players or chairs is irrelevant.
-They only have to be equal at the start to accurately model the game.
-The calculus allows the creation of a compositional semantics, as
-discussed in chapter \ref{introduction}, which works with any $n$.
+They need not even be equal.  The calculus allows the creation of a
+compositional semantics, as discussed in chapter \ref{introduction},
+which works with any $n$.
 
 For the purposes of demonstration, $n$ is assumed to be two to give the
 following starting state:
@@ -980,7 +991,7 @@ as follows:
 & \loc{room}{\nloc{chair}{\nil}{CB} \pc \nloc{chair}{\nil}{CB} \pc 
    \sigma.MP \pc \sigma.MP \pc
    GM2}{\Omega}{\sigma} \\
- \lderives{\topen}\ & \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
+ \lderives{\topen}\ & \loc{room}{\nloc{chair}{\nil}{CB} \pc 
    \sigma.MP \pc \sigma.MP \pc
    GM3}{\Omega}{\sigma}
 \end{aligned}
@@ -991,10 +1002,10 @@ interesting part of the model.
 
 \begin{equation}
 \begin{aligned}
-& \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
+& \loc{room}{\nloc{chair}{\nil}{CB} \pc 
    \sigma.MP \pc \sigma.MP \pc
    GM3}{\Omega}{\sigma} \\
-\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
+\lderives{\sigma}\ & \loc{room}{\nloc{chair}{\nil}{CB} \pc 
    MP \pc MP \pc
    GM4}{\Omega}{\sigma} \\
 \end{aligned}
@@ -1002,40 +1013,40 @@ interesting part of the model.
 
 The aim of stage five is to get as many player processes as possible
 inside chair environs.  This is handled by again relying on maximal
-progress to essentially perform a form of broadcast that centres on
-mobile actions, as briefly mentioned in \ref{procmob}.  Rather than
-sending a signal to a number of recipients, a request to move into a
-chair (see (\ref{gmstage5}) and (\ref{mplayer})) is delivered instead.
+progress to perform a form of broadcast that centres on mobile
+actions, as briefly mentioned in \ref{procmob}.  Rather than sending a
+signal to a number of recipients, a request to move into a chair (see
+(\ref{gmstage5}) and (\ref{mplayer})) is delivered instead.
 
-If a chair is available, then a player process will enter it (the actual
-chair and player chosen is non-deterministic).  This will cause a high
-priority action to occur, which takes precedence over the clock tick.
-Thus, when the clock eventually does tick, it is clear that no more
-players can enter chairs. Using clocks in this manner makes the system
-\emph{compositional}; in contrast to other models, players and chairs
-can be added without requiring changes to the process definitions.  In
-this running example, there are two players, but only one chair, which
-results in a single $\tin$ transition:
+If a chair is available, then a player process will enter it (the
+choice of chair and player is non-deterministic).  This will cause a
+high priority action to occur, which takes precedence over the clock
+tick.  Thus, when the clock eventually does tick, it is clear that no
+more players can enter chairs. Using clocks in this manner makes the
+system \emph{compositional}; in contrast to other models, players and
+chairs can be added without requiring changes to the process
+definitions.  In this running example, there are two players, but only
+one chair, which results in a single $\tin$ transition:
 \begin{equation}
 \begin{aligned}
-& \loc{room}{\nil \pc \nloc{chair}{\nil}{CB} \pc 
+& \loc{room}{\nloc{chair}{\nil}{CB} \pc 
    MP \pc MP \pc
    GM4}{\Omega}{\sigma} \\
-\lderives{\tin}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc PIC}{\bout.CB} \pc 
+\lderives{\tin}\ & \loc{room}{\nloc{chair}{PiC}{\bout.CB} \pc 
    MP \pc
    GM4}{\Omega}{\sigma} \\
 \end{aligned}
 \end{equation}
 that causes one of the $MP$ processes to move in to a
-chair, and become a $PIC$ process.  This is followed by the
+chair, and become a $PiC$ process.  This is followed by the
 $\sigma$ transition, which marks the move to stage six.
 
 \begin{equation}
 \begin{aligned}
-&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc PIC}{\bout.CB} \pc 
+&  \loc{room}{\nloc{chair}{PiC}{\bout.CB} \pc 
    MP \pc
    GM4}{\Omega}{\sigma} \\
-\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc 
+\lderives{\sigma}\ & \loc{room}{\nloc{chair}{\sigma.PLC}{\bout.CB} \pc 
    L \pc
    GM5}{\Omega}{\sigma} \\
 \end{aligned}
@@ -1052,30 +1063,30 @@ occurs.  In the example, stage six again sees just one $\topen$
 transition:
 \begin{equation}
 \begin{aligned}
-&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc 
+&  \loc{room}{\nloc{chair}{\sigma.PLC}{\bout.CB} \pc 
    L \pc
    GM5}{\Omega}{\sigma} \\
-\lderives{\topen}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc
+\lderives{\topen}\ & \loc{room}{\nloc{chair}{\sigma.PLC}{\bout.CB} \pc
    GM5}{\Omega}{\sigma} \\
 \end{aligned}
 \end{equation}
 which results in the remaining $MP$ (now a losing process, $L$) moving
-to the sin bin.  Due to space constraints, the sin bin environ is not
+to the sinbin.  Due to space constraints, the sinbin environ is not
 shown in the above derivations.  It may be factored in to the above as
 follows:
 \begin{equation}
 \begin{aligned}
 & \nloc{sinbin}{\nil}{SB} \pc L \pc GM5 \\
-\lderives{\tin} & \nloc{sinbin}{\nil \pc \nil}{SB} \pc GM5
+\lderives{\tin} & \nloc{sinbin}{\nil}{SB} \pc GM5
 \end{aligned}
 \end{equation}
  where the $L$ process evolves to become a simple $\nil$
 process.  The broadcast is again terminated by a tick from $\sigma$,
 \begin{equation}
 \begin{aligned}
-&  \loc{room}{\nil \pc \nloc{chair}{\nil \pc \sigma.PLC}{\bout.CB} \pc
+&  \loc{room}{\nloc{chair}{\sigma.PLC}{\bout.CB} \pc
    GM5}{\Omega}{\sigma} \\
-\lderives{\sigma}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc PLC}{\bout.CB} \pc
+\lderives{\sigma}\ & \loc{room}{\nloc{chair}{PLC}{\bout.CB} \pc
    GM1}{\Omega}{\sigma} 
 \end{aligned}
 \end{equation}
@@ -1083,9 +1094,9 @@ which, in this case, also signifies the music starting up again.  The
 remaining players leave their chairs:
 \begin{equation}
 \begin{aligned}
-& \loc{room}{\nil \pc \nloc{chair}{\nil \pc PLC}{\bout.CB} \pc
+& \loc{room}{\nloc{chair}{PLC}{\bout.CB} \pc
    GM1}{\Omega}{\sigma}   \\
-\lderives{\tout}\ & \loc{room}{\nil \pc \nloc{chair}{\nil \pc \nil}{CB} \pc
+\lderives{\tout}\ & \loc{room}{\nloc{chair}{\nil}{CB} \pc
    GM1 \pc P}{\Omega}{\sigma} 
 \end{aligned}
 \end{equation}
@@ -1129,20 +1140,20 @@ output it on $o$\footnote{At some point, the $\tau$ process will reach
 From this, we can already determine some things about the other processes in the system:
 
 \begin{itemize}
-\item The interface ($Intf$) must output on $\overline{i}$ to trigger
-  $In$ into starting to produce sound.
-\item The speaker output ($Out$) must read on $o$ to obtain the sound
+\item The interface ($\Intf$) must output on $\overline{i}$ to
+  trigger $\In$ into starting to produce sound.
+\item The speaker output ($\Out$) must read on $o$ to obtain the sound
   data and send it to the speakers.
-\item The spectral analyser ($Analy$) must read on $o$ to obtain the
+\item The spectral analyser ($\Analy$) must read on $o$ to obtain the
   sound data and produce the visual feedback.
 \end{itemize}
 
-and definitions for $Out$ and $Analy$ follow fairly
+\noindent and definitions for $\Out$ and $\Analy$ follow fairly
 trivally\footnote{We could represent these processes outputting on
   channels representing the speakers and display respectively, but in
   reality these are going to be system calls in the $\tau$ process,
-  just as the $\tau$ in $In$ performs reading and decoding
-  operations on the file to produce sound data}:
+  just as the $\tau$ in $\In$ performs reading and decoding operations
+  on the file to produce sound data}:
 
 \begin{equation}
 \begin{aligned}
@@ -1152,17 +1163,17 @@ trivally\footnote{We could represent these processes outputting on
 \end{equation}
 
 This already highlights one problem with the current $In$ process.
-Both $Out$ and $Analy$ need to synchronise with it on the $o$ channel,
+Both $\Out$ and $\Analy$ need to synchronise with it on the $o$ channel,
 but it currently only performs one $\overline{o}$ action.  Thus, on
-each loop within $In$, one of the two will synchronise and the other
+each loop within $\In$, one of the two will synchronise and the other
 will miss out.
 
 From \ref{tpl} and \ref{example}, we already know the best way to
-solve this; with a timeout.  $In$ needs to recurse over the
+solve this; with a timeout.  $\In$ needs to recurse over the
 $\overline{o}$ action until it can no longer synchronise with a
-receipient, at which point it reads the next piece of sound data; this
+reciepient, at which point it reads the next piece of sound data; this
 is exactly the same logic as we employed for the compositional
-broadcast agent in \ref{tpl}.  As a result, $In$ now looks like this:
+broadcast agent in \ref{tpl}.  As a result, $\In$ now looks like this:
 
 \begin{equation}
   In \eqdef i.\mu X.\tau.\mu W.\stimeout{\overline{o}.W}{\sigma}{X}
@@ -1170,7 +1181,7 @@ broadcast agent in \ref{tpl}.  As a result, $In$ now looks like this:
 
 \noindent We bind $W$ to $\timeout{\overline{o}.W}{\sigma}{X}$ so that
 each time $\overline{o}$ is performed, we return to our original state.
-When $In$ is running in parallel with $Out$ and $Analy$:
+When $\In$ is running in parallel with $\Out$ and $\Analy$:
 
 \begin{equation}
   IntSys \eqdef i.\mu X.(\tau.\mu W.\stimeout{\overline{o}.W}{\sigma}{X} \pc o.\tau.\nil \pc o.\tau.\nil)
@@ -1181,10 +1192,10 @@ $\tau$ transition to occur (rule $Par2$ in the semantics), which in
 turn inhibits $\sigma$.  Once both have occurred, $\sigma$ transitions
 can occur and will cause recursion to occur via the expansion of $X$.
 Our structural congruence rules ($SCong$) mean that we can simply
-discard the two $\nil$ processes left behind by $Out$ and $Analy$.
+discard the two $\nil$ processes left behind by $\Out$ and $\Analy$.
 
 There is one remaining issue with this construction; the internal
-$\tau$ actions of $Out$ and $Analy$ will also cause $In$ to continue
+$\tau$ actions of $\Out$ and $\Analy$ will also cause $\In$ to continue
 to recurse on $W$ rather than reading the next piece of input.  The
 solution to this is to also synchronise these two processes on
 $\sigma$:
@@ -1193,19 +1204,19 @@ $\sigma$:
   Out \eqdef o.\stimeout{\Delta}{\sigma}{\tau.\nil}
 \end{equation}
 
-\noindent so that now, once input has been received on $o$, $Out$
+\noindent so that now, once input has been received on $o$, $\Out$
 waits until $\sigma$ becomes unimpeded and is able to tick; $\Delta$
 produces no transitions, so neither $STO2$ or $STO3$ can be applied,
-and $STO1$ requires the absence of any high priority transitions,
+while $STO1$ requires the absence of any high priority transitions,
 which includes $\tau$ transitions. This should allow all three
 processes to continue with their internal processing.  The same
-definition can be applied to $Analy$.
+definition can be applied to $\Analy$.
 
 Of course, we could provide a much simpler solution by just performing
 $\overline{o}$ twice.  The advantage of this solution, as we have
 discussed before, is that we can add any number of other processes
 that need to synchronise on $o$ without having to alter our definition
-of $In$.
+of $\In$.
 
 All that remains to complete our definition of this system is to
 define the interface.  This is simply a means of translating user
@@ -1219,20 +1230,20 @@ But what does $useri$ synchronise with?  This comes from the user and
 is outside the system itself:
 
 \begin{equation}
-   \procin{begin}{player}.0 \pc begin.\overline{useri}.\nil \pc \loc{player}{Intf}{\bin.\Omega}{\sigma}
+   \procin{begin}{player}.\nil \pc begin.\overline{useri}.\nil \pc \loc{player}{Intf}{\bin.\Omega}{\sigma}
 \end{equation}
 
 \noindent Our system is now encapsulated in an environ, $player$.  To
 start the player, a client must enter $player$ and synchronise on
 $useri$.  The bouncer of the $player$ environ allows only one process
-to enter, by providing only one $\bin$ with which to synchronise.
-$\sigma$ is hidden outside the environ so all the ticks from within
-$player$ appear as silent actions to those outside (see $LHd1$).  As
-all the other transitions performed by $Intf$ will also be silent
-actions, being a mix of internal $\tau$ actions and synchronisations
-between $i$ and $o$, processes outside $player$ can use the presence
-of these transitions to determine whether or not $Intf$ is active or
-not.
+to enter, by providing only one $\bin$ with which to synchronise.  The
+clock $\sigma$ is hidden outside the environ so all the ticks from
+within $player$ appear as silent actions to those outside (see
+$LHd1$).  As all the other transitions performed by $\Intf$ will also
+be silent actions, being a mix of internal $\tau$ actions and
+synchronisations between $i$ and $o$, processes outside $player$ can
+use the presence of these transitions to determine whether or not
+$\Intf$ is active or not.
 
 We have deliberately kept the design as simple as possible to make it
 easier to digest and to reduce the complexity of the corresponding
@@ -1251,8 +1262,8 @@ We also added the notion of `bouncers', a security mechanism which
 allows the number and type of mobility operations which may be
 performed on an environ (our term for a locality in NT) to be defined.
 The first half of the chapter demonstrated how each of these features
-was layered on to the calculus, before finishing with its operational
-semantics (\ref{ntsemantics}).  We then demonstrate how the calculus
+was layered onto the calculus, before finishing with its operational
+semantics (\ref{ntsemantics}).  We then demonstrated how the calculus
 may be used using two examples; the first (\ref{example}) aimed to
 demonstrate each of the features of the calculus in action, while the
 second (\ref{app:nt}) expanded on the application specified in
@@ -1262,8 +1273,7 @@ In the next chapter, we show how Nomadic Time may be used to construct
 a concurrent programming framework in the Java programming language.
 We refer to this framework as the DynamiTE (Dynamic Theory Execution)
 framework, and this forms the second novel work in this thesis.  We
-then use this framework to implement the prototypical application,
-directly using the design from \ref{app:nt} to construct corresponding
-Java classes which meet the requirements in \ref{app:req}.  Finally,
-we cover some other existing attempts to provide implementations of
-process calculi.
+then use this framework to implement a prototypical application, using
+the design from \ref{app:nt} to construct corresponding Java classes
+which meet the requirements in \ref{app:req}.  Finally, we cover some
+other existing attempts to provide implementations of process calculi.

@@ -3,16 +3,17 @@
 
 \documentclass[12pt,a4paper]{book}
 
+\usepackage{a4wide}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
+
 \usepackage{graphicx}
 % Needed for: \varovee, etc
 \usepackage{stmaryrd}
 
 % Needed for: \mathscr{}
 \usepackage{mathrsfs}
-
 % Needed for xy
 \usepackage[all]{xy}
 \xyoption{arc}
@@ -136,10 +137,19 @@
 \newcommand{\LuxBox}{\mathit{LuxBox}}
 
 \newtheorem{proposition}{Proposition}{\bfseries}{\itshape}
+\newtheorem{lemma}{Lemma}{\bfseries}{\itshape}
 \def\squareforqed{\hbox{\rlap{$\sqcap$}$\sqcup$}}
 \def\qed{\ifmmode\squareforqed\else{\unskip\nobreak\hfil
 \penalty50\hskip1em\null\nobreak\hfil\squareforqed
 \parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+\newenvironment{proof}{\textit{Proof.}~}{~\qed}
+\newcommand{\case}[1]{\textit{Case} \textsc{#1}}
+\newcommand{\subcase}[1]{\textit{Subcase} \textsc{#1}}
+
+\newcommand{\Intf}{\mathit{Intf}}
+\newcommand{\Out}{\mathit{Out}}
+\newcommand{\Analy}{\mathit{Analy}}
+\newcommand{\In}{\mathit{In}}
 
 \title{DynamiTE:\\A 21st-Century Framework for Concurrent Component-Based Design}
 \author{Andrew~John~Hughes}
@@ -171,6 +181,10 @@
 \include{tnt}
 
 \include{futurework}
+
+
+\appendix
+\include{preservation}
 
 \addcontentsline{toc}{chapter}{Bibliography}
 \include{bibliography}

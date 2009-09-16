@@ -7,21 +7,26 @@
 \section{Introduction}
 \label{timing}
 
-The use of the word `timed' within the context of the calculi
-considered here is a bit of a misnomer.  The notion of `time' is
-generally associated with concrete real values, in units such as
-minutes and seconds.  Real-time process calculi, such as those
-described in \cite{aceto:timing, beaten:timing, brics:lee,
-  lee:realtime, tccs, satoh:phd, satoh:distrib}, attempt to model
-this.  Instead, this section focuses on a series of discrete timed
-calculi which focus on abstract time and the use of \emph{clocks} for
-the primary purpose of global synchronisation (as described above).
+In this chapter, we cover a number of process calculi that incorporate
+abstract time.  The notion of `time' is generally associated with
+concrete real values, in units such as minutes and seconds.  Real-time
+process calculi, such as those described in \cite{aceto:timing,
+  beaten:timing, brics:lee, lee:realtime, tccs, satoh:phd,
+  satoh:distrib}, attempt to model this.  Instead, this section
+focuses on calculi that use \emph{clocks} to provide global
+synchronisation, as introduced in \ref{ccslimit}.  While \emph{local
+  synchronisation} occurs between two processes, the global form
+synchronises any number of processes using a clock signal.
+
+Our central focus here is on CaSE (\ref{case}) which we extend to
+create our own calculus in chapter \ref{nt}.  However, we first turn
+our attention to its predecessor, TPL.
 
 \section{Temporal Process Language (TPL)}
 \label{tpl}
 
 Hennessy's Temporal Process Language (TPL) \cite{hennessy:tpl} extends
-the CCS language discussed above with a single clock, akin to a
+the CCS language discussed in \ref{ccs} with a single clock, akin to a
 hardware clock which emits a signal at an arbitrary point in time.
 These signal emissions are controlled by a concept known as
 \emph{maximal progress}, which allows each process to make as much
@@ -439,7 +444,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
   \shrule
 \end{table}
 
-\section{Advantages and Disadvantages of Timed Calculi}
+\section{Conclusion}
 \label{timelimit}
 
 The main advantage of the timed calculi we have discussed here is that
@@ -465,9 +470,7 @@ model mobile systems where these elements do change, although they
 are perfectly suited to modelling static dataflow-oriented systems
 such as those in \cite{WICSA} and \cite{cashews-sem}.
 
-In contrast, the following section contains a discussion of calculi
+In contrast, the following chapter contains a discussion of calculi
 which, while lacking the scalability of the timed languages just
 illustrated, can model \emph{mobile systems}.
-
-\section{Conclusion}
 
