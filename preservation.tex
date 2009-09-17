@@ -121,8 +121,36 @@ from the form of the rule that $t$ must be the process term $E + F$
 and $T$ must be the type $g \oplus g'$ where $g, g' : Group$.  From
 the semantics, there are two subcases:
 
-\subcase{Sum1}: $t = E + F$, $T = g \oplus g'$
+\subcase{Sum1}: $t' = E'$, $T = g$
 
+\noindent The $Sum1$ rule from the semantics provides the transition
+$E + F \derives{\kappa} E$, so $t'$ is $E'$.  From the
+subderivations of the $SumC$ typing rule, we know that $E : g : Group$
+so we can apply the induction hypothesis to obtain $t' : g$.
+
+\subcase{Sum2}: $t' = E + F$, $T = g$
+
+\noindent From the $Sum2$ rule of the semantics, $E + F$ has a
+transition $E + F \derives{\sigma} E' + F'$ for each clock $\sigma$ in
+$\timers$.  In each case, $t' = E' + F'$.  From the subderivations of
+the $SumC$ typing rule, we know that $E : g : Group$ and $F : g :
+Group$ and by applying the induction hypothesis, we know both $E'$ and
+$F'$ are well typed.  As a result, we can apply $SumC$ to give $t' : g
+\oplus g'$.
+
+\case{ParC}: $t = E | F$, $T = g \otimes g'$
+
+\noindent If the last rule in the derivation is $ParC$, then we know
+from the form of the rule that $t$ must be the process term $E \pc F$
+and $T$ must be the type $g \otimes g'$ where $g, g' : Group$.  From
+the semantics, there are eight subcases:
+
+\subcase{Par1}: $t' = E' \pc F$, $T = g$
+
+\noindent The $Par1$ rule from the semantics provides the transition
+$E \pc F \derives{\kappa} E$, so $t'$ is $E'$.  From the
+subderivations of the $SumC$ typing rule, we know that $E : g : Group$
+so we can apply the induction hypothesis to obtain $t' : g$.
 
 \noindent 
 \case{BNil}: $t = \Omega$, $T = Bouncer$
