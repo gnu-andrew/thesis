@@ -748,11 +748,12 @@ Those which contain the $g : Group$ prerequisite are more complicated.
 Just as with names, clocks and environs, the available groups are
 created by the user and registered with the \texttt{Context}.  To
 create the association between a process and a group to begin with,
-the classes \texttt{Nil}, \texttt{Delta} and \texttt{Stall} (those
-that don't contain an instance of \texttt{Process}) gain an additional
-constructor which records the group of the process.  This has the
-effect of making \texttt{Nil} and \texttt{Delta} no longer singletons.
-Instead, the class is implemented as follows:
+the classes \texttt{Nil}, \texttt{Delta}, \texttt{Stall} and
+\texttt{Var} (those that don't contain an instance of
+\texttt{Process}) gain an additional constructor which records the
+group of the process.  This has the effect of making \texttt{Nil} and
+\texttt{Delta} no longer singletons.  Instead, the class is
+implemented as follows:
 
 \begin{verbatim}
 public class Delta
@@ -842,6 +843,8 @@ public interface TypedEvolver
 
 \noindent When the checks are made and how the evolver reacts to them
 are left up to each implementation.
+
+\section{Types and Musical Chairs}
 
 \section{Conclusion}
 

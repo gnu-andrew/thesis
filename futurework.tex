@@ -92,7 +92,8 @@ It would be interesting to consider further the typing of both actions
 and clocks.  At present, they just have the simplest of types, but
 this could be extended to provide more interesting behaviour.
 Similarly, bouncers only have rudimentary types and may possibly be
-changed to include more detail.
+changed to include more detail.  Further, it may be worth implementing
+the types in a theorem prover and deducing results.
 
 \subsection{Nomadic Time Extended With Data}
 \label{tnted}
@@ -131,6 +132,20 @@ $(t_1, t_2, t_3)$, it can only synchronise with $\overline{a}$ if it
 also has the type $(t_1, t_2, t_3)$.  Clearly, the second rule could
 be widened to allow a subtyping relation between the two types, rather
 than equivalence.
+
+\subsection{Explicit Type Assignment}
+
+At present, there is no explicit assignment of types to processes in
+the type system.  We assume that the user either adds their own axioms
+to fix the type of a process, or that the type of a process is
+derived; for example, we can derive a suitable type for
+$\tntin{m}.\nil$ through the knowledge that $m \in g(\mathscr{R})$
+must hold.  In the DynamiTE implementation of the type system (see
+\ref{dyn:type}), types are assigned when constructing \texttt{Nil},
+\texttt{Delta}, \texttt{Stall} and \texttt{Var} instances.  This could
+also be added to the formal version by modifying the syntax and
+semantics to use $\nil : T$, $\Delta : T$, $\Delta_\sigma : T$ and $X :
+T$.
 
 \section{Other Applications}
 \label{future:apps}

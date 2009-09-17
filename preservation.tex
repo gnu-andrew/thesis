@@ -1,6 +1,7 @@
 \chapter{Type Preservation}
 
-If a well-typed term takes a step of evaluation, then the resulting term is also well-typed.
+If a well-typed term takes a step of evaluation, then the resulting
+term is also well-typed.
 
 \begin{proposition}
 If $\Gamma \vdash t : T$ and $t \derives{} t'$, then $\Gamma \vdash t' : T$
@@ -20,13 +21,6 @@ $T$ must be the type $g$ where $g : Group$.  From the semantics
 each clock $\sigma$ in $\timers$.  In each case, $t' = \nil$ which, by
 the $Nil$ rule, has type $g$ so our proposition is satisfied.
 
-\case{BNil}: $t = \Omega$, $T = Bouncer$
-
-\noindent If the last rule in the derivation is $BNil$, then we know
-from the form of the rule that $t$ must be the process term $\Omega$
-and $T$ must be the type $Bouncer$.  From the semantics, there are no
-transitions for $\Omega$ so there is nothing to prove.
-
 \case{Stop}: $t = \Delta$, $T = g$
 
 \noindent If the last rule in the derivation is $Stop$, then we know
@@ -45,6 +39,13 @@ $\timers$ where $\rho \ne \sigma$.  In each case, $t' = \Delta_\sigma$
 which, by the $Stall$ rule, has type $g$ so our proposition is
 satisfied.
 
+\case{Var}: $t = X$, $T = g$
+
+\noindent If the last rule in the derivation is $Var$, then we know
+from the form of the rule that $t$ must be the process term $X$ and
+$T$ must be the type $g$ where $g : Group$.  From the semantics, there
+are no transitions for $X$ so there is nothing to prove.
+
 \case{Act}: $t = \alpha.E$, $T = g$
 
 \noindent If the last rule in the derivation is $Act$, then we know
@@ -54,10 +55,10 @@ the semantics, there are two subcases:
 
 \subcase{Act}: $t' = E$, $T = g$
 
-\noindent The $Act$ rule from the semantics provides the transition $\alpha.E
-\derives{\alpha} E$, so $t'$ is $E$.  From the subderivations of the
-$Act$ typing rule, we know that $E : g : Group$ so we can apply the
-induction hypothesis to obtain $t' : g$.
+\noindent The $Act$ rule from the semantics provides the transition
+$\alpha.E \derives{\alpha} E$, so $t'$ is $E$.  From the
+subderivations of the $Act$ typing rule, we know that $E : g : Group$
+so we can apply the induction hypothesis to obtain $t' : g$.
 
 \subcase{Patient}: $t' = \alpha.E$, $T = g$
 
@@ -68,24 +69,68 @@ rule, has type $g$ so our proposition is satisfied.
 
 \case{Rec}: $t = \mu X.E$, $T = g$
 
-\noindent From the $Rec$ rule of the semantics, $\mu X.E$ has a
-transition to $E'\{\mu X.E/X\}$ for any transition $\gamma$ which can
-be performed by $E$.  In each case, $t' = E'\{\mu X.E/X\}$ so we need
-to show that this is well-typed.  From the subderivations of the $Rec$
-typing rule, we know that $E : g : Group$ so we can apply the
-induction hypothesis to obtain $E' : g : Group$.  So, we just need to
-show that the well-typedness of $E'$ is preserved when the
-substitution ($\{\mu X.E/X\}$ is performed.
+\noindent If the last rule in the derivation is $Rec$, then we know
+from the form of the rule that $t$ must be the process term $\mu X.E$
+and $T$ must be the type $g$ where $g : Group$.  From the $Rec$ rule
+of the semantics, $\mu X.E$ has a transition to $E'\{\mu X.E/X\}$ for
+any transition $\gamma$ which can be performed by $E$.  In each case,
+$t' = E'\{\mu X.E/X\}$ so we need to show that this is well-typed.
+From the subderivations of the $Rec$ typing rule, we know that $E : g
+: Group$ so we can apply the induction hypothesis to obtain $E' : g :
+Group$.  So, we just need to show that the well-typedness of $E'$ is
+preserved when the substitution ($\{\mu X.E/X\}$ is performed.
 
 \begin{lemma}
-If $\Gamma, E : S \vdash t : T$ and $\Gamma \vdash E : S$ then $\Gamma \vdash E\{\mu X.E/X\} : T$
+If $\Gamma, x : S \vdash t : T$ and $\Gamma \vdash x : S$ then $\Gamma \vdash t\{x/X\} : T$
 \end{lemma}
 
 \begin{proof}
-By induction on a derivation of the statement $\Gamma, E : S \vdash t
+By induction on a derivation of the statement $\Gamma, x : S \vdash t
 : T$.  For a given derivation, we proceed by cases on the final typing
-rule.
+rule.  There is only one case where $X$ appears and this is $Var$,
+where $t = X$ and $T = g$.  There are two possible subcases:
+
+\subcase{Match}: $x = X$
+
+\noindent If $X$ matches the bound variable being substituted, $x$, then it
+becomes $x$, which we know is well-typed from the precondition.
+  
+\subcase{NoMatch}: $x \ne X$
+
+\noindent If $X$ does not match the bound variable being substituted, $x$, then it
+remains as $X$, which is typeable using the $Var$ rule.
+
 \end{proof}
+
+\case{Res}: $t = E \res{a}$, $T = g$
+
+\noindent If the last rule in the derivation is $Res$, then we know
+from the form of the rule that $t$ must be the process term $E
+\res{a}$ and $T$ must be the type $g$ where $g : Group$.  From the
+$Res$ rule of the semantics, $E \res{a}$ has a transition to $E'
+\res{a}$ for all transitions ($\gamma$) which can be performed by $E$
+where $\gamma \ne a$.  In each case, $t' = E'$ so we need
+to show that this is well-typed.  From the subderivations of the $Res$
+typing rule, we know that $E : g : Group$ so we can apply the
+induction hypothesis to obtain $E' : g : Group$.
+
+\case{SumC}: $t = E + F$, $T = g \oplus g'$
+
+\noindent If the last rule in the derivation is $SumC$, then we know
+from the form of the rule that $t$ must be the process term $E + F$
+and $T$ must be the type $g \oplus g'$ where $g, g' : Group$.  From
+the semantics, there are two subcases:
+
+\subcase{Sum1}: $t = E + F$, $T = g \oplus g'$
+
+
+\noindent 
+\case{BNil}: $t = \Omega$, $T = Bouncer$
+
+\noindent If the last rule in the derivation is $BNil$, then we know
+from the form of the rule that $t$ must be the process term $\Omega$
+and $T$ must be the type $Bouncer$.  From the semantics, there are no
+transitions for $\Omega$ so there is nothing to prove.
 
 \end{proof}
 
