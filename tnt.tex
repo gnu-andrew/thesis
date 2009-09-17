@@ -329,7 +329,7 @@ G \mathrel{::=} & \quad g \mid G \oplus G \mid G \otimes G \\
 \end{aligned}
 \end{equation*}
 
-The rule $Env$ states that if $\xi$ of type $T$ is a member of
+The rule $T-Env$ states that if $\xi$ of type $T$ is a member of
 $\Gamma$, then a typing derivation $\vdash \xi : T$ may be made in the
 context of $\Gamma$.  This forms the basis of all later rules.  Notice
 that our system is naturally polymorphic; $\nil$, $\Delta$ and
@@ -340,8 +340,8 @@ the behaviourally equivalent process, $\Delta$.
 
 The remaining rules in Table \ref{tab:basictypes} allow types to be
 applied in accordance with the various operators present in the
-calculus.  When handing the binary operators, we use the rules $Sum$
-and $Par$ to construct appropriate composite types that maintain the
+calculus.  When handing the binary operators, we use the rules $T-Sum$
+and $T-Par$ to construct appropriate composite types that maintain the
 groups used on either side.  The rules for timeouts (Table
 \ref{tab:totypes}) follow much the same design as the rules for the
 summation operator.
@@ -352,60 +352,60 @@ summation operator.
   \shrule
  \begin{center}
  \begin{tabular}{rlrl}
-     \Rule{Env}
+     \Rule{T-Env}
      {\xi : T \in \Gamma}
      {\Gamma \vdash \xi : T}
      {}
   &
-  \Rule{Nil}
+  \Rule{T-Nil}
      {\Gamma \vdash g : Group}
      {\Gamma \vdash \nil : g}
      {}
   \\[3ex]
-     \Rule{Stop}
+     \Rule{T-Stop\quad}
      {\Gamma \vdash g : Group}
      {\Gamma \vdash \Delta : g}
      {}
      &
-     \Rule{Stall}
+     \Rule{T-Stall\quad}
      {\Gamma \vdash g : Group}
      {\Gamma \vdash \Delta_\sigma : g}
      {}
      \\[3ex]
-     \Rule{Var}
+     \Rule{T-Var}
      {\Gamma \vdash t : T}
      {\Gamma \vdash X : t}
      {}
      &
-     \Rule{Act}
+     \Rule{T-Act}
      {\Gamma \vdash E : g : Group}
      {\Gamma \vdash \alpha . E : g}
      {}
   \\[3ex]
-     \Rule{Rec}
+     \Rule{T-Rec\quad}
      {\Gamma \vdash E : g : Group}
-     {\Gamma \vdash \mu X.E : g}
+     {\Gamma, X : g \vdash \mu X.E : g}
      {}
      &
-     \Rule{Res}
+     \Rule{T-Res}
      {\Gamma \vdash E : g : Group}
      {\Gamma \vdash E \res{a} : g}
      {}
   \\[3ex]
-   \Rule{Sum}
+   \Rule{T-Sum\quad}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash E + F : g \oplus g'}
    {}
    &
-   \Rule{Par}
+   \Rule{T-Par}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash E \pc F : g \otimes g'}
    {}
    \\[3ex]
-  \Rule{Sub}
-  {\Gamma \vdash E : g : Group, F : g' : Group}
-  {E\{F/X\} : g \otimes g' : Group}
-  {}
+%  \Rule{Sub}
+%  {\Gamma \vdash E : g : Group, F : g' : Group}
+%  {E\{F/X\} : g \otimes g' : Group}
+%  {}
  \end{tabular}
   \end{center}
   \shrule
@@ -418,13 +418,13 @@ summation operator.
  \begin{center}
  \begin{tabular}{rlrl}
   \multicolumn{4}{c}{
-   \Rulea{FTO}
+   \Rulea{T-FTO}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash \timeout{E}{\sigma}{F} : g \oplus g'}
    {}}
    \\[3ex]
   \multicolumn{4}{c}{
-   \Rulea{STO}
+   \Rulea{T-STO}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash \stimeout{E}{\sigma}{F} : g \oplus g'}
    {}}
@@ -447,22 +447,22 @@ operator, $+$ to be typeable as well.
   \shrule
  \begin{center}
  \begin{tabular}{rlrl}
-   \Rule{BNil}
+   \Rule{BNil\quad}
    {-}
    {\Gamma \vdash \Omega : Bouncer}
    {}
   &
-  \Rule{BRec}
+  \Rule{BRec\quad}
   {\Gamma \vdash B : Bouncer}
-  {\Gamma \vdash \mu X.B : Bouncer}
+  {\Gamma, X : Bouncer \vdash \mu X.B : Bouncer}
   {}
   \\[3ex]
-  \Rule{BIn}
+  \Rule{BIn\quad}
   {\Gamma \vdash B : Bouncer}
   {\Gamma \vdash \bin .B : Bouncer}
   {}
   &
-  \Rule{BOut}
+  \Rule{BOut\quad}
   {\Gamma \vdash B : Bouncer}
   {\Gamma \vdash \bout .B : Bouncer}
   {}
@@ -472,16 +472,16 @@ operator, $+$ to be typeable as well.
   {\Gamma \vdash \bopen .B : Bouncer}
   {}
   &
-  \Rule{BSub}
-  {\Gamma \vdash B, B^\prime : Bouncer}
-  {B\{B'/X\} : Bouncer}
-  {}
-  \\[3ex]
-%  \multicolumn{4}{c}{
-   \Rule{BSum}
+  \Rule{BSum\quad}
    {\Gamma \vdash B, B^\prime : Bouncer}
    {\Gamma \vdash B + B^\prime : Bouncer}
    {}%}
+  \\[3ex]
+%  \multicolumn{4}{c}{
+%  \Rule{BSub}
+%  {\Gamma \vdash B, B^\prime : Bouncer}
+%  {B\{B'/X\} : Bouncer}
+%  {}
   \\[3ex]
  \end{tabular}
   \end{center}
@@ -493,16 +493,16 @@ of our type system; the type $g$ of an environ
 $\locv{m}{E}{B}{\vec{\sigma}}$ is that of its encapsulated process
 $E$, subject to the constraint that $m \in g(\mathscr{R})$ and $B$ is
 a $Bouncer$. Similar sanity checks are performed in the other
-rules. For $EnvIn$, we check that the group of $n$ allows it to enter
+rules. For $T-EnvIn$, we check that the group of $n$ allows it to enter
 $m$ (and also reside there, given $\mathscr{E} \subseteq \mathscr{R}$
-as discussed earlier).  The $EnvOut$ rule is similar, but we must also
+as discussed earlier).  The $T-EnvOut$ rule is similar, but we must also
 check that $k$ can enter $n$ as well as being able to leave $m$.  In
-$Open$, $E$ is the process that performs the mobility primitive,
+$T-Open$, $E$ is the process that performs the mobility primitive,
 $\tntopen{m}$ (subject to the constraint $m \in g(\mathscr{O})$).
 However, the destruction of $m$ also has an effect on its process
 ($F$).  As a result, $F$ must have an appropriate type, $h$, such that
 $F$ can reside in the parent environ, $n$, after $m$ is removed.  The
-final two rules $ProcIn$ and $ProcOut$ are the equivalents of $EnvIn$
+final two rules $T-ProcIn$ and $T-ProcOut$ are the equivalents of $EnvIn$
 and $EnvOut$ for processes; the group $g$ concerned is that of $E$,
 while the group $g'$ of $F$ can be anything.  Note that deciding
 whether an environ name occurs in a group that is a composite type ($g
@@ -522,14 +522,14 @@ two sets.
  \begin{center}
  \begin{tabular}{rlrl}
   \multicolumn{4}{c}{
-     \Rulea{Environ}
+     \Rulea{T-Environ}
      {\Gamma \vdash E : g : Group, B : Bouncer, m \in g(\mathscr{R})}
      {\Gamma \vdash \locv{m}{E}{B}{\vec{\sigma}} : g}
      {}
   }
   \\[3ex]
   \multicolumn{4}{c}{
-     \Rulea{EnvIn}
+     \Rulea{T-EnvIn}
      {\Gamma \vdash \locv{n}{E}{B}{\vec{\sigma}} : g : Group,
        m \in g(\mathscr{E})}
      {\Gamma \vdash \locv{n}{\tntin{m}.E}{B}{\vec{\sigma}} : g}
@@ -537,7 +537,7 @@ two sets.
   }
      \\[3ex]
   \multicolumn{4}{c}{
-     \Rulea{EnvOut}
+     \Rulea{T-EnvOut}
      {\Gamma \vdash \locv{k}{E}{B_1}{\vec{\sigma}} : g : Group,
   m \in g(\mathscr{L}),
   n \in g(\mathscr{E})}
@@ -546,7 +546,7 @@ two sets.
   }
      \\[3ex]
   \multicolumn{4}{c}{
-     \Rulea{Open}
+     \Rulea{T-Open}
      {\Gamma \vdash E : g : Group,
   F : h : Group,
   m \in g(\mathscr{O}),
@@ -556,7 +556,7 @@ two sets.
   }
   \\[3ex]
   \multicolumn{4}{c}{
-     \Rulea{ProcIn}
+     \Rulea{T-ProcIn}
   {\Gamma \vdash E \mid F : g \otimes g' : Group, 
   m \in g(\mathscr{E})}
      {a.E \mid \procin{a}{m}.F : g \otimes g' : Group}
@@ -564,7 +564,7 @@ two sets.
   }
   \\[3ex]
   \multicolumn{4}{c}{
-     \Rulea{ProcOut}
+     \Rulea{T-ProcOut}
   {\Gamma \vdash E \mid F : g \otimes g' : Group, 
   m \in g(\mathscr{L}),
   n \in g(\mathscr{E})}
@@ -579,11 +579,10 @@ two sets.
 
 For clarity, we also show how the structural congruence laws of
 \ref{tab:structcong} interact with the type system in Table
-\ref{tab:typedstructcong}.  Notably, the decomposition rules for the
-summation operator, $SumL$ and $SumR$ depend on the ordering
-correspondence between the composed processes and the composed types,
-so the types are also swapped over in $StrSum1$.  The same change
-occurs in $StrPar1$ solely for consistency.  In $StrIdent$, the type
+\ref{tab:typedstructcong}.  Notably, the decomposition of $g \oplus
+g'$ and $g \otimes g'$ depend on the ordering correspondence between
+the composed processes and the composed types, so the types are also
+swapped over in $StrSum1$ and $StrPar1$.  In $StrIdent$, the type
 corresponding to the $\nil$ process is also removed.  For the other
 rules, the types are identical on both sides.
 
@@ -834,14 +833,70 @@ MP & \eqdef \stimeout{sit.\nil}{\sigma}{\nil}
 \noindent We replace the processes $PiC$, $L$ and $GM5$ from the
 definitions in \ref{example} with $\nil$ so as to keep the example
 here simple and focus on the use of the type system to restrict
-movement.  If we consider the type rule $ProcIn$, we can see that the
+movement.  If we consider the type rule $T-ProcIn$, we can see that the
 final type of $sit.\nil \pc \procin{sit}{chair}.X$ will be $g \otimes
 g'$, and thus that $\nil$ will be of type $g$ and $X$ of type $g'$.
 We also know that $chair \in \Enters{g}$ must hold, so we can derive
 that the type of $\nil$ in $sit.\nil$ must be at least $(\{chair\},
 \emptyset, \emptyset, \{chair\})$.
 
-The process $MP$ as a whole has a type $g \oplus g'$ (from $STO$), where $g$ corresponds to $sit.\nil$ and thus has 
+The process $MP$ as a whole has a type $g \oplus g'$ (from $STO$),
+where $g$ corresponds to $sit.\nil$ and thus has to meet the
+requirement $chair \in \Enters{g}$.  With $\oplus$, $\Enters{g \oplus
+  g'}$ is satisfied if only one of the two groups meets the
+constraints; thus having $g$ do so is enough.  The $GM4$ process has a
+type of the same form, $g'' \oplus g'''$, again due to the stable
+timeout.  This is maintained over recursion by $T-Rec$, so when we
+compose $GM4$ and $MP$ to form $MP \pc GM4$, we end up with the type
+$(g \oplus g') \otimes (g'' \oplus g''')$ through the rule $T-Par$.
+From this, only $g \oplus g'$ is constrained, as this maps to $g$ in
+the rule $T-ProcIn$.  As we have already seen, it is sufficient for
+one of these to meet the requirements for the composite process to do
+so.  Thus, we need only an appropriate type for the $\nil$ in
+$sit.\nil$ for the entire process to be typeable.
+
+Why is this useful? As implied above, this makes the requirements to
+enter the $chair$ environ stricter; if we have a process $Rogue$ that
+has the same definition as $MP$ but has the type
+$(\{chair\},\emptyset,\emptyset,\emptyset)$, then this process will be
+blocked from entering the chair in the typed variant of the calculus,
+but not in the untyped form.  Placing this form of $MP$, which ends in
+$\nil$ rather than becoming $PiC$, in the original untyped game will
+prevent the chair it enters from being used subsequently, as the
+initial move will use the $\bin$ offered by the bouncer and there is
+nothing in the $chair$ environ to synchronise with the $\bout$ now
+offered.
+
+Just as we did in \ref{app:dynamite}, we can convert this directly
+from the formal notation into objects in DynamiTE:
+
+\begin{verbatim}
+Name sit = new Name("sit");
+Group g = new Group(new String[]{"chair"},null,null,new String[]{"chair"}); 
+Prefix moving = new Prefix(sit, new Nil(g));
+Clock sigma = new Clock("\u03C3");
+MobPrefix sitAction = new MobPrefix(new ProcIn(sit, "chair"), new Var("X"));
+Process gm4 = new Rec("X", new STo(sitAction, sigma, Nil.NIL));
+Process mp = new STo(moving, sigma, Nil.NIL);
+Process chairMovement = new Par(mp, gm4);
+Process bInOut = new MobPrefix(MobPrim.BOUNCER_IN,
+  new MobPrefix(MobPrim.BOUNCER_OUT, new Var("Y")));
+Process bOpen = new MobPrefix(MobPrim.BOUNCER_OPEN, Omega.OMEGA);
+Env chair = new Env("chair", Nil.NIL,
+  new Rec("Y", new Sum(bInOut, bOpen)), null);
+Process app = new Par(chair, chairMovement);
+\end{verbatim} 
+
+\noindent We create a new instance of \texttt{Group} which is allow to
+reside in and enter an environ named \texttt{``chair''}.  This group
+is then assigned to an instance of \texttt{Nil} prefixed by the name
+\texttt{sit}.  The type is passed through the \texttt{Process}
+instances according to the typing rules and will eventually be checked
+to ensure that \texttt{``chair''} is a member of both the
+$\mathscr{R}$ and $\mathscr{E}$ sets when the \texttt{ProcIn} instance
+is reached.  The group instance above will pass this type check.  Was
+one of the arguments to be replaced with \texttt{null}, then it would
+fail with a \texttt{UntypeableProcessException}.
 
 \section{Conclusion}
 
