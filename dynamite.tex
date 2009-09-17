@@ -10,7 +10,7 @@ In this chapter, we introduce DynamiTE, the Dynamic Theory Execution
 framework.  This provides the solution we first proposed in
 \ref{solution}, using the Nomadic Time (NT) calculus introduced in
 \ref{nt} and \ref{tnt} as a foundation for application development.
-Through using DynamiTE, programmers compose NT processes, realised as
+When using DynamiTE, programmers compose NT processes, realised as
 Java objects, to create a working system.  The framework handles
 running these processes, in parallel if necessary, and negotiates the
 communication between them.  Both features are provided by leveraging
@@ -80,7 +80,7 @@ with the aim of creating a safer and more portable language:
   not(\texttt{\~})) more inefficient as they need to operate on the
   type one size above (bytes ($2^8$) on shorts ($2^{16}$), shorts on
   ints ($2^{32}$), etc.).  Indeed, section 15.22.1 of the Java
-  language specification\cite{javaspec} states that \emph{binary
+  language specification \cite{javaspec} states that \emph{binary
     numeric promotion} (as defined in 5.6.2) should be applied to the
   operands, causing them to be converted to integer or long integer
   levels of precision before the operation is performed.  Thus, it
@@ -89,7 +89,7 @@ with the aim of creating a safer and more portable language:
   implements arbitrary precision integers, such as
   \texttt{java.lang.BigInteger}.  Unsigned types continue to be
   proposed for addition to the Java language, but no such extension is
-  scheduled for the next release (Java 7).
+  scheduled for the next release (Java 7) in early 2010.
 \end{itemize}
 
 Although these changes are made at the expense of flexibility for the
@@ -153,11 +153,11 @@ having to map those provided by the operating system's threads.  While
 earlier versions of Sun's implementation used green threads, native
 threads are now used on all supported platforms.
 
-The result of this early adoption of multithreading is that the
+The result of this early adoption of multithreading is that its
 implementation in Java is reasonably mature and well-tested.  With
 Java 5, this support was greatly expanded as a result of research led
 by Doug Lea and incorporated into the Java platform via JSR166 and the
-\texttt{java.util.concurrent} packages \cite{jsr166, concpractice}.
+\texttt{java.util.concurrent} packages \cite{concpractice, jsr166}.
 
 The extensions provided by JSR166 take the form of a host of new
 classes, backed by support in the virtual machine.  The Java language
@@ -166,8 +166,8 @@ itself is not altered.  It provides support for:
 \begin{itemize}
 \item \textbf{Atomic Variables}.  These provide replacements for
   integer, long integer and reference fields which can be updated in
-  an atomic fashion, are safer than \texttt{volatile} variables and
-  more efficient than locking.  The Java memory model allows
+  an atomic fashion, which are safer than \texttt{volatile} variables
+  and more efficient than locking.  The Java memory model allows
   operations which alter the value of normal fields to be reordered by
   the VM as a form of optimisation, as long as this reordering is not
   visible from within the same thread.  However, this means that other
@@ -218,13 +218,14 @@ itself is not altered.  It provides support for:
         \item The lock can operate in a fair mode, where threads
           acquire the lock in the order they requested it.  Both
           implicit and explicit locks default to unfair behaviour,
-          which permits \emph{barging} if a new thread happens to
-          request a lock when it is unheld.  Unfair locks are much
-          faster\footnote{If threads are not allowed to jump the
-            queue, then we end up blocking and descheduling a thread
-            which could have quite happily acquired the lock but isn't
-            allowed to do so because of the fairness policy}, but
-          fairness is sometimes needed to ensure correctness.
+          which permits \emph{barging} (jumping the queue) if a new
+          thread happens to request a lock when it is unheld.  Unfair
+          locks are much faster\footnote{If threads are not allowed to
+            jump the queue, then we end up blocking and descheduling a
+            thread which could have quite happily acquired the lock
+            but isn't allowed to do so because of the fairness
+            policy}, but fairness is sometimes needed to ensure
+          correctness.
     \end{itemize}
     A class can have multiple instances of an explicit lock, just like
     any other variable, and this benefit is utilised by
@@ -236,8 +237,8 @@ itself is not altered.  It provides support for:
     approach of enforcing mutual exclusion for all operations.  For
     example, a collection class can allow multiple threads to read
     values as long as there is no thread altering the collection.
-    Both locks, and other implementations such as \texttt{Semaphore},
-    are based on \texttt{AbstractQueuedSynchronizer}\cite{aqs} which
+    Locks, and other implementations such as \texttt{Semaphore}, are
+    based on \texttt{AbstractQueuedSynchronizer}\cite{aqs} which
     provides a common framework thread queues.
     \item \textbf{Explicit Condition Queues}.  As in the case of
       locks, Java already has its own implicit condition queues,
@@ -331,10 +332,10 @@ all provide implementations. the problem remains with systems that do
 not provide such by default, notably Microsoft Windows.
 
 Haskell has been slow to introduce threading support.  Although the
-Concurrent Haskell\cite{conchaskell} extension was originally proposed
-in 1996, it does not form part of the Haskell 98 standard and the GHC
-documentation still lists it as experimental.  Both Hugs and the
-Glasgow Haskell Compiler (GHC), the two main implementations of
+Concurrent Haskell \cite{conchaskell} extension was originally
+proposed in 1996, it does not form part of the Haskell 98 standard and
+the GHC documentation still lists it as experimental.  Both Hugs and
+the Glasgow Haskell Compiler (GHC), the two main implementations of
 Haskell, provide an implementation of Concurrent Haskell's
 \texttt{Control.Concurrent} module, they do so using green threads.
 As mentioned above, while these are faster than native threads,
@@ -369,7 +370,7 @@ from others, and moves the need to ensure atomicity away from each
 individual function to the caller, who can only invoke them from
 within an atomic environment.
 
-Erlang\cite{erlang} is another interesting case, as both it and
+Erlang \cite{erlang} is another interesting case, as both it and
 DynamiTE focus on message passing between processes as opposed to
 shared data and locking.  Erlang differs in that it operates
 asynchronously, collecting messages in a mailbox on a per-process
@@ -488,7 +489,7 @@ provided by a subclass of \texttt{Action}, which also allows for the
 possibility of side effects, which we cover in \ref{dyn:evolvers}.
 
 Each \texttt{Process} is required to implement
-\texttt{getPossibleTransitions()} and it is in this method where the
+\texttt{getPossibleTransitions()} and it is in this method that the
 operational semantics found in tables \ref{tab:casesubset} and
 \ref{tab:mobsubset} are realised in Java code.  The simplest
 implementation is found in the representation of $\Delta$, realised as
@@ -723,7 +724,7 @@ involved in representing a process calculus programatically:
   These answer questions such as: what happens when there are multiple
   transitions from a particular process? And are there any
   side-effects to performing a transition?  In DynamiTE, these
-  semantics are encoded using the \texttt{Evolver} franework, which we
+  semantics are encoded using the \texttt{Evolver} framework, which we
   cover in \ref{dyn:evolvers}.
 \end{enumerate}
 
@@ -741,7 +742,7 @@ advantages over just allowing the use of any arbitrary string:
 \begin{enumerate}
 \item We can prevent the silent action, $\tau$, being used as a name
   or co-name.  In CaSE and Nomadic Time, we can also prevent conflicts
-  with clock names, locality names and the new mobility primitives
+  with clock names, environ names and the new mobility primitives
   such as $\tntin$.
 \item We can enforce registration (and thus existence of the name or
   co-name) as a pre-requisite for other methods.  This is especially
@@ -772,21 +773,21 @@ types in a particular calculus, separating them out into methods which
 can be overridden by other implementations as with
 \texttt{substitute(String,Process)}.  Another aspect of this is
 allowing the user to select which calculus they want to work with at
-run-time.  This is made possible by a plugin framework.
+run-time.  This is made possible by the plugin framework.
 
 \subsection{The Plugin Abstraction}
 \label{dyn:plugin}
 
-You may have noticed that, in the \texttt{Par} implementation in
-\ref{dyn:maptheory}, we obtain an instance of \texttt{Context} not by
-calling a construct but using \texttt{Context.getContext()}.  In using
-DynamiTE, only one instance of \texttt{Context} usually
-exists\footnote{Should DynamiTE be used across multiple host virtual
-  machines, then there may be multiple instances, and it will be these
-  that allow communication between each host.}.  This is created at
-startup by a \texttt{ContextFactory}.  As with \texttt{Context}, an
-instance of \texttt{ContextFactory} is obtained using a static method
-rather than a constructor.  The user calls
+In the \texttt{Par} implementation in \ref{dyn:maptheory}, we obtain
+an instance of \texttt{Context} not by calling a construct but using
+\texttt{Context.getContext()}.  When using DynamiTE, only one global
+instance of \texttt{Context} exists\footnote{Should DynamiTE be used
+  across multiple host virtual machines, then there may be multiple
+  instances, but these communicate between each other to provide one
+  central store.}, which is created at startup by a
+\texttt{ContextFactory}.  As with \texttt{Context}, an instance of
+\texttt{ContextFactory} is obtained using a static method rather than
+a constructor.  The user calls
 \texttt{ContextFactory.getInstance(String,String,String)}, supplying
 the name of a process calculus, a \emph{channel implementation} and a
 \emph{locality implementation}.  The two latter arguments are used to
@@ -794,7 +795,7 @@ determine the execution semantics for synchronisation and movement
 respectively.  The returned \texttt{ContextFactory} will be able to
 supply a \texttt{Context} instance for the specified process calculus
 which uses the given channel and locality implementations.  If one can
-not be found, a \texttt{UnsupportedContextException} is thrown.
+not be found, an \texttt{UnsupportedContextException} is thrown.
 
 DynamiTE supplies an implementation of \texttt{ContextFactory} in the
 form of the \texttt{DynamiTEContextFactory}.  It in turn probes for
@@ -865,7 +866,7 @@ implementations of \texttt{ContextFactory}, \texttt{Calculus},
 \texttt{ChannelFactory} and \texttt{LocalityFactory}.  The
 \texttt{ServiceLoader} loads a listed class each time its
 \texttt{next()} method is called\footnote{This happens indirectly in
-  \texttt{probePlugins} via each iteration of the for-each loop}, and
+  \texttt{probePlugins} via each iteration of the for-each loop.}, and
 returns an instance of it, which \texttt{probePlugins} then stores in
 the map.
 
@@ -876,10 +877,10 @@ will return the set of syntactic constructs which form the calculus
 currently in use.  The \texttt{Calculus} instance is also used in the
 process of registering a name; the \texttt{Context} calls the
 \texttt{Calculus} implementation to obtain the transition label for
-the name, which gives the \texttt{Calculus} chance to veto the choice.
-This is used by the \texttt{CCS} class to prevent $\tau$ being used as
-a name, by returning an instance of \texttt{CCSLabel}, the constructor
-of which contains the following check:
+the name, which gives the \texttt{Calculus} a chance to veto the
+choice.  This is used by the \texttt{CCS} class to prevent $\tau$
+being used as a name, by returning an instance of \texttt{CCSLabel},
+the constructor of which contains the following check:
 
 \begin{verbatim}
 if (label.equals(TAU))
@@ -951,7 +952,7 @@ X.a.X$.
 \end{verbatim}
 
 A more practical \texttt{Evolver} is a more complex undertaking.  It
-has to make choices over which transition to pick when several are
+has to make choices as to which transition to pick when several are
 presented; although CaSE and Nomadic Time have a notion of priority in
 maximal progress, choices must still be made between the ticks of
 different clocks, or between a clock tick and an action.  These
@@ -1099,17 +1100,17 @@ we leave the scope of the \texttt{if} block in which it was created.
 The complexity of this operation again shows how difficult it can be
 to make operations involving shared objects thread-safe.  The
 advantage of using DynamiTE is that the user doesn't have to come into
-contact with this.  They merely store a value and the framework
+contact with this.  The user merely store a value and the framework
 handles the thread safety issues involved.  Providing these kind of
 reusable generic constructs makes it much easier to build concurrent
 applications that are thread-safe.
 
 From this discussion, it should now be clear how concurrent
 applications are created in DynamiTE; the user constructs
-\texttt{Process} instances which match their design constructed in the
-process calculus, and provides \texttt{Tau} subclasses for the actual
-work performed by the application.  Data is passed between
-\texttt{Tau} subclasses via the channel framework.
+\texttt{Process} instances which match their design in the process
+calculus, and provides \texttt{Tau} subclasses for the actual work
+performed by the application.  Data is passed between \texttt{Tau}
+subclasses via the channel framework.
 
 DynamiTE also provides hooks for a locality framework, which allows
 side effects to take place on the performance of mobility actions,
@@ -1243,7 +1244,7 @@ Now we have our silent actions, we can construct our processes:
 Context.setContext(ContextFactory.getInstance("NT",
   "threaded", "dummy").getContext());
 Context ctx = Context.getContext();
-Clock sigma = new Clock("\u03C3");
+Clock sigma = new Clock("\u03C3"); \\ u03C3 = sigma in Unicode
 Name output = new Name("o");
 Process out = new Prefix(output,
   new STo(Delta.DELTA, sigma, new Prefix(new Out(), Nil.NIL));
@@ -1271,10 +1272,10 @@ singleton instances, as none of these have any variable attributes,
 and the constructors of \texttt{Name}, \texttt{Coname}, \texttt{Clock}
 and \texttt{Env} register the new entity with the \texttt{Context}.
 At the end of running this code, we are left with a \texttt{Context}
-containing $\names = \{i,o,useri\}$, $\conames = \{i,o\}$, $\timers =
-\{\sigma\}$ and the environ, $player$, and an instance \texttt{app}
-which can be passed to an \texttt{Evolver} instance to run the
-application.
+containing the names \texttt{i},\texttt{o} and \texttt{useri}, the
+conames \texttt{i} and \texttt{o}, the clock $\sigma$, the environ
+\texttt{player}, and an instance \texttt{app} which can be passed to
+an \texttt{Evolver} instance to run the application.
 
 The same application can be implemented without DynamiTE in
 innumerable ways, but one thing holds for all of them; they must
@@ -1348,15 +1349,15 @@ so should the differences.  In this example, we have had to consider
 both how data is stored and how the methods are run; these are handled
 by the channel and evolver frameworks respectively in DynamiTE.  The
 \texttt{BlockingQueue} is thread-safe, so the threads can not corrupt
-the data structure if they happen to try and perform an operation on
-the queue at the same time.  This is the same as the locks used in
-\ref{semaphores} with the locking occurring inside the collection
-rather than visibly in the surrounding code.  The \texttt{take}
-operation also blocks if the queue is empty until an item is
-added\footnote{The \texttt{put} operation also blocks if a capacity is
-  given for the list on creation; we don't do so here.}; again the
-behaviour inside the queue is akin to what we saw with signalling in
-\ref{semaphores}.
+the data structure if two or more happen to try and perform an
+operation on the queue at the same time.  This is the same as the
+locks used in \ref{semaphores} with the locking occurring inside the
+collection rather than visibly in the surrounding code.  The
+\texttt{take} operation also blocks if the queue is empty until an
+item is added\footnote{The \texttt{put} operation also blocks if a
+  capacity is given for the list on creation; we don't do so here.};
+again the behaviour inside the queue is akin to what we saw with
+signalling in \ref{semaphores}.
 
 This works fine for this example, but there is an immediate problem if
 we want to introduce the visualiser into the mix; the \texttt{take}
@@ -1503,12 +1504,12 @@ this a lot simpler; not only do we not have to worry about locking the
 data structure and signalling other processes at the correct points,
 we have a solution which works for any number of consumers without
 changing \texttt{input}.  The only way that would be possible here is
-by a hack to use the names of threads as identifiers as to whether
-they are consumers or not; not a very elegant solution.  The
-abstraction in DynamiTE also means that a simple one line change to
-the channel factory being used can turn an application communicating
-between threads as above, to one communicating over a network with no
-other changes to the application.
+by a hack to use the names of threads as identifiers whether they are
+consumers or not; not a very elegant solution.  The abstraction in
+DynamiTE also means that a simple one line change to the channel
+factory being used can turn an application communicating between
+threads as above, to one communicating over a network with no other
+changes to the application.
 
 In summary, we think DynamiTE has achieved its goals; it abstracts
 away many complex and fragile pieces of code which ensure thread
@@ -1629,9 +1630,9 @@ for \texttt{t}. Once \texttt{t} has awoken and read from the queue, it
 should return a result of 3 which ends up in \texttt{result}.
 
 Remote invocation works in the same style as protocols such as CORBA
-and Java RMI; a name server allows objects to be registered with a
-name, allowing them to be looked up and retrieved.  The following
-Obliq code implements object migration:
+\cite{omg:2009} and Java RMI \cite{rmi}; a name server allows objects
+to be registered with a name, allowing them to be looked up and
+retrieved.  The following Obliq code implements object migration:
 
 \begin{verbatim}
 let migrateProc =
@@ -1728,7 +1729,7 @@ process in \texttt{a} prints whatever is received.
 Perhaps the clearest thing about Nomadic Pict from this example is
 that it is not the most readable of languages.  Being designed
 primarily as a way of programming in the $\pi$ calculus rather than as
-a usable language means that the syntax lleads something to be desired
+a usable language means that the syntax leads something to be desired
 and is fairly unaccessible for those who don't know the calculus in
 detail.  On the positive side, this does give the language a strong
 formal background and semantics, and unlike Obliq, it has a rich type
@@ -1872,8 +1873,8 @@ The first two handle the communication of names, as in the $\pi$
 calculus, and the second two are for the transmission of seals.
 Channels exist within a certain location, and $\eta$ is used to direct
 the communication.  It takes one of three values: $\eta ::= \star |
-\uparrow n$, where $star$ refers to a local channel, $\uparrow$ to a
-channel in the parent seal and $n$ to a channel in a child seal.
+\uparrow | n$, where $\star$ refers to a local channel, $\uparrow$ to
+a channel in the parent seal and $n$ to a channel in a child seal.
 Communication occurs between either a pair of corresponding local
 prefixes, or between a local prefix and a remote prefix such as
 $x^\star(\lambda y)$ and $\overline x^n(z)$, or $x^\star(\lambda z)$
@@ -1913,7 +1914,7 @@ and $y^\star ()$.
 As far as implementations go, we believe our work to be novel in
 approaching the task of translating a calculus with both global
 discrete time and mobility into a usable programming framework.  We
-also seem to be one among only a few research projects who create an
+also seem to be one among only a few research projects to create an
 implementation in an existing programming language and allow users to
 work with it in that language; of the above, this only applies to
 JavaSeal.  This is a shame, as it means otherwise good ideas are let
@@ -1931,11 +1932,12 @@ features which have already proved advantageous in a theoretical
 setting, such as the n-ary process synchronisation mechanism described
 in chapter \ref{globsync}.  The existence of a formal theory for
 DynamiTE's behaviour gives many advantages over more ad-hoc
-approaches, allowing the underlying design to be rigorously examined
-before being applied to the implementation.  The behaviour of the
-system may be established clearly and unambiguously in the underlying
-process calculus before implementation even begins, giving a solid
-grounding on top of which the individual tasks may be developed.
+approaches, potentially allowing the underlying design to be
+rigorously examined before being applied to the implementation.  The
+behaviour of the system may be established clearly and unambiguously
+in the underlying process calculus before implementation even begins,
+giving a solid grounding on top of which the individual tasks may be
+developed.
 
 The actual implementation of the DynamiTE framework is still in heavy
 development; the code is available at:

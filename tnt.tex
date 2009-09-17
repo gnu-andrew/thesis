@@ -14,7 +14,9 @@ Nomadic Time may be extended with a type system based on the notion of
 groups (see \ref{typesys}) and how this may then be used in DynamiTE
 (see \ref{dyn:type}).  Each process is assigned to a group, which then
 determines which environs it may \emph{reside} in, \emph{open},
-\emph{leave} or \emph{enter}.
+\emph{leave} or \emph{enter}.  This can be used to restrict movement
+based on \emph{which} process is attempting to do so, rather than by
+enumeration of possible actions.
 
 Before we enter into the technicalities of how this system is
 implemented, we first present some existing type systems used in other
@@ -62,8 +64,8 @@ ob : \Sigma \rightarrow \Sigma^*
 
 \noindent mapping a name to a vector of names.  From this, it is
 simple to define a sort for all communications in CCS and CaSE as
-$\{NAME \mapsto ()\}$ (as nothing is passed) and the monadic $\pi$
-calculus as $\{NAME \mapsto (NAME)\}$.
+$\{\NAME \mapsto ()\}$ (as nothing is passed) and the monadic $\pi$
+calculus as $\{\NAME \mapsto (\NAME)\}$.
 
 Take the simple example of a buffer,
 
@@ -83,7 +85,7 @@ The purpose behind introducing sorts is to make explicit the need to
 match the number of values being received with the number being sent.
 Matching the length of these vectors becomes a necessity when dealing
 with the polyadic $\pi$ calculus, which doesn't have the same uniform
-sort for all channels as is present in CCS, CaSE or the $\pi$
+sort for all channels as is present in CCS, CaSE or the monadic $\pi$
 calculus.
 
 Consider the example from \cite{milner:pi} of two processes, $P$ and
@@ -222,14 +224,15 @@ For example, given two ambients $m$ and $n$, the types should express
 that $n$ can enter $m$.  A dependent formalisation would say that $n$
 has the type $CanEnter(m)$, while, using groups, $m$ is given the type
 $G$ (where $G$ is a group) and $n$ is typed as $CanEnter(G)$.  Within
-the type system itself, ambients are allocated to groups via the use of
-a group binder, $(\nu G)$.  Just like the ambient binder, $(\nu n)$,
-the scope of this may extrude outwards.  However, the type system
-prevents it from ever encapsulating ambients which did not form part of
-its initial scope (i.e. it only tracks the movements of ambients that
-are a member of that group).  Within the paper, groups are used to
-assign properties to its members, such as the type of communication
-possible and the control of crossing or opening ambients.
+the type system itself, ambients are allocated to groups via the use
+of a group binder, $(\nu G)$.  Just like the ambient binder, $(\nu
+n)$, the scope of this may extrude outwards.  However, the type system
+prevents it from ever encapsulating ambients which did not form part
+of its initial scope (i.e. it only tracks the movements of ambients
+that are a member of that group).  Within \cite{ambienttypes}, groups
+are used to assign properties to its members, such as the type of
+communication possible and the control of crossing or opening
+ambients.
 
 The types of messages or \emph{exchanges} may specify either no
 communication ($Shh$) or a tuple of partners for the communication:
@@ -340,7 +343,7 @@ the behaviourally equivalent process, $\Delta$.
 
 The remaining rules in Table \ref{tab:basictypes} allow types to be
 applied in accordance with the various operators present in the
-calculus.  When handing the binary operators, we use the rules $T-Sum$
+calculus.  When handling the binary operators, we use the rules $T-Sum$
 and $T-Par$ to construct appropriate composite types that maintain the
 groups used on either side.  The rules for timeouts (Table
 \ref{tab:totypes}) follow much the same design as the rules for the
@@ -900,7 +903,7 @@ fail with a \texttt{UntypeableProcessException}.
 
 \section{Conclusion}
 
-In this chapter, we consider a number of type systems from the
+In this chapter, we considered a number of type systems from the
 literature, including the use of sorts for typing communication (see
 \ref{sorts}) and the use of groups to restrict ambient movement (see
 \ref{ambienttypes}).  We then adapted the later to create a type

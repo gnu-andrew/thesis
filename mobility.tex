@@ -1320,16 +1320,16 @@ largely based on the most natural formalism for a particular task.
 \label{psystems}
 
 While providing a way of modelling concurrent spatially-oriented
-systems, P Systems \cite{paun:98membranes} arise from the area of formal
-language theory and re-writing rules rather than process
-calculi.  They are considered here, as there exist a number of
-similarities between them and, for example, the ambient calculus both in
-providing a distributed model of computation and in finding applications
-in the area of biological modelling.
+systems, P Systems \cite{membranecomp, membranehandbook} arise from
+the area of formal language theory and re-writing rules rather than
+process calculi.  They are considered here, as there exist a number of
+similarities between them and, for example, the ambient calculus both
+in providing a distributed model of computation and in finding
+applications in the area of biological modelling.  Below, a basic P
+system with priorities is introduced.
 
-A P system or \emph{transition super-cell system}
-\cite{paun:98membranes} of degree $n$, where $n \ge 1$ is represented
-as:
+A transition P system with priorities \cite{paun:98membranes} of
+degree $n$, where $n \ge 1$ is represented as:
 
 \begin{equation}
 \Pi = (V, \mu, M_1, \dots, M_n,(R_1,\rho_1), \dots, (R_n,\rho_n),i_0)
@@ -1342,13 +1342,19 @@ as:
 \item $\mu$ is the membrane structure, containing $n$ membranes.
 \item $M_i$, where $1 \le i \le n$, is a multiset of objects from $V$
       which are contained in membrane $i$.
-\item $R_i$, where $1 \le i \le n$ is an evolution rule associated with
-      one of the membranes, $i$. The corresponding $\rho_i$ is a
-      partial-order relation which determines the priority of the rule.
-      The rules are rewriting rules of the form $a \rightarrow v$, which
-      causes $a$ to be replaced by $v$.
-\item $i_0$ is a number between 1 and $n$ which specifies the \emph{output
-      membrane} where the result of the computation should be found.
+\item $R_i$, where $1 \le i \le n$ is an evolution rule associated
+  with one of the membranes, $i$. The corresponding $\rho_i$ is a
+  partial-order relation which determines the priority of the rule.
+  The rules are rewriting rules of the form $a \rightarrow v$, which
+  causes $a$ to be replaced by $v$; where $a \in V$ and $v \in (V
+  \times Tar)^*$, $Tar = \{here, out, in | 1 \le i \le n\}$.  The set
+  $Tar$ of target regions gives all the possible derivations for
+  symbols occurring on the right-hand side of each rule.  Rules of the
+  form $a \rightarrow v\delta$ indicate the membrane will disappear
+  after its application.
+\item $i_0$ is a number between 1 and $n$ which specifies the
+  \emph{output membrane} where the result of the computation should be
+  found.
 \end{itemize}
 
 \noindent Any of the multisets, rules or priority relations may be
@@ -1468,16 +1474,12 @@ R_4 = \emptyset,
 \noindent No further evolution is possible, as there are no more rules.
 $c^{(n+1)^2}$ is the final output, as $M_4$ is the output membrane.
 
-Further variants of P systems exist.  Tissue P systems use a graph-based
-structure rather than the tree shown here, while population P systems
-also incorporate an environment.  At present, the main flaw with
-modelling concurrent systems using this formalism is that the underlying
-theory is not as advanced as for those of process calculi,
-such as the $\pi$ calculus.  So far, P systems research has focused on
-their power of expressivity, and their application within the field of
-biological modelling.  In the latter, they provide a much more natural
-perspective than the channel-based operations of the $\pi$ calculus, and
-this is something that will be considered further in section \ref{bioapps}.
+Further variants of P systems exist.  Tissue P systems use a
+graph-based structure rather than the tree shown here, while
+population P systems also incorporate an environment and use a dynamic
+graph as an associated structure of it.  There are also timed variants
+of P systems; rules are usually assumed to apply instantaneously, but
+in the timed variants they can take a specific duration.
 
 \section{Comparing Modelling Approaches}
 \label{bioapps}
@@ -1601,12 +1603,21 @@ protein.  $\mathcal{R}_b$ and $\mathcal{R}_e$ contain the rules which
 affect the bacteria and the environment respectively.  The reader is
 referred to the full paper for full details of these.
 
-This model seems much more natural and has a clearer correspondence
-with the real-world representation.  The main issue, as noted earlier
-in \ref{psystems}, is that the theory of P systems is not as well
-developed as that of the $\pi$ calculus (upon which the BioAmbients
-calculus is essentially based).  This can prove problematic,
-especially when model checking such models.
+There are similarities between process calculi and P systems, even
+though they arose from two different communities.  Many of the same
+techniques and properties have been proven to apply to both, and it is
+possible to translate a P system into a process calculus form to take
+advantage of model checking techniques originally designed for a
+process calculus.  The difference in their backgrounds also results in
+some interesting differences in their design and the way they are
+used; P systems arise from language generation and thus the rules are
+applied in parallel, while on the other hand, process calculi are
+usually based around transitions and communication.  The choice of
+which one is best to use really depends upon the use to which it is
+being put; P systems make sense when there is structure inherent in
+the model and the various process algebraic techniques lend themselves
+to situations with a large amount of communication that needs to be
+monitored.
 
 \section{Bigraphs}
 \label{bigraphs}

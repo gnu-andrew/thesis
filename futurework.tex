@@ -44,7 +44,7 @@ new transitions, including the three \emph{mobility transitions}
 from terms in $\ambop$ which pair up to generate $\tin$, $\tout$ and
 $\topen$.  Thus, any equivalence theory would need to consider issues
 such as whether $\tntin{m}$ is equivalent to $\tntin{n}$; do we
-consider only that a `in' action is being performed or do we also take
+consider only that an `in' action is being performed or do we also take
 into account the specific environ involved?
 
 Mobility affects the topology of the process, and thus the difference
@@ -77,7 +77,7 @@ areas we wish to explore in the future.  These include:
   rather than Java code.
 \end{itemize}
 
-There is also plenty of possibilities for further work in providing
+There are also plenty of possibilities for further work in providing
 more complex implementations of the plugin services such as
 interprocess communication via web services and supporting other
 process calculi.  Hopefully, third parties may also wish to get
@@ -107,11 +107,12 @@ There are a number of ideas that could be further investigated:
 At present, the calculus does not explicitly represent the passing of
 data in any form.  When synchronisation occurs on a channel, $a$, it
 simply produces a $\tau$ transition.  Within DynamiTE, the transfer of
-a single \texttt{Object} from sender to receipient takes place.  This
-is clearly inefficient, and it would be preferable to transfer
-multiple items in a single synchronisation.  It would also be
-preferable if the type of the data was represented, so that the type
-expected by the receiver matches that sent by the sender.
+a single \texttt{Object} from sender to reciepient takes place.  This
+may be inefficient if many objects need to be sent, and it would be
+preferable to transfer multiple items in a single synchronisation.  It
+would also be preferable if the type of the data was represented, so
+that the type expected by the receiver matches that sent by the
+sender.
 
 Both of these could be implemented via the type system.  The matching
 of the number of items being sent with those received could also be
@@ -156,7 +157,7 @@ semantics to use $\nil : T$, $\Delta : T$ and $\Delta_\sigma : T$.
 \label{future:apps}
 
 There may be other domains in which our calculus will find
-applicability.  Pervasive computing may be one such area, as may
-biological modelling.  In addition, its relation to P systems
-(\ref{psystems}) and the ability to encode it using a bigraph
+applicability.  Pervasive computing may be one such area, as may web
+services and biological modelling.  In addition, its relation to P
+systems (\ref{psystems}) and the ability to encode it using a bigraph
 (\ref{bigraphs}) would form interesting areas of study.
