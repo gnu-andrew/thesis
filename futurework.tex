@@ -88,12 +88,18 @@ involved in this area.
 
 \subsection{More Advanced Types}
 
-It would be interesting to consider further the typing of both actions
-and clocks.  At present, they just have the simplest of types, but
-this could be extended to provide more interesting behaviour.
-Similarly, bouncers only have rudimentary types and may possibly be
-changed to include more detail.  Further, it may be worth implementing
-the types in a theorem prover and deducing results.
+There are a number of ideas that could be further investigated:
+
+\begin{itemize}
+\item The addition of types to actions and/or clocks.  In \ref{tnted},
+  we explore one possibility for the former, but there may be more.
+\item Bouncers only have a single rudimentary type; this could be
+  extended.  Alternatively, the syntactic form of bouncers could be
+  removed altogether, with the same functionality instead being
+  provided by the type system.
+\item It may be worth implementing the types in a theorem prover and
+  deducing results, such as proofs of consistency.
+\end{itemize}
 
 \subsection{Nomadic Time Extended With Data}
 \label{tnted}

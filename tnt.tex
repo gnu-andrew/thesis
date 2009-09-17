@@ -274,7 +274,7 @@ the expressivity of the formalism in order to ensure that unwanted
 constructs can not be created by making them untypeable.  This also
 makes it easier to prove properties of the calculus.  
 
-\section{A Type System for Nomadic Time}
+\section{Mobility Types for Nomadic Time}
 \label{typesys}
 
 In this section, we consider the specification of a simple type
@@ -323,9 +323,8 @@ general syntax for a type $T$ is given by
 \begin{equation*}
 \label{eqn:tnt:typesyntax}
 \begin{aligned}
-T \mathrel{::=} & \quad P \mid Act \mid Clock \mid Name \mid Bouncer \mid
- Environ \\
-P \mathrel{::=} & \quad g \mid P \oplus P \mid P \otimes P \\
+T \mathrel{::=} & \quad G \mid Bouncer \\
+G \mathrel{::=} & \quad g \mid G \oplus G \mid G \otimes G \\
                 & \quad \text{where $g \colon Group$ ranges over group types.}
 \end{aligned}
 \end{equation*}
@@ -333,22 +332,19 @@ P \mathrel{::=} & \quad g \mid P \oplus P \mid P \otimes P \\
 The rule $Env$ states that if $\xi$ of type $T$ is a member of
 $\Gamma$, then a typing derivation $\vdash \xi : T$ may be made in the
 context of $\Gamma$.  This forms the basis of all later rules.  Notice
-that our system is naturally polymorphic; $\nil$, $X$, $\Delta$ and
-$\Delta_\sigma$can have any group type $g$.  In contrast, $\Omega$ can
-only be typed as a $Bouncer$, thus distinguishing it from the
-behaviourally equivalent process, $\Delta$.
+that our system is naturally polymorphic; $\nil$, $\Delta$ and
+$\Delta_\sigma$ can have any group type $g$.  In contrast, $\Omega$
+can only be typed as a $Bouncer$ (Table \ref{tab:botypes}), and $X$
+can take any type prior to being bound, thus distinguishing them from
+the behaviourally equivalent process, $\Delta$.
 
-The remaining rules allow types to be applied in accordance with the
-various operators present in the calculus.  Notice that $Stall$ requires
-that $\sigma$ is typeable as a clock, another restriction which makes
-explicit a number of issues implied in the syntax.  Similarly, $Act$
-requires $\alpha$ to be an action ($Act$) and $Res$ requires the $a$ to
-be a $Name$.  When handing the binary operators, we use the rules $SumC$
-and $ParC$ to construct appropriate composite types that maintain the
-groups used on either side.  The rules $SumL$ and $SumR$ then allow the
-appropriate type to be recovered when one of the processes in a
-summation evolves.  Notice that no construct is available (none is
-needed) for recovering the components of a product type in this system.
+The remaining rules in Table \ref{tab:basictypes} allow types to be
+applied in accordance with the various operators present in the
+calculus.  When handing the binary operators, we use the rules $Sum$
+and $Par$ to construct appropriate composite types that maintain the
+groups used on either side.  The rules for timeouts (Table
+\ref{tab:totypes}) follow much the same design as the rules for the
+summation operator.
 
 \begin{table}
   \caption{Types}
@@ -372,17 +368,17 @@ needed) for recovering the components of a product type in this system.
      {}
      &
      \Rule{Stall}
-     {\Gamma \vdash \sigma : Clock, g : Group}
+     {\Gamma \vdash g : Group}
      {\Gamma \vdash \Delta_\sigma : g}
      {}
      \\[3ex]
      \Rule{Var}
-     {\Gamma \vdash g : Group}
-     {\Gamma \vdash X : g}
+     {\Gamma \vdash t : T}
+     {\Gamma \vdash X : t}
      {}
      &
      \Rule{Act}
-     {\Gamma \vdash \alpha : Act, E : g : Group}
+     {\Gamma \vdash E : g : Group}
      {\Gamma \vdash \alpha . E : g}
      {}
   \\[3ex]
@@ -392,42 +388,29 @@ needed) for recovering the components of a product type in this system.
      {}
      &
      \Rule{Res}
-     {\Gamma \vdash a : Name, E : g : Group}
+     {\Gamma \vdash E : g : Group}
      {\Gamma \vdash E \res{a} : g}
      {}
   \\[3ex]
-   \Rule{SumC}
+   \Rule{Sum}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash E + F : g \oplus g'}
    {}
    &
-   \Rule{ParC}
+   \Rule{Par}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash E \pc F : g \otimes g'}
    {}
    \\[3ex]
-   \Rule{SumL}
-   {\Gamma \vdash E + F : g \oplus g': Group}
-   {\Gamma \vdash E' : g}
-   {(E \derives{\kappa} E')}
-   &
-   \Rule{SumR}
-   {\Gamma \vdash E + F : g \oplus g': Group}
-   {\Gamma \vdash F' : g'}
-   {(F \derives{\kappa} F')}
-   \\[3ex]
+  \Rule{Sub}
+  {\Gamma \vdash E : g : Group, F : g' : Group}
+  {E\{F/X\} : g \otimes g' : Group}
+  {}
  \end{tabular}
   \end{center}
   \shrule
 \end{table}
 
-The rules for timeouts follow much the same design as the rules for
-the summation operator, except that they include the additional
-requirement that $\sigma$ must be typeable as a clock.  The $STOS$
-rule handles the additional eventuality that the process may evolve
-with the timeout still in place when using the stable timeout
-operator.
- 
 \begin{table}
   \caption{Timeout Types}
   \label{tab:totypes}
@@ -435,62 +418,31 @@ operator.
  \begin{center}
  \begin{tabular}{rlrl}
   \multicolumn{4}{c}{
-   \Rulea{FTOC}
-   {\Gamma \vdash E : g : Group, F : g' : Group, \sigma : Clock}
+   \Rulea{FTO}
+   {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash \timeout{E}{\sigma}{F} : g \oplus g'}
    {}}
    \\[3ex]
   \multicolumn{4}{c}{
-   \Rulea{STOC}
-   {\Gamma \vdash E : g : Group, F : g' : Group, \sigma : Clock}
+   \Rulea{STO}
+   {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash \stimeout{E}{\sigma}{F} : g \oplus g'}
    {}}
    \\[3ex]
-  \multicolumn{4}{c}{
-   \Rulea{FTOL}
-   {\Gamma \vdash \timeout{E}{\sigma}{F} : g \oplus g': Group}
-   {\Gamma \vdash E' : g}
-   {(E \derives{\gamma} E', \gamma \ne \sigma)}
-}
-   \\[3ex]
-  \multicolumn{4}{c}{
-   \Rulea{FTOR}
-   {\Gamma \vdash \timeout{E}{\sigma}{F} : g \oplus g': Group}
-   {\Gamma \vdash F : g'}
-   {}}
-   \\[3ex]
-  \multicolumn{4}{c}{
-   \Rulea{STOL}
-   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g \oplus g': Group}
-   {\Gamma \vdash E' : g}
-   {(E \derives{\kappa} E')}
-  }\\[3ex]
-  \multicolumn{4}{c}{
-   \Rulea{STOR}
-   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g \oplus g': Group}
-   {\Gamma \vdash F : g'}
-   {}}
-   \\[3ex]
-  \multicolumn{4}{c}{
-  \Rulea{STOS}
-   {\Gamma \vdash \stimeout{E}{\sigma}{F} : g : Group}
-   {\Gamma \vdash \stimeout{E'}{\sigma}{F} : g}
-   {(E \derives{\rho} E', \rho \ne \sigma)}
-  }
-  \\[3ex]
  \end{tabular}
   \end{center}
   \shrule
 \end{table}
 
-In the rules for the bouncers, $BRec$ allows recursive bouncers to be
-defined, while $BIn$, $BOut$ and $BOpen$ allow an existing bouncer,
-$B$, to be prefixed with one of the three bouncer primitives ($\bin$,
-$\bout$ and $\bopen$).  $BSum$ simply allows the result of composing
-two bouncers with the summation operator, $+$ to be typeable as well.
+In the rules for the bouncers (Table \ref{tab:botypes}), $BRec$ allows
+recursive bouncers to be defined, while $BIn$, $BOut$ and $BOpen$
+allow an existing bouncer, $B$, to be prefixed with one of the three
+bouncer primitives ($\bin$, $\bout$ and $\bopen$).  $BSum$ simply
+allows the result of composing two bouncers with the summation
+operator, $+$ to be typeable as well.
 
 \begin{table}
-  \caption{Bouncer Types}
+  \caption{The Bouncer Type}
   \label{tab:botypes}
   \shrule
  \begin{center}
@@ -520,25 +472,48 @@ two bouncers with the summation operator, $+$ to be typeable as well.
   {\Gamma \vdash \bopen .B : Bouncer}
   {}
   &
-   \Rulea{BSum}
-   {\Gamma \vdash B : Bouncer, B^\prime : Bouncer}
+  \Rule{BSub}
+  {\Gamma \vdash B, B^\prime : Bouncer}
+  {B\{B'/X\} : Bouncer}
+  {}
+  \\[3ex]
+%  \multicolumn{4}{c}{
+   \Rule{BSum}
+   {\Gamma \vdash B, B^\prime : Bouncer}
    {\Gamma \vdash B + B^\prime : Bouncer}
-   {}
+   {}%}
+  \\[3ex]
  \end{tabular}
   \end{center}
   \shrule
 \end{table}
  
-The mobility types form the remaining focus of our type system; the
-type $g$ of an environ $\locv{m}{E}{B}{\vec{\sigma}}$ is that of its
-encapsulated process $E$, subject to the constraint that $m \in
-g(\mathscr{R})$. Similar sanity checks are performed in the other
-rules. For example, in $Open$, $E$ is the process that performs the
-mobility primitive, $\tntopen{m}$ (subject to the constraint $m \in
-g(\mathscr{O})$).  However, the destruction of $m$ also has an effect
-on its process ($F$).  As a result, $F$ must have an appropriate type,
-$h$, such that $F$ can reside in the parent environ, $n$, after $m$ is
-removed.
+The mobility types (Table \ref{tab:mobtypes}) form the remaining focus
+of our type system; the type $g$ of an environ
+$\locv{m}{E}{B}{\vec{\sigma}}$ is that of its encapsulated process
+$E$, subject to the constraint that $m \in g(\mathscr{R})$ and $B$ is
+a $Bouncer$. Similar sanity checks are performed in the other
+rules. For $EnvIn$, we check that the group of $n$ allows it to enter
+$m$ (and also reside there, given $\mathscr{E} \subseteq \mathscr{R}$
+as discussed earlier).  The $EnvOut$ rule is similar, but we must also
+check that $k$ can enter $n$ as well as being able to leave $m$.  In
+$Open$, $E$ is the process that performs the mobility primitive,
+$\tntopen{m}$ (subject to the constraint $m \in g(\mathscr{O})$).
+However, the destruction of $m$ also has an effect on its process
+($F$).  As a result, $F$ must have an appropriate type, $h$, such that
+$F$ can reside in the parent environ, $n$, after $m$ is removed.  The
+final two rules $ProcIn$ and $ProcOut$ are the equivalents of $EnvIn$
+and $EnvOut$ for processes; the group $g$ concerned is that of $E$,
+while the group $g'$ of $F$ can be anything.  Note that deciding
+whether an environ name occurs in a group that is a composite type ($g
+\oplus g'$ or $g \otimes g'$) requires matching the group to the
+appropriate term it was connected with prior to composition.  For
+example, if $\tntin{m}.E \pc F$ has the type $g \otimes g'$, then, by
+$Par$, $\tntin{m}.E$ has type $g$ and $F$ has type $g'$.  Thus, it is
+$\Enters{g}$ that must contain $m$.  In general use, the environ name
+must appear in either of the composed groups for $g \oplus g'$, and in
+both for $g \otimes g'$, the latter being the Cartesian product of the
+two sets.
 
 \begin{table}
   \caption{Mobility Types}
@@ -548,58 +523,52 @@ removed.
  \begin{tabular}{rlrl}
   \multicolumn{4}{c}{
      \Rulea{Environ}
-     {\Gamma \vdash m : Environ,
-     \Gamma \vdash E : g : Group,
-     \Gamma \vdash B : Bouncer,
-     m \in g(\mathscr{R})}
-     {\Gamma \vdash \loc{m}{E}{B}{\vec{\sigma}} : g}
+     {\Gamma \vdash E : g : Group, B : Bouncer, m \in g(\mathscr{R})}
+     {\Gamma \vdash \locv{m}{E}{B}{\vec{\sigma}} : g}
      {}
   }
   \\[3ex]
   \multicolumn{4}{c}{
      \Rulea{EnvIn}
-     { \Gamma \vdash m : Environ,
-       \Gamma \vdash E : g : Group,
+     {\Gamma \vdash \locv{n}{E}{B}{\vec{\sigma}} : g : Group,
        m \in g(\mathscr{E})}
-     {\Gamma \vdash \tntin{m}.E : g}
+     {\Gamma \vdash \locv{n}{\tntin{m}.E}{B}{\vec{\sigma}} : g}
      {}
   }
      \\[3ex]
   \multicolumn{4}{c}{
      \Rulea{EnvOut}
-     {\Gamma \vdash \loc{n}{\loc{m}{E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group,
+     {\Gamma \vdash \locv{k}{E}{B_1}{\vec{\sigma}} : g : Group,
   m \in g(\mathscr{L}),
   n \in g(\mathscr{E})}
-     {\Gamma \vdash \tntout{m}.E : g}
+     {\Gamma \vdash \locv{n}{\locv{m}{\locv{k}{\tntout{m}.E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}}{B_3}{\vec{\gamma}} : g}
      {}
   }
      \\[3ex]
   \multicolumn{4}{c}{
      \Rulea{Open}
-     {\Gamma \vdash \loc{n}{E}{B_1}{\vec{\sigma}} : g : Group,
-  \Gamma \vdash \loc{m}{F}{B}{\vec{\sigma}} : h : Group,
+     {\Gamma \vdash E : g : Group,
+  F : h : Group,
   m \in g(\mathscr{O}),
   n \in h(\mathscr{E})}
-     {\Gamma \vdash \tntopen{m}.E : g}
+     {\Gamma \vdash \locv{n}{\tntopen{m}.E \pc \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g}
      {}
   }
   \\[3ex]
   \multicolumn{4}{c}{
      \Rulea{ProcIn}
-  {\Gamma \vdash a : Name,
-  \Gamma \vdash \loc{n}{E \mid F \mid \loc{m}{\nil}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group, 
+  {\Gamma \vdash E \mid F : g \otimes g' : Group, 
   m \in g(\mathscr{E})}
-     {\loc{n}{\procin{a}{m}.E \mid a.F \mid \loc{m}{\nil}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group}
+     {a.E \mid \procin{a}{m}.F : g \otimes g' : Group}
      {}  
   }
   \\[3ex]
   \multicolumn{4}{c}{
      \Rulea{ProcOut}
-  {\Gamma \vdash a : Name,
-  \Gamma \vdash \locv{n}{\loc{m}{E \mid F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} : g : Group, 
+  {\Gamma \vdash E \mid F : g \otimes g' : Group, 
   m \in g(\mathscr{L}),
   n \in g(\mathscr{E})}
-     {\Gamma \vdash \locv{n}{\loc{m}{\procout{a}{m}.E \mid a.F}{B}{\vec{\sigma}}}{B_2}{\vec{\rho}} :
+     {\Gamma \vdash \locv{n}{\locv{m}{a.E \mid \procout{a}{m}.F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} :
   g}
      {}
   }
@@ -627,13 +596,13 @@ rules, the types are identical on both sides.
   $E + F : g \oplus g'$              & $\equiv$ & $F + E : g' \oplus g$
 \\
   StrSum2 &&  
-  $E + (F + G) : g \oplus g' \oplus g''$        & $\equiv$ & $(E + F) + G : g \oplus g' \oplus g''$
+  $E + (F + G) : g \oplus (g' \oplus g'')$        & $\equiv$ & $(E + F) + G : (g \oplus g') \oplus g''$
 \\
   StrPar1 &&  
   $E \pc F : g \otimes g'$            & $\equiv$ & $F \pc E : g' \otimes g$
 \\
   StrPar2 &&  
-  $E \pc (F \pc G) : g \otimes g' \otimes g''$    & $\equiv$ & $(E \pc F) \pc G : g \otimes g' \otimes g''$
+  $E \pc (F \pc G) : g \otimes (g' \otimes g'')$    & $\equiv$ & $(E \pc F) \pc G : (g \otimes g') \otimes g''$
 \\
   StrIdent &&  
   $E \pc \nil : g \otimes g'$         & $\equiv$ & $E : g$
@@ -699,22 +668,19 @@ represents $T$ (see \ref{eqn:tnt:typesyntax}) just as
     Set<Class<? extends Type>> types =
       new HashSet<Class<? extends Type>>();
     types.add(ProcessType.class);
-    types.add(ActionType.class);
-    types.add(ClockType.class);
-    types.add(NameType.class);
     types.add(BouncerType.class);
-    types.add(EnvironType.class);
     return types;
   }
 \end{verbatim}
 
 The classes have a common suffix of `Type' to avoid conflicts with the
-syntax classes.  All but \texttt{ProcessType} are simple classes with
-a singleton instance for that type.  To represent $P$, there are three
-further classes: \texttt{Group}, \texttt{SumType} and
-\texttt{ProdType}.  To handle the constraints imposed by group
-membership, such as $m \in g(\mathscr{E})$, \texttt{ProcessType}
-requires its subclasses to implement the follow methods:
+syntax classes.  The \texttt{BouncerType} class is simple, providing a
+singleton instance to represent the type.  To represent $P$, there are
+three further subclasses of \texttt{ProcessType}: \texttt{Group},
+\texttt{SumType} and \texttt{ProdType}.  To handle the constraints
+imposed by group membership, such as $m \in g(\mathscr{E})$,
+\texttt{ProcessType} requires its subclasses to implement the follow
+methods:
 
 \begin{verbatim}
 public interface ProcessType
@@ -728,14 +694,13 @@ public interface ProcessType
 \end{verbatim}
 
 These are implemented in \texttt{Group} using sets provided by the
-user.  For \texttt{SumType}, the environ name must appear in either of
-the composed groups, and for \texttt{ProdType}, it must appear in
-both, thus being a member of the Cartesian product of the two sets.
-The implementations of \texttt{getType} for each process term follow
-fairly straightforwardly from the type system given in
-\ref{tab:basictypes}, \ref{tab:totypes}, \ref{tab:botypes} and
-\ref{tab:mobtypes}.  For instance, implementing $BNil$ is just a
-matter of adding the following method to the \texttt{Omega} class:
+user.  For \texttt{SumType} and \texttt{ProdType}, the check is
+performed on the appropriate constituent type.  The implementations of
+\texttt{getType} for each process term follow fairly straightforwardly
+from the type system given in \ref{tab:basictypes}, \ref{tab:totypes},
+\ref{tab:botypes} and \ref{tab:mobtypes}.  For instance, implementing
+$BNil$ is just a matter of adding the following method to the
+\texttt{Omega} class:
 
 \begin{verbatim}
 public Type getType()
@@ -804,8 +769,7 @@ implement \texttt{getType()} in \texttt{InEnv} as follows:
 public Type getType()
 {
   ProcessType procType = proc.getType();  
-  if (EnvironType.isEnviron(env) &&
-      procType != null &&
+  if (procType != null &&
       procType.canEnter(env))
   {
     return procType;
@@ -818,17 +782,12 @@ public Type getType()
  
 \end{verbatim}
 
-\noindent In the above, the call to \texttt{EnvironType.isEnviron}
-corresponds to $\Gamma \vdash m : Environ$ and checks that the given
-name has been registered as an environ.  We could do such a check
-directly, but this method allows the means of ensuring $\Gamma \vdash
-m : Environ$ to change without effecting every \texttt{getType()}
-implementation.  The call to \texttt{procType.canEnter(String)}
-ensures that $m \in g(\mathscr{E})$ holds.  The actual code executed
-by the call depends on the type of \texttt{procType}; for a
-\texttt{Group}, the check only searchs the single $\mathcal{E}$ set
-belonging to that group, but for \texttt{ProdType}, it must ensure
-that $m$ is in the $\mathcal{E}$ set of both composed groups.
+\noindent The call to \texttt{procType.canEnter(String)} ensures that
+$m \in g(\mathscr{E})$ holds.  The actual code executed by the call
+depends on the type of \texttt{procType}; for a \texttt{Group}, the
+check only searchs the single $\mathcal{E}$ set belonging to that
+group, but for \texttt{ProdType}, it must ensure that $m$ is in the
+$\mathcal{E}$ set of both composed groups.
 
 Finally, the type checks may be performed at runtime by an evolver
 that supports them.  We add an additional interface,
@@ -844,7 +803,45 @@ public interface TypedEvolver
 \noindent When the checks are made and how the evolver reacts to them
 are left up to each implementation.
 
-\section{Types and Musical Chairs}
+\section{Typed Musical Chairs}
+
+With our typed variant of Nomadic Time, TNT, we can control the
+movement of processes in a much more fine grained manner using groups.
+This allows us to enhance the musical chairs example from
+\ref{example} so that only processes with a group type where $chair
+\in \Resides{Chair} \cap \Enters{Chair}$ are allowed to enter the
+$chair$ environ.  This is a stronger requirement than that exhibited
+by the bouncers; the chair bouncer $CB = \mu X.(\bin .\bout .X +
+\bopen .\Omega)$ dictates that a process must leave the chair before
+another may enter it, but it does not say anything about \emph{which}
+processes can occupy the chair in the first place.  In the untyped
+version, it is perfectly possible for a rogue process to enter a chair
+and not leave.  If that process does not leave and is the only
+inhabitant (which will be the case, given that the chairs are
+initially empty), it can prevent a chair from being used properly.
+
+We can see this by considering a simplified version of the full
+musical chairs system, concentrating solely on the movement of the
+player into the chair:
+
+\begin{equation}
+\begin{aligned}
+GM4 & \eqdef \mu X.(\stimeout{\procin{sit}{chair}.X}{\sigma}{\nil}) \\
+MP & \eqdef \stimeout{sit.\nil}{\sigma}{\nil}
+\end{aligned}
+\end{equation}
+
+\noindent We replace the processes $PiC$, $L$ and $GM5$ from the
+definitions in \ref{example} with $\nil$ so as to keep the example
+here simple and focus on the use of the type system to restrict
+movement.  If we consider the type rule $ProcIn$, we can see that the
+final type of $sit.\nil \pc \procin{sit}{chair}.X$ will be $g \otimes
+g'$, and thus that $\nil$ will be of type $g$ and $X$ of type $g'$.
+We also know that $chair \in \Enters{g}$ must hold, so we can derive
+that the type of $\nil$ in $sit.\nil$ must be at least $(\{chair\},
+\emptyset, \emptyset, \{chair\})$.
+
+The process $MP$ as a whole has a type $g \oplus g'$ (from $STO$), where $g$ corresponds to $sit.\nil$ and thus has 
 
 \section{Conclusion}
 
@@ -859,5 +856,5 @@ believe that our type system provides a useful optional addition to
 the calculus.  It can be employed, when needed, to provide a finer
 level of access control than the simple approach of enumerating
 possible actions, as used by bouncers.  There are possibilities for
-extending the type system further, which we will cover as part of the
-next and final chapter on future work.
+extending the type system further, which we will discuss as part of
+the next and final chapter on future work.

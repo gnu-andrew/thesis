@@ -4,91 +4,91 @@ If a well-typed term takes a step of evaluation, then the resulting
 term is also well-typed.
 
 \begin{proposition}
-If $\Gamma \vdash t : T$ and $t \derives{} t'$, then $\Gamma \vdash t' : T$
+If $\Gamma \vdash P : t : T$ and $P \derives{} P'$, then $\Gamma \vdash (\exists t' : T) P' : t'$
 \end{proposition}
 
 \begin{proof}
-By induction on a derivation of $t:T$.  At each step, we assume that
+By induction on a derivation of $P:t$.  At each step, we assume that
 the desired property holds for all subderivations and proceed by case
 analysis on the final rule in the derivation.
 
-\case{Nil}: $t = \nil$, $T = g$
+\case{Nil}: $P = \nil$, $t = g$
 
 \noindent If the last rule in the derivation is $Nil$, then we know
-from the form of the rule that $t$ must be the process term $\nil$ and
-$T$ must be the type $g$ where $g : Group$.  From the semantics
+from the form of the rule that $P$ must be the process term $\nil$ and
+$t$ must be the type $g$ where $g : Group$.  From the semantics
 ($Idle$), $\nil$ has a transition $\nil \derives{\sigma} \nil$ for
-each clock $\sigma$ in $\timers$.  In each case, $t' = \nil$ which, by
+each clock $\sigma$ in $\timers$.  In each case, $P' = \nil$ which, by
 the $Nil$ rule, has type $g$ so our proposition is satisfied.
 
-\case{Stop}: $t = \Delta$, $T = g$
+\case{Stop}: $P = \Delta$, $t = g$
 
 \noindent If the last rule in the derivation is $Stop$, then we know
-from the form of the rule that $t$ must be the process term $\Delta$
-and $T$ must be the type $g$ where $g : Group$.  From the semantics,
+from the form of the rule that $P$ must be the process term $\Delta$
+and $t$ must be the type $g$ where $g : Group$.  From the semantics,
 there are no transitions for $\Delta$ so there is nothing to prove.
 
-\case{Stall}: $t = \Delta_\sigma$, $T = g$
+\case{Stall}: $P = \Delta_\sigma$, $t = g$
 
 \noindent If the last rule in the derivation is $Stall$, then we know
-from the form of the rule that $t$ must be the process term
-$\Delta_\sigma$ and $T$ must be the type $g$ where $g : Group$.  From
+from the form of the rule that $P$ must be the process term
+$\Delta_\sigma$ and $t$ must be the type $g$ where $g : Group$.  From
 the semantics ($Stall$), $\Delta_\sigma$ has a transition
 $\Delta_\sigma \derives{\rho} \Delta_\sigma$ for each clock $\rho$ in
-$\timers$ where $\rho \ne \sigma$.  In each case, $t' = \Delta_\sigma$
+$\timers$ where $\rho \ne \sigma$.  In each case, $P' = \Delta_\sigma$
 which, by the $Stall$ rule, has type $g$ so our proposition is
 satisfied.
 
-\case{Var}: $t = X$, $T = g$
+\case{Var}: $P = X$, $t = g$
 
 \noindent If the last rule in the derivation is $Var$, then we know
-from the form of the rule that $t$ must be the process term $X$ and
-$T$ must be the type $g$ where $g : Group$.  From the semantics, there
+from the form of the rule that $P$ must be the process term $X$ and
+$t$ must be the type $g$ where $g : Group$.  From the semantics, there
 are no transitions for $X$ so there is nothing to prove.
 
-\case{Act}: $t = \alpha.E$, $T = g$
+\case{Act}: $P = \alpha.E$, $t = g$
 
 \noindent If the last rule in the derivation is $Act$, then we know
-from the form of the rule that $t$ must be the process term
-$\alpha.E$ and $T$ must be the type $g$ where $g : Group$.  From
+from the form of the rule that $P$ must be the process term
+$\alpha.E$ and $t$ must be the type $g$ where $g : Group$.  From
 the semantics, there are two subcases:
 
-\subcase{Act}: $t' = E$, $T = g$
+\subcase{Act}: $P' = E$, $t' = g$
 
 \noindent The $Act$ rule from the semantics provides the transition
-$\alpha.E \derives{\alpha} E$, so $t'$ is $E$.  From the
+$\alpha.E \derives{\alpha} E$, so $P'$ is $E$.  From the
 subderivations of the $Act$ typing rule, we know that $E : g : Group$
-so we can apply the induction hypothesis to obtain $t' : g$.
+so we can apply the induction hypothesis to obtain $P' : g$.
 
-\subcase{Patient}: $t' = \alpha.E$, $T = g$
+\subcase{Patient}: $P' = \alpha.E$, $t' = g$
 
 \noindent From the $Patient$ rule of the semantics, $\alpha.E$ has a transition
 $\alpha.E \derives{\sigma} \alpha.E$ for each clock $\sigma$ in
-$\timers$.  In each case, $t' = \alpha.E$ which, by the $Act$ typing
+$\timers$.  In each case, $P' = \alpha.E$ which, by the $Act$ typing
 rule, has type $g$ so our proposition is satisfied.
 
-\case{Rec}: $t = \mu X.E$, $T = g$
+\case{Rec}: $P = \mu X.E$, $t = g$
 
 \noindent If the last rule in the derivation is $Rec$, then we know
-from the form of the rule that $t$ must be the process term $\mu X.E$
-and $T$ must be the type $g$ where $g : Group$.  From the $Rec$ rule
+from the form of the rule that $P$ must be the process term $\mu X.E$
+and $t$ must be the type $g$ where $g : Group$.  From the $Rec$ rule
 of the semantics, $\mu X.E$ has a transition to $E'\{\mu X.E/X\}$ for
 any transition $\gamma$ which can be performed by $E$.  In each case,
-$t' = E'\{\mu X.E/X\}$ so we need to show that this is well-typed.
+$P' = E'\{\mu X.E/X\}$ so we need to show that this is well-typed.
 From the subderivations of the $Rec$ typing rule, we know that $E : g
 : Group$ so we can apply the induction hypothesis to obtain $E' : g :
 Group$.  So, we just need to show that the well-typedness of $E'$ is
 preserved when the substitution ($\{\mu X.E/X\}$ is performed.
 
 \begin{lemma}
-If $\Gamma, x : S \vdash t : T$ and $\Gamma \vdash x : S$ then $\Gamma \vdash t\{x/X\} : T$
+If $\Gamma, x : S \vdash P : t$ and $\Gamma \vdash x : S$ then $\Gamma \vdash P\{x/X\} : t$
 \end{lemma}
 
 \begin{proof}
-By induction on a derivation of the statement $\Gamma, x : S \vdash t
-: T$.  For a given derivation, we proceed by cases on the final typing
+By induction on a derivation of the statement $\Gamma, x : S \vdash P
+: t$.  For a given derivation, we proceed by cases on the final typing
 rule.  There is only one case where $X$ appears and this is $Var$,
-where $t = X$ and $T = g$.  There are two possible subcases:
+where $P = X$ and $t = g$.  There are two possible subcases:
 
 \subcase{Match}: $x = X$
 
@@ -102,62 +102,83 @@ remains as $X$, which is typeable using the $Var$ rule.
 
 \end{proof}
 
-\case{Res}: $t = E \res{a}$, $T = g$
+\case{Res}: $P = E \res{a}$, $t = g$
 
 \noindent If the last rule in the derivation is $Res$, then we know
-from the form of the rule that $t$ must be the process term $E
-\res{a}$ and $T$ must be the type $g$ where $g : Group$.  From the
+from the form of the rule that $P$ must be the process term $E
+\res{a}$ and $t$ must be the type $g$ where $g : Group$.  From the
 $Res$ rule of the semantics, $E \res{a}$ has a transition to $E'
 \res{a}$ for all transitions ($\gamma$) which can be performed by $E$
-where $\gamma \ne a$.  In each case, $t' = E'$ so we need
+where $\gamma \ne a$.  In each case, $P' = E'$ so we need
 to show that this is well-typed.  From the subderivations of the $Res$
 typing rule, we know that $E : g : Group$ so we can apply the
 induction hypothesis to obtain $E' : g : Group$.
 
-\case{SumC}: $t = E + F$, $T = g \oplus g'$
+\case{Sum}: $P = E + F$, $t = g \oplus g'$
 
-\noindent If the last rule in the derivation is $SumC$, then we know
-from the form of the rule that $t$ must be the process term $E + F$
-and $T$ must be the type $g \oplus g'$ where $g, g' : Group$.  From
+\noindent If the last rule in the derivation is $Sum$, then we know
+from the form of the rule that $P$ must be the process term $E + F$
+and $t$ must be the type $g \oplus g'$ where $g, g' : Group$.  From
 the semantics, there are two subcases:
 
-\subcase{Sum1}: $t' = E'$, $T = g$
+\subcase{Sum1}: $P' = E'$, $t' = g$
 
 \noindent The $Sum1$ rule from the semantics provides the transition
-$E + F \derives{\kappa} E$, so $t'$ is $E'$.  From the
-subderivations of the $SumC$ typing rule, we know that $E : g : Group$
-so we can apply the induction hypothesis to obtain $t' : g$.
+$E + F \derives{\kappa} E$, so $P'$ is $E'$.  From the
+subderivations of the $Sum$ typing rule, we know that $E : g : Group$
+so we can apply the induction hypothesis to obtain $P' : g$.
 
-\subcase{Sum2}: $t' = E + F$, $T = g$
+\subcase{Sum2}: $P' = E' + F'$, $t' = g$
 
 \noindent From the $Sum2$ rule of the semantics, $E + F$ has a
 transition $E + F \derives{\sigma} E' + F'$ for each clock $\sigma$ in
-$\timers$.  In each case, $t' = E' + F'$.  From the subderivations of
-the $SumC$ typing rule, we know that $E : g : Group$ and $F : g :
+$\timers$.  In each case, $P' = E' + F'$.  From the subderivations of
+the $Sum$ typing rule, we know that $E : g : Group$ and $F : g :
 Group$ and by applying the induction hypothesis, we know both $E'$ and
-$F'$ are well typed.  As a result, we can apply $SumC$ to give $t' : g
+$F'$ are well typed.  As a result, we can apply $Sum$ to give $P' : g
 \oplus g'$.
 
-\case{ParC}: $t = E | F$, $T = g \otimes g'$
+\case{Par}: $P = E | F$, $t = g \otimes g'$
 
-\noindent If the last rule in the derivation is $ParC$, then we know
-from the form of the rule that $t$ must be the process term $E \pc F$
-and $T$ must be the type $g \otimes g'$ where $g, g' : Group$.  From
+\noindent If the last rule in the derivation is $Par$, then we know
+from the form of the rule that $P$ must be the process term $E \pc F$
+and $t$ must be the type $g \otimes g'$ where $g, g' : Group$.  From
 the semantics, there are eight subcases:
 
-\subcase{Par1}: $t' = E' \pc F$, $T = g$
+\subcase{Par1}: $P' = E' \pc F$, $t' = g$
 
 \noindent The $Par1$ rule from the semantics provides the transition
-$E \pc F \derives{\kappa} E$, so $t'$ is $E'$.  From the
-subderivations of the $SumC$ typing rule, we know that $E : g : Group$
-so we can apply the induction hypothesis to obtain $t' : g$.
+$E \pc F \derives{\kappa} E' \pc F$, so $P'$ is $E' \pc F$.  From the
+subderivations of the $Par$ typing rule, we know that $E : g : Group$
+and $F : g : Group$ so we can apply the induction hypothesis to obtain
+$E' : g$ and the $Par$ typing rule to give $E' \pc F : g \otimes g'$.
 
-\noindent 
-\case{BNil}: $t = \Omega$, $T = Bouncer$
+\subcase{Par2}: $P' = E' \pc F'$, $t' = g$
+
+\noindent From the $Par2$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\tau} E' \pc F'$ when $E$ and $F$
+synchronise.  In this case, $P' = E' + F'$.  From the subderivations
+of the $Par$ typing rule, we know that $E : g : Group$ and $F : g :
+Group$ and by applying the induction hypothesis, we know both $E'$ and
+$F'$ are well typed.  As a result, we can apply $Par$ to give $P' : g
+\oplus g'$.
+
+\subcase{Par3}: $P' = E' \pc F'$, $t' = g$
+
+\noindent From the $Par3$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\sigma} E' \pc F'$ for each clock
+$\sigma$ in $\timers$, as long as $E \pc F$ does not contain a high
+priority transition ($\nderives{h}$).  In each case, $P' = E' + F'$.
+From the subderivations of the $Par$ typing rule, we know that $E : g
+: Group$ and $F : g : Group$ and by applying the induction hypothesis,
+we know both $E'$ and $F'$ are well typed.  As a result, we can apply
+$Par$ to give $P' : g \oplus g'$.
+
+\case{BNil}: $P = \Omega$, $t = Bouncer$
 
 \noindent If the last rule in the derivation is $BNil$, then we know
-from the form of the rule that $t$ must be the process term $\Omega$
-and $T$ must be the type $Bouncer$.  From the semantics, there are no
+from the form of the rule that $P$ must be the process term $\Omega$
+and $t$ must be the type $Bouncer$.  From the semantics, there are no
 transitions for $\Omega$ so there is nothing to prove.
 
 \end{proof}
