@@ -495,17 +495,19 @@ The mobility types (Table \ref{tab:mobtypes}) form the remaining focus
 of our type system; the type $g$ of an environ
 $\locv{m}{E}{B}{\vec{\sigma}}$ is that of its encapsulated process
 $E$, subject to the constraint that $m \in g(\mathscr{R})$ and $B$ is
-a $Bouncer$. Similar sanity checks are performed in the other
-rules. For $T-EnvIn$, we check that the group of $n$ allows it to enter
-$m$ (and also reside there, given $\mathscr{E} \subseteq \mathscr{R}$
-as discussed earlier).  The $T-EnvOut$ rule is similar, but we must also
-check that $k$ can enter $n$ as well as being able to leave $m$.  In
-$T-Open$, $E$ is the process that performs the mobility primitive,
-$\tntopen{m}$ (subject to the constraint $m \in g(\mathscr{O})$).
-However, the destruction of $m$ also has an effect on its process
-($F$).  As a result, $F$ must have an appropriate type, $h$, such that
-$F$ can reside in the parent environ, $n$, after $m$ is removed.  The
-final two rules $T-ProcIn$ and $T-ProcOut$ are the equivalents of $EnvIn$
+a $Bouncer$. Consequently, if $\locv{m}{E}{B}{\vec{\sigma}}$ is of
+type $g : Group$, this implies that $m \in \Resides{g}$.  Similar
+sanity checks are performed in the other rules. For $T-EnvIn$, we
+check that the group of $n$ allows it to enter $m$ (and also reside
+there, given $\mathscr{E} \subseteq \mathscr{R}$ as discussed
+earlier).  The $T-EnvOut$ rule is similar, but we must also check that
+$k$ can enter $n$ as well as being able to leave $m$.  In $T-Open$,
+$E$ is the process that performs the mobility primitive, $\tntopen{m}$
+(subject to the constraint $m \in g(\mathscr{O})$).  However, the
+destruction of $m$ also has an effect on its process ($F$).  As a
+result, $F$ must have an appropriate type, $h$, such that $F$ can
+reside in the parent environ, $n$, after $m$ is removed.  The final
+two rules $T-ProcIn$ and $T-ProcOut$ are the equivalents of $EnvIn$
 and $EnvOut$ for processes; the group $g$ concerned is that of $E$,
 while the group $g'$ of $F$ can be anything.  Note that deciding
 whether an environ name occurs in a group that is a composite type ($g
