@@ -606,7 +606,7 @@ and $A$ ranges over a subset of $\symbols$.
       {}
      &
       \Rule{STO3}
-      {E \derives{\rho} E'}
+      {E \derives{\rho} E', E \nderives{h}}
       {\stimeout{E}{\sigma}{F} \derives{\rho} \stimeout{E'}{\sigma}{F}}
       {\rho \ne \sigma}
      \\[3ex]
@@ -632,7 +632,7 @@ and $A$ ranges over a subset of $\symbols$.
   \\[3ex]
       \Rule{LHd3}
       {E \derives{\rho} E',
-       E \nderives{\sigma}}
+       E \nderives{\sigma}, E \nderives{h}}
       {\locv{m}{E}{B}{\vec{\sigma}} \derives{\rho} \locv{m}{E'}{B}{\vec{\sigma}}}
       {\rho \not \in \vec{\sigma}, \sigma \in \vec{\sigma}}
 &

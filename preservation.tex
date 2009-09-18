@@ -12,70 +12,70 @@ By induction on a derivation of $P:t$.  At each step, we assume that
 the desired property holds for all subderivations and proceed by case
 analysis on the final rule in the derivation.
 
-\case{T-Nil}: $P = \nil$, $t = g$
+\case{T-Nil}:
 
-\noindent If the last rule in the derivation is $T-Nil$, then we know
+\noindent If the last rule in the derivation is T-Nil, then we know
 from the form of the rule that $P$ must be the process term $\nil$ and
 $t$ must be the type $g$ where $g : Group$.  From the semantics
 ($Idle$), $\nil$ has a transition $\nil \derives{\sigma} \nil$ for
 each clock $\sigma$ in $\timers$.  In each case, $P' = \nil$ which, by
-the $T-Nil$ rule, has type $g$ so our proposition is satisfied.
+the T-Nil rule, has type $g$ so our proposition is satisfied.
 
-\case{T-Stop}: $P = \Delta$, $t = g$
+\case{T-Stop}:
 
-\noindent If the last rule in the derivation is $T-Stop$, then we know
+\noindent If the last rule in the derivation is T-Stop, then we know
 from the form of the rule that $P$ must be the process term $\Delta$
 and $t$ must be the type $g$ where $g : Group$.  From the semantics,
 there are no transitions for $\Delta$ so there is nothing to prove.
 
-\case{T-Stall}: $P = \Delta_\sigma$, $t = g$
+\case{T-Stall}:
 
-\noindent If the last rule in the derivation is $T-Stall$, then we know
+\noindent If the last rule in the derivation is T-Stall, then we know
 from the form of the rule that $P$ must be the process term
 $\Delta_\sigma$ and $t$ must be the type $g$ where $g : Group$.  From
 the semantics ($Stall$), $\Delta_\sigma$ has a transition
 $\Delta_\sigma \derives{\rho} \Delta_\sigma$ for each clock $\rho$ in
 $\timers$ where $\rho \ne \sigma$.  In each case, $P' = \Delta_\sigma$
-which, by the $T-Stall$ rule, has type $g$ so our proposition is
+which, by the T-Stall rule, has type $g$ so our proposition is
 satisfied.
 
-\case{T-Var}: $P = X$, $t = g$
+\case{T-Var}:
 
-\noindent If the last rule in the derivation is $T-Var$, then we know
+\noindent If the last rule in the derivation is T-Var, then we know
 from the form of the rule that $P$ must be the process term $X$ and
 $t$ must be some type $t$.  From the semantics, there are no
 transitions for $X$ so there is nothing to prove.
 
-\case{T-Act}: $P = \alpha.E$, $t = g$
+\case{T-Act}:
 
-\noindent If the last rule in the derivation is $T-Act$, then we know
+\noindent If the last rule in the derivation is T-Act, then we know
 from the form of the rule that $P$ must be the process term
 $\alpha.E$ and $t$ must be the type $g$ where $g : Group$.  From
 the semantics, there are two subcases:
 
-\subcase{Act}: $P' = E$, $t' = g$
+\subcase{Act}:
 
 \noindent The $Act$ rule from the semantics provides the transition
 $\alpha.E \derives{\alpha} E$, so $P'$ is $E$.  From the
-subderivations of the $T-Act$ typing rule, we know that $E : g :
+subderivations of the T-Act typing rule, we know that $E : g :
 Group$ so we can apply the induction hypothesis to obtain $P' : g$.
 
-\subcase{Patient}: $P' = \alpha.E$, $t' = g$
+\subcase{Patient}:
 
 \noindent From the $Patient$ rule of the semantics, $\alpha.E$ has a transition
 $\alpha.E \derives{\sigma} \alpha.E$ for each clock $\sigma$ in
-$\timers$.  In each case, $P' = \alpha.E$ which, by the $T-Act$ typing
+$\timers$.  In each case, $P' = \alpha.E$ which, by the T-Act typing
 rule, has type $g$ so our proposition is satisfied.
 
-\case{T-Rec}: $P = \mu X.E$, $t = g$
+\case{T-Rec}:
 
-\noindent If the last rule in the derivation is $T-Rec$, then we know
+\noindent If the last rule in the derivation is T-Rec, then we know
 from the form of the rule that $P$ must be the process term $\mu X.E$
 and $t$ must be the type $g$ where $g : Group$.  From the $Rec$ rule
 of the semantics, $\mu X.E$ has a transition to $E'\{\mu X.E/X\}$ for
 any transition $\gamma$ which can be performed by $E$.  In each case,
 $P' = E'\{\mu X.E/X\}$ so we need to show that this is well-typed.
-From the subderivations of the $T-Rec$ typing rule, we know that $E :
+From the subderivations of the T-Rec typing rule, we know that $E :
 g : Group$ so we can apply the induction hypothesis to obtain $E' : g
 : Group$.  So, we just need to show that the well-typedness of $E'$ is
 preserved when the substitution ($\{\mu X.E/X\}$ is performed.
@@ -98,88 +98,527 @@ becomes $x$, which we know is well-typed from the precondition.
 \subcase{NoMatch}: $x \ne X$
 
 \noindent If $X$ does not match the bound variable being substituted, $x$, then it
-remains as $X$, which is typeable using the $T-Var$ rule.
+remains as $X$, which is typeable using the T-Var rule.
 
 \end{proof}
 
-\case{T-Res}: $P = E \res{a}$, $t = g$
+\case{T-Res}:
 
-\noindent If the last rule in the derivation is $T-Res$, then we know
+\noindent If the last rule in the derivation is T-Res, then we know
 from the form of the rule that $P$ must be the process term $E
 \res{a}$ and $t$ must be the type $g$ where $g : Group$.  From the
 $Res$ rule of the semantics, $E \res{a}$ has a transition to $E'
 \res{a}$ for all transitions ($\gamma$) which can be performed by $E$
 where $\gamma \ne a$.  In each case, $P' = E'$ so we need to show that
-this is well-typed.  From the subderivations of the $T-Res$ typing
+this is well-typed.  From the subderivations of the T-Res typing
 rule, we know that $E : g : Group$ so we can apply the induction
 hypothesis to obtain $E' : g : Group$.
 
-\case{T-Sum}: $P = E + F$, $t = g \oplus g'$
+\case{T-Sum}:
 
-\noindent If the last rule in the derivation is $T-Sum$, then we know
+\noindent If the last rule in the derivation is T-Sum, then we know
 from the form of the rule that $P$ must be the process term $E + F$
 and $t$ must be the type $g \oplus g'$ where $g, g' : Group$.  From
 the semantics, there are two subcases:
 
-\subcase{Sum1}: $P' = E'$, $t' = g$
+\subcase{Sum1}:
 
 \noindent The $Sum1$ rule from the semantics provides the transition
-$E + F \derives{\kappa} E$, so $P'$ is $E'$.  From the
-subderivations of the $T-Sum$ typing rule, we know that $E : g : Group$
+$E + F \derives{\kappa} E'$, so $P'$ is $E'$.  From the
+subderivations of the T-Sum typing rule, we know that $E : g : Group$
 so we can apply the induction hypothesis to obtain $P' : g$.
 
-\subcase{Sum2}: $P' = E' + F'$, $t' = g$
+\subcase{Sum2}:
 
 \noindent From the $Sum2$ rule of the semantics, $E + F$ has a
 transition $E + F \derives{\sigma} E' + F'$ for each clock $\sigma$ in
 $\timers$.  In each case, $P' = E' + F'$.  From the subderivations of
-the $T-Sum$ typing rule, we know that $E : g : Group$ and $F : g :
+the T-Sum typing rule, we know that $E : g : Group$ and $F : g :
 Group$ and by applying the induction hypothesis, we know both $E'$ and
-$F'$ are well typed.  As a result, we can apply $T-Sum$ to give $P' : g
+$F'$ are well typed.  As a result, we can apply T-Sum to give $P' : g
 \oplus g'$.
 
-\case{T-Par}: $P = E | F$, $t = g \otimes g'$
+\case{T-Par}:
 
-\noindent If the last rule in the derivation is $T-Par$, then we know
+\noindent If the last rule in the derivation is T-Par, then we know
 from the form of the rule that $P$ must be the process term $E \pc F$
 and $t$ must be the type $g \otimes g'$ where $g, g' : Group$.  From
 the semantics, there are eight subcases:
 
-\subcase{Par1}: $P' = E' \pc F$, $t' = g$
+\subcase{Par1}:
 
 \noindent The $Par1$ rule from the semantics provides the transition
 $E \pc F \derives{\kappa} E' \pc F$, so $P'$ is $E' \pc F$.  From the
-subderivations of the $T-Par$ typing rule, we know that $E : g : Group$
-and $F : g : Group$ so we can apply the induction hypothesis to obtain
-$E' : g$ and the $T-Par$ typing rule to give $E' \pc F : g \otimes g'$.
+subderivations of the T-Par typing rule, we know that $E : g : Group$
+and $F : g' : Group$ so we can apply the induction hypothesis to obtain
+$E' : g$ and the T-Par typing rule to give $E' \pc F : g \otimes g'$.
 
-\subcase{Par2}: $P' = E' \pc F'$, $t' = g$
+\subcase{Par2}:
 
 \noindent From the $Par2$ rule of the semantics, $E \pc F$ has a
 transition $E \pc F \derives{\tau} E' \pc F'$ when $E$ and $F$
 synchronise.  In this case, $P' = E' + F'$.  From the subderivations
-of the $T-Par$ typing rule, we know that $E : g : Group$ and $F : g :
+of the T-Par typing rule, we know that $E : g : Group$ and $F : g' :
 Group$ and by applying the induction hypothesis, we know both $E'$ and
-$F'$ are well typed.  As a result, we can apply $T-Par$ to give $P' : g
+$F'$ are well typed.  As a result, we can apply T-Par to give $P' : g
 \oplus g'$.
 
-\subcase{Par3}: $P' = E' \pc F'$, $t' = g$
+\subcase{Par3}:
 
 \noindent From the $Par3$ rule of the semantics, $E \pc F$ has a
 transition $E \pc F \derives{\sigma} E' \pc F'$ for each clock
 $\sigma$ in $\timers$, as long as $E \pc F$ does not contain a high
 priority transition ($\nderives{h}$).  In each case, $P' = E' + F'$.
-From the subderivations of the $T-Par$ typing rule, we know that $E : g
+From the subderivations of the T-Par typing rule, we know that $E : g
 : Group$ and $F : g : Group$ and by applying the induction hypothesis,
 we know both $E'$ and $F'$ are well typed.  As a result, we can apply
-$T-Par$ to give $P' : g \oplus g'$.
+T-Par to give $P' : g \oplus g'$.
 
-\case{BNil}: $P = \Omega$, $t = Bouncer$
+\subcase{InEnv}:
 
-\noindent If the last rule in the derivation is $BNil$, then we know
+\noindent From the $InEnv$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\tin} E' \pc F'$ where $E$ takes the form
+$\locv{n}{G}{B_2}{\vec{\sigma}}$ and $F$ is
+$\locv{m}{H}{B_1}{\vec{\rho}}$.  Following the transition, $P' =
+\locv{m}{H \pc \locv{n}{G'}{B_2}{\vec{\sigma}}}{B'_1}{\vec{\rho}}$.
+If this is well-typed, then, by using T-Environ, we know $H \pc
+\locv{n}{G'}{B_2}{\vec{\sigma}}$ has type $g : Group$, $B'_1 :
+Bouncer$ and $m \in \Resides{g}$.  According to T-Par, $g = g'
+\otimes g''$, so $H$ has type $g'$ and $locv{n}{G'}{B_2}{\vec{sigma}}$
+has type $g''$.  Again, T-Environ gives $G' : g''' : Group$, $B_2 :
+Bouncer$ and $n \in \Resides{g'''}$.
+
+From the subderivations of the T-Par typing rule, we know that $E :
+g : Group$ and $F : g' : Group$ and by applying the induction
+hypothesis, we know both $G'$ and $B'_1$ are well typed.  As $F$ is
+well-typed, then $H$ must be well-typed by the rule T-Environ.  Thus
+$P'$ is well-typed.
+
+\subcase{OutEnv}:
+
+\noindent From the $OutEnv$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\tout} E' \pc F'$ where $E$ takes the
+form $H$ and $F$ is $\locv{n}{G}{B_2}{\vec{\sigma}}$.  Following the
+transition, $P' = \locv{n}{G'}{B_2}{\vec{\sigma}} \pc
+\locv{m}{H}{B'_1}{\vec{\rho}}$.  Using T-Par, we know that $P' : g
+  \otimes g'$, $\locv{n}{G'}{B_2}{\vec{\sigma}}$ is of type $g$ and
+    $\locv{m}{H}{B'_1}{\vec{\rho}}$ is of type $g'$.
+
+From the subderivations of the T-Par typing rule, we know that $E :
+g : Group$ and $F : g' : Group$ and by applying the induction
+hypothesis, we know both $G'$ and $B'_1$ are well typed.  By
+T-Environ, $\locv{n}{G'}{B_2}{\vec{\sigma}}$ is well-typed as $G'$
+and $B_2$ (from the original $F$) are well typed.  Similarly,
+$\locv{m}{H}{B'_1}{\vec{\rho}}$ is well-typed as $H$ is well-typed
+(from the original $E$) and $B'_1$ is well-typed.  Thus $P'$ is
+well-typed.
+
+\subcase{Open}:
+
+\noindent From the $Open$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\topen} E' \pc F'$ where $E$ takes the
+form $G$ and $F$ is $\locv{m}{H}{B_1}{\vec{\sigma}}$.  Following the
+transition, $P' = \locv{n}{G' \pc H}{B_2}{\vec{\sigma} \cup
+  \vec{\rho}}$.  Using T-Par, we know that $P' : g \otimes g'$, $G'$
+is of type $g$ and $H$ is of type $g'$.
+
+From the subderivations of the T-Par typing rule, we know that $E : g
+: Group$ and $F : g' : Group$ and by applying the induction
+hypothesis, we know both $G'$ and $B'_1$ are well typed.  By
+T-Environ, as $\locv{m}{H}{B_1}{\vec{\sigma}}$ is well-typed, $H$
+(from the original $F$) is also well typed. Thus $P'$ is
+well-typed.
+
+\subcase{ProcIn}:
+
+\noindent From the $ProcIn$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\tin} E' \pc F'$.  Following the
+transition, $P' = \locv{m}{E'}{B'_1}{\vec{\sigma}} \pc F'$.  Using
+T-Par, we know that $P' : g \otimes g'$,
+$\locv{m}{E'}{B'_1}{\vec{\sigma}}$ is of type $g$ and $F'$ is of type
+$g'$.
+
+From the subderivations of the T-Par typing rule, we know that $E : g
+: Group$ and $F : g' : Group$ and by applying the induction
+hypothesis, we know both $E'$, $F'$ and $B'_1$ are well typed.  By
+T-Environ, $\locv{m}{E'}{B'_1}{\vec{\sigma}}$ is well-typed as both
+$E'$ and $B'_1$ are.  Thus $P'$ is well-typed.
+
+\subcase{ProcOut}:
+
+\noindent From the $ProcOut$ rule of the semantics, $E \pc F$ has a
+transition $E \pc F \derives{\tin} E' \pc F'$.  Following the
+transition, $P' = E' \pc \locv{m}{F'}{B'_1}{\vec{\sigma}}$.  Using
+T-Par, we know that $P' : g \otimes g'$,
+$E'$ is of type $g$ and $\locv{m}{F'}{B'_1}{\vec{\sigma}}$ is of type
+$g'$.
+
+From the subderivations of the T-Par typing rule, we know that $E : g
+: Group$ and $F : g' : Group$ and by applying the induction
+hypothesis, we know both $E'$, $F'$ and $B'_1$ are well typed.  By
+T-Environ, $\locv{m}{F'}{B'_1}{\vec{\sigma}}$ is well-typed as both
+$F'$ and $B'_1$ are.  Thus $P'$ is well-typed.
+
+\case{T-FTO}:
+
+\noindent If the last rule in the derivation is T-FTO, then we know
+from the form of the rule that $P$ must be the process term
+$\timeout{E}{\sigma}{F}$ and $t$ must be the type $g \oplus g'$ where
+$g, g' : Group$.  From the semantics, there are two subcases:
+
+\subcase{FTO1}:
+
+\noindent From the $FTO1$ rule of the semantics,
+$\timeout{E}{\sigma}{F}$ has a transition $\timeout{E}{\sigma}{F}
+\derives{\sigma} F$ for each clock $\sigma$ in $\timers$ as long as $E
+\nderives{h}$.  In each case, $P' = F$.  From the subderivations of
+the T-FTO typing rule, we know that $F : g : Group$ so $P'$ is thus
+well-typed.
+
+\subcase{FTO2}:
+
+\noindent The $FTO2$ rule from the semantics provides the transition
+$\timeout{E}{\sigma}{F} \derives{\gamma} E'$, so $P'$ is $E'$ where
+$\gamma \ne \sigma$.  From the subderivations of the T-FTO typing
+rule, we know that $E : g : Group$ so we can apply the induction
+hypothesis to obtain $P' : g$.
+
+\case{T-STO}:
+
+\noindent If the last rule in the derivation is T-STO, then we know
+from the form of the rule that $P$ must be the process term
+$\stimeout{E}{\sigma}{F}$ and $t$ must be the type $g \oplus g'$ where
+$g, g' : Group$.  From the semantics, there are three subcases:
+
+\subcase{STO1}:
+
+\noindent From the $STO1$ rule of the semantics,
+$\stimeout{E}{\sigma}{F}$ has a transition $\stimeout{E}{\sigma}{F}
+\derives{\sigma} F$ as long as $E \nderives{h}$.  So, $P' = F$.  From
+the subderivations of the T-STO typing rule, we know that $F : g :
+Group$ so $P'$ is thus well-typed.
+
+\subcase{STO2}:
+
+\noindent The $STO2$ rule from the semantics provides the transition
+$\stimeout{E}{\sigma}{F} \derives{\kappa} E'$, so $P'$ is $E'$.  From
+the subderivations of the T-STO typing rule, we know that $E : g :
+Group$ so we can apply the induction hypothesis to obtain $P' : g$.
+
+\subcase{STO3}:
+
+\noindent From the $STO3$ rule of the semantics,
+$\stimeout{E}{\sigma}{F}$ has a transition $\stimeout{E}{\sigma}{F}
+\derives{\rho} F$ for each clock $\rho$ in $\timers$ as long as $E
+\nderives{h}$ and $\rho \ne \sigma$.  In each case, $P' =
+\stimeout{E'}{\sigma}{F}$.  From the subderivations of the T-STO
+typing rule, we know that $E : g : Group$ and $F : g : Group$ so we
+can apply the induction hypothesis to ensure $E'$ and $F'$ are well
+typed. By then applying T-STO, we know that $P'$ is well-typed.
+
+\case{BNil}:
+
+\noindent If the last rule in the derivation is BNil, then we know
 from the form of the rule that $P$ must be the process term $\Omega$
 and $t$ must be the type $Bouncer$.  From the semantics, there are no
 transitions for $\Omega$ so there is nothing to prove.
+
+\case{BRec}:
+
+\noindent If the last rule in the derivation is BRec, then we know
+from the form of the rule that $P$ must be the process term $\mu X.B$
+and $t$ must be the type $Bouncer$.  From the $Rec$ rule of the
+semantics, $\mu X.B$ has a transition to $B'\{\mu X.B/X\}$ for any
+transition $\gamma$ which can be performed by $B$.  In each case, $P'
+= B'\{\mu X.B/X\}$ so we need to show that this is well-typed.  From
+the subderivations of the T-Rec typing rule, we know that $B :
+Bouncer$ so we can apply the induction hypothesis to obtain $B' :
+Bouncer$.  We know from our previous lemma in the T-Rec case that the
+well-typedness of $B'$ is preserved when the substitution ($\{\mu
+X.B/X\}$ is performed, so $P'$ is well-typed.
+
+\case{BIn}:
+
+\noindent If the last rule in the derivation is BIn, then we know from
+the form of the rule that $P$ must be the process term $\bin.B$ and
+$t$ must be the type $Bouncer$.  From the semantics, there are two
+subcases:
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is $E$.  From the
+subderivations of the BIn typing rule, we know that $B : Bouncer$ so
+$P' : Bouncer$.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' = \bin.E$ which is the same
+as $P$ so our proposition is satisfied.
+
+\case{BOut}:
+
+\noindent If the last rule in the derivation is BOut, then we know from
+the form of the rule that $P$ must be the process term $\bout.B$ and
+$t$ must be the type $Bouncer$.  From the semantics, there are two
+subcases:
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is $E$.  From the
+subderivations of the BOut typing rule, we know that $B : Bouncer$ so
+$P' : Bouncer$.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' = \bout.E$ which is the same
+as $P$ so our proposition is satisfied.
+
+\case{BOpen}:
+
+\noindent If the last rule in the derivation is BOpen, then we know from
+the form of the rule that $P$ must be the process term $\bopen.B$ and
+$t$ must be the type $Bouncer$.  From the semantics, there are two
+subcases:
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is $E$.  From the
+subderivations of the BOpen typing rule, we know that $B : Bouncer$ so
+$P' : Bouncer$.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' = \bopen.E$ which is the
+same as $P$ so our proposition is satisfied.
+
+\case{BSum}:
+
+\noindent If the last rule in the derivation is BSum, then we know
+from the form of the rule that $P$ must be the process term $B + B'$
+and $t$ must be the type $Bouncer$.  From the semantics, there are two
+subcases:
+
+\subcase{Sum1}:
+
+\noindent The $Sum1$ rule from the semantics provides the transition
+$E + F \derives{\kappa} E'$, so $P'$ is $E'$.  From the
+subderivations of the BSum typing rule, we know that $B : Bouncer$
+so we can apply the induction hypothesis to obtain $P' : Bouncer$.
+
+\subcase{Sum2}:
+
+\noindent From the $Sum2$ rule of the semantics, $E + F$ has a
+transition $E + F \derives{\sigma} E' + F'$ for each clock $\sigma$ in
+$\timers$.  In each case, $P' = B'' + B'''$.  From the subderivations
+of the BSum typing rule, we know that $B : Bouncer$ and $B' : Bouncer$
+and by applying the induction hypothesis, we know both $B''$ and
+$B'''$ are well typed.  As a result, we can apply BSum to give $P' :
+Bouncer$.
+
+\case{T-Environ}:
+
+\noindent If the last rule in the derivation is Environ, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{m}{E}{B}{\vec{\sigma}}$ and $t$ must be the type $g : Group$.
+From the semantics, there are three subcases:
+
+\subcase{LHd1}:
+
+\noindent From the $LHd1$ rule of the semantics,
+$\locv{m}{E}{B}{\vec{\sigma}}$ has a transition
+$\locv{m}{E}{B}{\vec{\sigma}} \derives{\tau}
+\locv{m}{E'}{B}{\vec{\sigma}}$ as long as $E \derives{\sigma} E'$ and
+$\sigma \in \vec{\sigma}$.  So, $P' = \locv{m}{E'}{B}{\vec{\sigma}}$.
+From the subderivations of the T-Environ typing rule, we know that $E
+: g : Group$ and, by the induction hypothesis, $E'$ is also
+well-typed.  By then applying T-Environ to the well-typed terms $E'$
+and $B$, we can see that $P'$ is well-typed.
+
+\subcase{LHd2}:
+
+\noindent From the $LHd2$ rule of the semantics,
+$\locv{m}{E}{B}{\vec{\sigma}}$ has a transition
+$\locv{m}{E}{B}{\vec{\sigma}} \derives{h}
+\locv{m}{E'}{B}{\vec{\sigma}}$.  So, $P' =
+\locv{m}{E'}{B}{\vec{\sigma}}$.  From the subderivations of the
+T-Environ typing rule, we know that $E : g : Group$ and, by the
+induction hypothesis, $E'$ is also well-typed.  By then applying
+T-Environ to the well-typed terms $E'$ and $B$, we can see that $P'$
+is well-typed.
+
+\subcase{LHd3}:
+
+\noindent From the $LHd3$ rule of the semantics,
+$\locv{m}{E}{B}{\vec{\sigma}}$ has a transition
+$\locv{m}{E}{B}{\vec{\sigma}} \derives{\rho}
+\locv{m}{E'}{B}{\vec{\sigma}}$ for each clock $\rho$ in $\timers$ as
+long as $\rho \not \in \vec{\sigma}$ and $E \nderives{\sigma}$ where
+$\sigma \in \vec{\sigma}$.  In each case, $P' =
+\locv{m}{E'}{B}{\vec{\sigma}}$.  From the subderivations of the
+T-Environ typing rule, we know that $E : g : Group$ and, by the
+induction hypothesis, $E'$ is also well-typed.  By then applying
+T-Environ to the well-typed terms $E'$ and $B$, we can see that $P'$
+is well-typed.
+
+\case{T-EnvIn}:
+
+\noindent If the last rule in the derivation is EnvIn, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\tntin{m}.E}{B}{\vec{\sigma}}$ and $t$ must be the type $g :
+  Group$.  From the semantics, there are two subcases:
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is
+$\locv{n}{E}{B}{\vec{\sigma}}$.  From the subderivations of the
+T-EnvIn typing rule, we know that $E : g : Group$ so by the T-Environ
+rule $P'$ is well-typed.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' =
+\locv{n}{\tntin{m}.E}{B}{\vec{\sigma}}$ which is the same as $P$ and
+thus well-typed.
+
+\case{T-EnvOut}:
+
+\noindent If the last rule in the derivation is EnvOut, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\locv{m}{\locv{k}{\tntin{m}.E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}}{B_3}{\vec{\gamma}}$
+and $t$ must be the type $g : Group$.  From the semantics, there are
+two subcases:
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is
+$\locv{n}{\locv{m}{\locv{k}{E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}}{B_3}{\vec{\gamma}}$.
+From the subderivations of the T-EnvOut typing rule, we know that $E : g
+: Group$ so by multiple application of the T-Environ rule $P'$ is
+well-typed.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' =
+\locv{n}{\locv{m}{\locv{k}{\tntin{m}.E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}}{B_3}{\vec{\gamma}}$
+which is the same as $P$ and thus well-typed.
+
+\case{T-Open}:
+
+\noindent If the last rule in the derivation is Open, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\tntopen{m}.E \pc
+  \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$ and $t$ must be
+the type $g : Group$.  For the case of $F$, we use the induction
+hypothesis to retain well-typedness.  For $\tntopen{m}.E$, there are
+three subcases in the semantics:
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is $\locv{n}{E \pc
+  \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$.  From the
+subderivations of the T-Open typing rule, we know that $E : g : Group$
+so by application of the T-Par and T-Environ rules $P'$ is well-typed.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' = \locv{n}{\tntopen{m}.E \pc
+  \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$ which is the same
+as $P$ and thus well-typed.
+
+\subcase{Open}:
+
+\noindent The $Open$ rule from the semantics allows $P
+\derives{\topen} P'$, so $P' = \locv{n}{E \pc F}{B_2}{\vec{\rho}}$.
+From the subderivations of the T-Open typing rule, we know that $E : g
+: Group$ and $F : g : Group$ so by application of the T-Par rule $P'$
+is well-typed.
+
+\case{T-ProcIn}:
+
+\noindent If the last rule in the derivation is ProcIn, then we know
+from the form of the rule that $P$ must be the process term $a.E \pc
+\procin{a}{m}.F$ and $t$ must be the type $g \otimes g': Group$.
+There are five subcases in the semantics, two of which we have already
+proved for the case T-Act; for $a.E$, we know that it can progress by
+the $Act$ or $Patient$ rule and still be typeable, and in these cases
+$P'$ is also well-typed via the T-Par rule.
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is $a.E \pc F$.  From the
+subderivations of the T-ProcIn typing rule, we know that $F : g : Group$
+so by application of the T-Par rule $P'$ is well-typed.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' = a.E \pc \procin{a}{m}.F$
+which is the same as $P$ and thus well-typed.
+
+\subcase{ProcIn}:
+
+\noindent The $ProcIn$ rule from the semantics allows $P
+\derives{\tin} P'$, so $P' = \locv{m}{E}{B}{\vec{\sigma}} \pc F$.
+From the subderivations of the T-ProcIn typing rule, we know that $E :
+g : Group$ and $F : g : Group$ so by application of the T-Environ and
+T-Par rules $P'$ is well-typed.
+
+\case{T-ProcOut}:
+
+\noindent If the last rule in the derivation is ProcOut, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\locv{m}{a.E \pc
+    \procout{a}{m}.F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$ and $t$
+must be the type $g \otimes g': Group$.  There are five subcases in
+the semantics, two of which we have already proved for the case T-Act;
+for $a.E$, we know that it can progress by the $Act$ or $Patient$ rule
+and still be typeable, and in these cases $P'$ is also well-typed via
+the T-Par and T-Environ rules.
+
+\subcase{Cap1}:
+
+\noindent The $Cap1$ rule from the semantics provides the transition
+$\ambop.E \derives{\ambop} E$, so $P'$ is $\locv{n}{\locv{m}{a.E \pc
+    F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$.  From the subderivations
+of the T-ProcIn typing rule, we know that $F : g : Group$ so by
+application of the T-Par and T-Environ rules $P'$ is well-typed.
+
+\subcase{Cap2}:
+
+\noindent From the $Cap2$ rule of the semantics, $\ambop.E$ has a
+transition $\ambop.E \derives{\sigma} \ambop.E$ for each clock
+$\sigma$ in $\timers$.  In each case, $P' = \locv{n}{\locv{m}{a.E \pc
+    \procout{a}{m}.F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} = P$ and is
+thus well-typed.
+
+\subcase{ProcIn}:
+
+\noindent The $ProcOut$ rule from the semantics allows $P
+\derives{\tout} P'$, so $P' = \locv{n}{a.E \pc
+  \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$.  From the
+subderivations of the T-ProcOut typing rule, we know that $E : g :
+Group$ and $F : g : Group$ so by application of the T-Environ and
+T-Par rules $P'$ is well-typed.
 
 \end{proof}
 
