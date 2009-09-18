@@ -332,19 +332,20 @@ G \mathrel{::=} & \quad g \mid G \oplus G \mid G \otimes G \\
 \end{aligned}
 \end{equation*}
 
-The rule $T-Env$ states that if $\xi$ of type $T$ is a member of
+The rule T-Env states that if $\xi$ of type $T$ is a member of
 $\Gamma$, then a typing derivation $\vdash \xi : T$ may be made in the
 context of $\Gamma$.  This forms the basis of all later rules.  Notice
 that our system is naturally polymorphic; $\nil$, $\Delta$ and
 $\Delta_\sigma$ can have any group type $g$.  In contrast, $\Omega$
-can only be typed as a $Bouncer$ (Table \ref{tab:botypes}), and $X$
-can take any type prior to being bound, thus distinguishing them from
-the behaviourally equivalent process, $\Delta$.
+can only be typed as a $Bouncer$ (Table \ref{tab:botypes}), and any
+variable $X$ can take any type prior to being bound, thus
+distinguishing them from the behaviourally equivalent process,
+$\Delta$.
 
 The remaining rules in Table \ref{tab:basictypes} allow types to be
 applied in accordance with the various operators present in the
-calculus.  When handling the binary operators, we use the rules $T-Sum$
-and $T-Par$ to construct appropriate composite types that maintain the
+calculus.  When handling the binary operators, we use the rules T-Sum
+and T-Par to construct appropriate composite types that maintain the
 groups used on either side.  The rules for timeouts (Table
 \ref{tab:totypes}) follow much the same design as the rules for the
 summation operator.
@@ -832,9 +833,9 @@ by the bouncers; the chair bouncer $CB = \mu X.(\bin .\bout .X +
 another may enter it, but it does not say anything about \emph{which}
 processes can occupy the chair in the first place.  In the untyped
 version, it is perfectly possible for a rogue process to enter a chair
-and not leave.  If that process does not leave and is the only
-inhabitant (which will be the case, given that the chairs are
-initially empty), it can prevent a chair from being used properly.
+and not leave.  If that process is the only inhabitant (which will be
+the case, given that the chairs are initially empty), it can prevent a
+chair from being used properly.
 
 We can see this by considering a simplified version of the full
 musical chairs system, concentrating solely on the movement of the
@@ -859,7 +860,7 @@ that the type of $\nil$ in $sit.\nil$ must be at least $(\{chair\},
 
 The process $MP$ as a whole has a type $g \oplus g'$ (from $STO$),
 where $g$ corresponds to $sit.\nil$ and thus has to meet the
-requirement $chair \in \Enters{g}$.  With $\oplus$, $\Enters{g \oplus
+requirement $chair \in \Enters{g}$.  The constraint $\Enters{g \oplus
   g'}$ is satisfied if only one of the two groups meets the
 constraints; thus having $g$ do so is enough.  The $GM4$ process has a
 type of the same form, $g'' \oplus g'''$, again due to the stable
@@ -911,16 +912,16 @@ is then assigned to an instance of \texttt{Nil} prefixed by the name
 instances according to the typing rules and will eventually be checked
 to ensure that \texttt{``chair''} is a member of both the
 $\mathscr{R}$ and $\mathscr{E}$ sets when the \texttt{ProcIn} instance
-is reached.  The group instance above will pass this type check.  Was
+is reached.  The group instance above will pass this type check.  Were
 one of the arguments to be replaced with \texttt{null}, then it would
 fail with a \texttt{UntypeableProcessException}.
 
 \section{Conclusion}
 
-In this chapter, we considered a number of type systems from the
+In this chapter, we have considered a number of type systems from the
 literature, including the use of sorts for typing communication (see
 \ref{sorts}) and the use of groups to restrict ambient movement (see
-\ref{ambienttypes}).  We then adapted the later to create a type
+\ref{ambienttypes}).  We then adapted the latter to create a type
 system for Nomadic Time, resulting in the typed variant Typed Nomadic
 Time or TNT (see \ref{typesys}). Finally, we showed how DynamiTE could
 be modified to support this (see \ref{dyn:type}).  To conclude, we
