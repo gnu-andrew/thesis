@@ -5,7 +5,8 @@ If a well-typed term takes a step of evaluation, then the resulting
 term is also well-typed.
 
 \begin{theorem}
-If $\Gamma \vdash P : t : T$ and $P \derives{} P'$, then $\Gamma \vdash (\exists t' : T) P' : t'$
+If $\Gamma \vdash P : t : T$ and $P \derives{} P'$, then there exists
+$t' : T$ such that $\Gamma \vdash P' : t'$.
 \end{theorem}
 
 \begin{proof}

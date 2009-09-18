@@ -1197,7 +1197,7 @@ public class Out
 \end{verbatim}
 
 The \texttt{perform()} method first retrieves the data from the
-\texttt{``o''} repository, where it should have been placed earlier by
+\verb!"o"! repository, where it should have been placed earlier by
 the $o$ action.  If it is successfully, the data is played out on the
 speakers.  In the unlikely case that something went wrong, and the
 expected data is not held in the repository, we throw an error.
@@ -1231,12 +1231,12 @@ public class In
 
 This time we allow the use of the retrieved value by the file routines
 throw up any issues.  If this is the first time the $\tau$ action is
-encountered, then the filename is retrieved from the \texttt{``i''}
+encountered, then the filename is retrieved from the \verb!"i"!
 repository where it was stored by the earlier $i$ action and an
 \texttt{InputStream} created so that data may be read from the file.
 After this, and on each subsequent invocation, data is read from the
 stream, processed and store in a \texttt{byte} array in the
-\texttt{``o''} repository.
+\verb!"o"! repository.
 
 Now we have our silent actions, we can construct our processes:
 
