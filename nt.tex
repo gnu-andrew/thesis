@@ -782,6 +782,25 @@ $E \derives{\sigma}$ implies $E \nderives{h}$
 \end{enumerate}
 \end{proposition}
 
+These properties can be observed directly from the rules.  The
+transition $E \derives{\sigma}$ is produced by the rules $Idle$,
+$Patient$ and $Cap2$, and retained over summation ($Sum2$), parallel
+composition ($Par3$), timeouts ($FTO1$, $FTO2$, $STO1$ and $STO3$),
+recursion ($Rec$), restriction ($Res$) and environs ($LHd3$) where $E
+\nderives{h}$.  The rule $LHd1$ provides the conversion of ticks
+emitted by the hidden clocks to silent actions: if $E$ can perform a
+$\sigma$ transition, then it performs a $\tau$ transition in any
+context where $\sigma$ is hidden.  As $\tau$ is one of the possible
+values of $h$, the presence of transitions for the clocks being hidden
+prevent transitions being created for those that are not hidden in
+$LHd3$.  The property is implicit for summation, recursion and
+restriction as if the composed processes can perform a $\sigma$
+transition, then it must not be blocked by a $h$ transition.  The
+presence of time determinancy is obvious from the $Idle$, $Patient$
+and $Cap2$ rules which generate $\sigma$ transitions as the process
+($\nil$, $\alpha.E$ or $\ambop.E$) remains unchanged as a result of
+performing $\derives{\sigma}$.
+
 $Par2$ encapsulates synchronisation; when one of the processes can
 perform an action and the other can perform the matching co-action, a
 silent action is performed and both evolve.  $FTO1$ and $STO1$ are
@@ -798,15 +817,11 @@ timeout, due to an action performed by $E$.
 
 Recursion is provided by $Rec$, which performs substitution of $X$ for
 the body of the recursion as soon as any transition, $\gamma$, occurs.
-The $Res$ rule defines restriction, which disallows any transitions for
-the given name.  Rule $LHd1$ provides the conversion of ticks emitted by
-the hidden clocks to silent actions: if $E$ can perform a $\sigma$
-transition, then it performs a $\tau$ transition in any context where
-$\sigma$ is hidden.  Also included in the table is the rule $SCong$,
+The $Res$ rule defines restriction, which disallows any transitions
+for the given name.  Also included in the table is the rule $SCong$,
 which links the structural congruence rules to the labelled transition
-system, and rules which allow the mobility prefix, $\ambop$, to evolve,
-thus completing the semantics for expressions.
-
+system, and rules which allow the mobility prefix, $\ambop$, to
+evolve, thus completing the semantics for expressions.
 
 The remaining semantics in Table \ref{tab:mobsubset} focus on
 mobility.  $InEnv$ allows a $\tin$ transition to occur and $n$ to move

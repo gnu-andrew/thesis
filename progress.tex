@@ -1,0 +1,224 @@
+\chapter{Progress}
+
+A well-typed term is not stuck.  It can either take a step according
+to the operational semantics or is $\Delta$ or $X$.
+
+\begin{theorem}
+If $\Gamma \vdash P : t : T$ then either $P \derives{} P'$, $P =
+\Delta$, $P = \Omega$ or $P = X$.
+\end{theorem}
+
+\begin{proof}
+By induction on a derivation of $P:t$.  At each step, we assume that
+the desired property holds for all subderivations and proceed by case
+analysis on the final rule in the derivation.  We assume that
+$\timers$ is non-empty; if instead $\timers = \emptyset$ then
+$\Delta_\sigma$ and $\nil$ are equivalent to $\Delta$ and are possible
+values for $P$.
+
+\case{T-Nil}:
+
+\noindent If the last rule in the derivation is T-Nil, then we know
+from the form of the rule that $P$ must be the process term $\nil$.
+From the $Idle$ rule in the semantics, $\nil$ has a transition for
+each clock $\sigma \in \timers$ and so is not stuck.
+
+\case{T-Stop}:
+
+\noindent If the last rule in the derivation is T-Stop, then we know
+from the form of the rule that $P$ must be the term $\Delta$.
+
+\case{T-Stall}:
+
+\noindent If the last rule in the derivation is T-Stall, then we know
+from the form of the rule that $P$ must be the process term
+$\Delta_\sigma$.  From the $Stall$ rule in the operational semantics,
+$\Delta_\sigma$ has a transition for each clock $\rho$ where $\rho \ne
+\sigma$ and so is not stuck.
+
+\case{T-Var}:
+
+\noindent If the last rule in the derivation is T-Var, then we know
+from the form of the rule that $P$ must be the process term $X$.
+
+\case{T-Act}:
+
+\noindent If the last rule in the derivation is T-Act, then we know
+from the form of the rule that $P$ must be the process term
+$\alpha.E$.  The operational semantics provide two rules, $Act$ and
+$Patient$, so that $\alpha.E$ has a transition $\alpha.E
+\derives{\alpha} E$ and additional transitions $\alpha.E
+\derives{\sigma} \alpha.E$ for each clock $\sigma \in \timers$.  So
+the term is not stuck.
+
+\case{T-Rec}:
+
+\noindent If the last rule in the derivation is T-Rec, then we know
+from the form of the rule that $P$ must be the process term $\mu X.E$.
+From the rule $Rec$ in the operational semantics, $\mu X.E$ has a
+transition $\derives{\gamma}$ for each such transition that occurs
+from $E$.  By the induction hypothesis, we know $E$ is not stuck so
+$\mu X.E$ is also not stuck as it either has the same transitions, or
+$E = \Delta$, $E = \Omega$ or $E = X$.
+
+\case{T-Res}:
+
+\noindent If the last rule in the derivation is T-Res, then we know
+from the form of the rule that $P$ must be the process term $E
+\res{a}$.  From the rule $Res$ in the semantics, $E \res{a}$ has a
+transition $\derives{\gamma}$ for each such transition from $E$, minus
+those where $\gamma = a$.  We know by the induction hypothesis that
+$E$ is not stuck.  If $E$ has transitions, then $E \res{a}$ also has
+transitions as $a$ will never match cases where $\gamma \in \timers$
+(produced by the base rules $Idle$ and $Patient$) or $\gamma \in
+\highpris$ (produced by $Par3$, $LHid1$, $InEnv$, $OutEnv$, $Open$,
+$ProcIn$ and $ProcOut$).  Otherwise, $E = \Delta$, $E = \Omega$ or $E
+= X$.  In either case, $E \res{a}$ is not stuck.
+
+\case{T-Sum}:
+
+\noindent If the last rule in the derivation is T-Sum, then we know
+from the form of the rule that $P$ must be the process term $E + F$.
+By the induction hypothesis, neither $E$ or $F$ are stuck and the
+rules $Sum1$ and $Sum2$ cause any transitions from the composed
+processes to also hold for $E + F$.  Thus either $E + F$ has
+transitions, or both $E$ and $F$ are one of $\Omega$, $X$ or $\Delta$.
+For both, $E + F$ is not stuck.
+
+\case{T-Par}:
+
+\noindent If the last rule in the derivation is T-Par, then we know
+from the form of the rule that $P$ must be the process term $E \pc F$.
+The same logic applies as for the summation case using the rules
+$Par1$ and $Par2$.  Using the rules $Par3$, $InEnv$, $OutEnv$, $Open$,
+$ProcIn$ and $ProcOut$, $E \pc F$ can also produce further
+transitions.  So $E \pc F$ is not stuck.
+
+\case{T-FTO}:
+
+\noindent If the last rule in the derivation is T-FTO, then we know
+from the form of the rule that $P$ must be the process term
+$\timeout{E}{\sigma}{F}$.  Again, we know $E$ and $F$ are not stuck
+from the induction hypothesis.  All transitions $\derives{\gamma}$
+produced by $E$ hold for $\timeout{E}{\sigma}{F}$ with the exception
+of the case where $\gamma = \sigma$.  In this case, there is a
+transition $\timeout{E}{\sigma}{F} \derives{\sigma} F$.  If $E = X$ or
+$E = \Delta$, then the transition $\timeout{E}{\sigma}{F}
+\derives{\sigma} F$ is still present, as $E$ has no transitions and
+thus $E \nderives{h}$.  Therefore, $\timeout{E}{\sigma}{F}$ is not
+stuck as it always has transitions.
+
+\case{T-STO}:
+
+\noindent If the last rule in the derivation is T-STO, then we know
+from the form of the rule that $P$ must be the process term
+$\stimeout{E}{\sigma}{F}$.  The proof here is the same as for T-FTO,
+the only difference between the two being that $FTO2$ is split into
+the two rules $STO2$ and $STO3$, so that the timeout is preserved for
+$\derives{\rho}$ where $\rho \ne \sigma$.
+
+\case{BNil}:
+
+\noindent If the last rule in the derivation is BNil, then we know
+from the form of the rule that $P$ must be the process term $\Omega$.
+
+\case{BRec}:
+
+\noindent If the last rule in the derivation is BRec, then we know
+from the form of the rule that $P$ must be the process term $\mu X.B$
+and the same proof holds as for T-Rec using the $Rec$ rule from the
+operational semantics.
+
+\case{BIn}:
+
+\noindent If the last rule in the derivation is BIn, then we know from
+the form of the rule that $P$ must be the process term $\bin.B$.  The
+operational semantics provide two rules, $Cap1$ and $Cap2$, so that
+$\ambop.E$ has a transition $\ambop.E \derives{\ambop} E$ and
+additional transitions $\ambop.E \derives{\sigma} \ambop.E$ for each
+clock $\sigma \in \timers$.  So the term is not stuck.
+
+\case{BOut}:
+
+\noindent If the last rule in the derivation is BOut, then we know
+from the form of the rule that $P$ must be the process term $\bout.B$.
+The same proof applies as for BIn.
+
+\case{BOpen}:
+
+\noindent If the last rule in the derivation is BOpen, then we know
+from the form of the rule that $P$ must be the process term
+$\bopen.B$.  The same proof applies as for BOpen.
+
+\case{BSum}:
+
+\noindent If the last rule in the derivation is BSum, then we know
+from the form of the rule that $P$ must be the process term $B + B'$.
+The same proof applies as for T-Sum, using the operational semantics
+rule $Sum$.
+
+\case{T-Environ}:
+
+\noindent If the last rule in the derivation is Environ, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{m}{E}{B}{\vec{\sigma}}$.  The operational semantics provide
+three rules, $LHd1$, $LHd2$ and $LHd3$, so that
+$\locv{m}{E}{B}{\vec{\sigma}}$ has a transition
+$\locv{m}{E}{B}{\vec{\sigma}} \derives{h} E$ for each transition
+$\derives{h}$ produced by $E$ and additional transitions $\ambop.E
+\derives{\rho} \ambop.E$ for each clock $\rho \in \timers$ where $rho
+\not \in \vec{\sigma}$.  Any transitions $E \derives{\sigma} E'$,
+where $\sigma \in \vec{\sigma}$ convert to transitions of the form
+$\locv{m}{E}{B}{\vec{\sigma}} \derives{\tau}
+\locv{m}{E'}{B}{\vec{\sigma}}$.  Transitions produced by the rules
+$Act$ and $Cap1$ are not propogated, but the assumed presence of
+clocks means that at least one transition will always apply to
+$\locv{m}{E}{B}{\vec{\sigma}}$, so the term is not stuck.
+
+\case{T-EnvIn}:
+
+\noindent If the last rule in the derivation is T-EnvIn, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\tntin{m}.E}{B}{\vec{\sigma}}$.  As with the cases BIn, BOut
+and BOpen, transitions arise from the rules $Cap1$ and $Cap2$, so the
+term is not stuck.
+
+\case{T-EnvOut}:
+
+\noindent If the last rule in the derivation is T-EnvOut, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\locv{m}{\locv{k}{\tntin{m}.E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}}{B_3}{\vec{\gamma}}$.
+The proof is the same as for T-EnvIn, BIn, BOut and BOpen.
+
+\case{T-Open}:
+
+\noindent If the last rule in the derivation is T-Open, then we know
+from the form of the rule that $P$ must be the process term
+$\locv{n}{\tntopen{m}.E \pc
+  \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$.  The same proof
+applies as for T-EnvIn and T-EnvOut, with the addition of the
+transition $P \derives{\topen} \locv{n}{E \pc F}{B_2}{\vec{\rho}}$
+resulting from the $Open$ rule which causes the environ $m$ to be
+destroyed.
+
+\case{T-ProcIn}:
+
+\noindent If the last rule in the derivation is ProcIn, then we know
+from the form of the rule that $P$ must be the process term $a.E \pc
+\procin{a}{m}.F$.  In a similar manner to T-Open, transitions are
+produced by the $Cap1$ and $Cap2$ rules in addition to the possibility
+of process movement arising from the $ProcIn$ rule, $P \derives{\tin}
+\locv{m}{E}{B}{\vec{\sigma}} \pc F$ so $P$ is not stuck.
+
+\case{T-ProcOut}:
+
+\noindent If the last rule in the derivation is T-ProcOut, then we
+know from the form of the rule that $P$ must be the process term
+$\locv{n}{\locv{m}{a.E \pc
+    \procout{a}{m}.F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$.  As with
+T-ProcIn, transitions are produced by $Cap1$ and $Cap2$ rules in
+addition to the possibility of process movement arising from the
+$ProcOut$ rules, $P \derives{\tout} \locv{n}{a.E \pc
+  \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$, so $P$ is not stuck.
+
+\end{proof}

@@ -1,4 +1,4 @@
-\chapter{Type Preservation}
+\chapter{Preservation}
 
 If a well-typed term takes a step of evaluation, then the resulting
 term is also well-typed.
@@ -471,7 +471,7 @@ is well-typed.
 
 \case{T-EnvIn}:
 
-\noindent If the last rule in the derivation is EnvIn, then we know
+\noindent If the last rule in the derivation is T-EnvIn, then we know
 from the form of the rule that $P$ must be the process term
 $\locv{n}{\tntin{m}.E}{B}{\vec{\sigma}}$ and $t$ must be the type $g :
   Group$.  From the semantics, there are two subcases:
@@ -494,7 +494,7 @@ thus well-typed.
 
 \case{T-EnvOut}:
 
-\noindent If the last rule in the derivation is EnvOut, then we know
+\noindent If the last rule in the derivation is T-EnvOut, then we know
 from the form of the rule that $P$ must be the process term
 $\locv{n}{\locv{m}{\locv{k}{\tntin{m}.E}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}}{B_3}{\vec{\gamma}}$
 and $t$ must be the type $g : Group$.  From the semantics, there are
@@ -519,7 +519,7 @@ which is the same as $P$ and thus well-typed.
 
 \case{T-Open}:
 
-\noindent If the last rule in the derivation is Open, then we know
+\noindent If the last rule in the derivation is T-Open, then we know
 from the form of the rule that $P$ must be the process term
 $\locv{n}{\tntopen{m}.E \pc
   \locv{m}{F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$ and $t$ must be
@@ -553,7 +553,7 @@ is well-typed.
 
 \case{T-ProcIn}:
 
-\noindent If the last rule in the derivation is ProcIn, then we know
+\noindent If the last rule in the derivation is T-ProcIn, then we know
 from the form of the rule that $P$ must be the process term $a.E \pc
 \procin{a}{m}.F$ and $t$ must be the type $g \otimes g': Group$.
 There are five subcases in the semantics, two of which we have already
@@ -585,7 +585,7 @@ T-Par rules $P'$ is well-typed.
 
 \case{T-ProcOut}:
 
-\noindent If the last rule in the derivation is ProcOut, then we know
+\noindent If the last rule in the derivation is T-ProcOut, then we know
 from the form of the rule that $P$ must be the process term
 $\locv{n}{\locv{m}{a.E \pc
     \procout{a}{m}.F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}}$ and $t$
@@ -611,7 +611,7 @@ $\sigma$ in $\timers$.  In each case, $P' = \locv{n}{\locv{m}{a.E \pc
     \procout{a}{m}.F}{B_1}{\vec{\sigma}}}{B_2}{\vec{\rho}} = P$ and is
 thus well-typed.
 
-\subcase{ProcIn}:
+\subcase{ProcOut}:
 
 \noindent The $ProcOut$ rule from the semantics allows $P
 \derives{\tout} P'$, so $P' = \locv{n}{a.E \pc
