@@ -618,6 +618,18 @@ rules, the types are identical on both sides.
   \shrule
 \end{table}
 
+Our type system also exhibits the standard properties of \emph{type safety}:
+
+\begin{enumerate}
+\item \emph{Progress}: A well-typed term is not stuck.  It can either
+  take a step according to the operational semantics or is one of
+  $\Delta$, $\Omega$ or $X$.
+\item \emph{Preservation}: If a well-typed term takes a step of
+  evaluation, then the resulting term is also well-typed.
+\end{enumerate}
+
+\noindent Proofs of these are given in appendicies \ref{progress} and \ref{preservation} respectively.
+
 \section{DynamiTE and the Type System}
 \label{dyn:type}
 
