@@ -368,7 +368,7 @@ to acquire the mutex before reaching the required \texttt{up(full)}
 call and so are left waiting forever.
 
 By far the biggest issue with these kind of problems is
-reproducability.  Just as with the race conditions they are trying to
+reproducibility.  Just as with the race conditions they are trying to
 avoid, bugs relating to semaphores may not always manifest themselves.
 The example above is very likely to result in deadlock, as it just
 requires the \texttt{consume} function to be called when the buffer is
@@ -757,14 +757,14 @@ view of a software developer wanting an implementation with the
 benefits of a theoretical basis, rather than as a process algebraist
 looking to write code in their favourite calculus.
 
-To this end, we base our framework on our own calculus, which is
-compromised of what we believe to be some of the best of the existing
-ideas present in the literature.  We believe our particular
-combination to be novel, as are the way in which some features are
-presented, in particular the notion of `bouncers'; its formation and
-use is discussed at length in chapters \ref{nt} and \ref{tnt}.
-However, our primary aim is not to provide a vastly superior calculus,
-but one which best suits its position at the core of our framework.
+To this end, we base our framework on our own calculus, which
+comprises what we believe to be some of the best of the existing ideas
+present in the literature.  We believe our particular combination to
+be novel, as are the way in which some features are presented, in
+particular the notion of `bouncers'; its formation and use is
+discussed at length in chapters \ref{nt} and \ref{tnt}.  However, our
+primary aim is not to provide a vastly superior calculus, but one
+which best suits its position at the core of our framework.
 
 \subsection{A Prototypical Application}
 \label{app:req}
@@ -807,12 +807,12 @@ instead split the application up by task as follows:
 \begin{itemize}
 \item The \texttt{Inputter} receives a file name as input, and
   produces a stream of wave data from it as output.
-\item The \texttt{Outputter} recieves a stream of wave data as input
+\item The \texttt{Outputter} receives a stream of wave data as input
   and produces output via the speakers.
 \item The \texttt{Visualiser} receives a stream of wave data as input
   and produces a graphical display as output.
 \item The \texttt{Interface} receives input from the user and uses
-  this to provide input to and control the ohter components.
+  this to provide input to and control the other components.
 \end{itemize}
 
 In later chapters, we will demonstrate how these components can be
