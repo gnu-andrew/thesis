@@ -10,13 +10,13 @@
 In this chapter, we cover a number of process calculi that incorporate
 abstract time.  The notion of `time' is generally associated with
 concrete real values, in units such as minutes and seconds.  Real-time
-process calculi, such as those described in \cite{aceto:timing,
-  beaten:timing, brics:lee, lee:realtime, tccs, satoh:phd,
-  satoh:distrib}, attempt to model this.  Instead, this section
-focuses on calculi that use \emph{clocks} to provide global
-synchronisation, as introduced in \ref{ccslimit}.  While \emph{local
-  synchronisation} occurs between two processes, the global form
-synchronises any number of processes using a clock signal.
+process calculi, such as those described in
+\cite{tccs,satoh:distrib,aceto:timing,satoh:phd,beaten:timing,lee:realtime,brics:lee},
+attempt to model this.  Instead, this section focuses on calculi that
+use \emph{clocks} to provide global synchronisation, as introduced in
+\ref{ccslimit}.  While \emph{local synchronisation} occurs between two
+processes, the global form synchronises any number of processes using
+a clock signal.
 
 Our central focus here is on CaSE (\ref{case}) which we extend to
 create our own calculus in chapter \ref{nt}.  However, we first turn
@@ -36,19 +36,35 @@ action (which represents the clock signal) occurs.
 
 This is of little use unless the actions of the processes can actually
 depend on the behaviour of the clock.  The two are related via the
-addition of a timeout operator.  This takes the form
+addition of a \emph{timeout} operator.  This takes the form
 
 \begin{equation}
-\timeout{E}{\sigma}{F}
+\tpltimeout{E}{F}
 \end{equation}
 
-\noindent where $E$ and $F$ are processes and $\sigma$ is the clock.  In
-short, $F$ acts if $E$ \emph{times out} on the clock, $\sigma$.  This is
-similar to non-deterministic choice, in that only one of the two
-processes will ever act and the behaviour of the other is lost.  Here,
-however, the choice is determined by the clock (and thus effectively by
-the other processes, as it is their behaviour which controls when the
-clock will tick).
+\noindent where $E$ and $F$ are processes.  A process of this form can
+either follow a transition from the process $E$, leaving only the
+continuation of $E$, or perform a $\sigma$ transition to become $F$.
+In short, $F$ acts if $E$ \emph{times out} on the clock, $\sigma$.
+This is similar to non-deterministic choice, in that we lose either
+$E$ or $F$ as the result of performing a transition.
+
+Here, however, the choice is determined by the clock, and thus
+effectively by the other processes, as it is their behaviour which
+controls when the clock will tick.  If $E$ can perform a silent action
+($\tau$), then the clock $\sigma$ will be prevented from ticking by
+maximal progress, forcing one of $E$'s transitions to be taken.  For
+example, $\tpltimeout{\tau.E^\prime}{F}$ has only one transition
+$\derives{\tau}$ which leads to the state $E^\prime$.  If, however, we
+replace $\tau.E^\prime$ with $\nil$ to give
+$\tpltimeout{\nil}{F}$, we have two possibilities:
+
+\begin{enumerate}
+\item $\tpltimeout{\nil}{F} \derives{\sigma} \nil$
+\item $\tpltimeout{\nil}{F} \derives{\sigma} F$
+\end{enumerate}
+
+\noindent as both $\nil$ and the timeout produce $\sigma$ transitions.
 
 With these additions, the problem of defining a suitable compositional
 broadcast agent, as mentioned in \ref{ccslimit}, can be solved.
@@ -59,7 +75,7 @@ recognition of the point when no more synchronisations may occur.
 This can be added to the earlier recursive solution
 
 \begin{equation}
-\mu X.\timeout{\overline{o}.X}{\sigma}{0}\ |\ o.P\ |\ o.Q\ |\ o.R
+\mathbf{\mu X.\timeout{\overline{o}.X}{\sigma}{0}} \pc o.P \pc o.Q \pc o.R
 \end{equation}
 
 \noindent by simply adding a timeout which stops the recursion.  This

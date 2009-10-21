@@ -221,17 +221,17 @@ the motivation behind this extension.  Instead, what this provides is
 a more natural way of transmitting information, which makes modelling
 relatively complex systems easier.
 
-The asynchronous $\pi$ calculus \cite{boudol:asynchrony,
-  honda:asynchronouscommunication, sangiorgi:asynchronousprocesscalculi}
-  deliberately reduces the level of expressivity in order to simplify
-  reasoning and provide a better framework for distributed
-  implementations.  The output prefix, $\overline{x}y.E$ is replaced
-  with $\overline{x}y.0$, so that there is no continuation after an
-  output.  In the original synchronous $\pi$ calculus, the behaviour of
-  the continuation, $E$, is blocked until a synchronisation with a
-  recipient can occur.  This doesn't occur in the asynchronous variant,
-  as there is no longer any behaviour dependent on this output
-  occurring.
+The asynchronous $\pi$ calculus
+\cite{boudol:asynchrony,honda:asynchronouscommunication,sangiorgi:asynchronousprocesscalculi}
+deliberately reduces the level of expressivity in order to simplify
+reasoning and provide a better framework for distributed
+implementations.  The output prefix, $\overline{x}y.E$ is replaced
+with $\overline{x}y.0$, so that there is no continuation after an
+output.  In the original synchronous $\pi$ calculus, the behaviour of
+the continuation, $E$, is blocked until a synchronisation with a
+recipient can occur.  This doesn't occur in the asynchronous variant,
+as there is no longer any behaviour dependent on this output
+occurring.
 
   Synchrony can be emulated in the asynchronous polyadic $\pi$
   calculus, just as synchronous messaging frameworks, such as TCP, can
@@ -502,7 +502,7 @@ additional power given by the $\pi$ calculus makes proving
 termination.  In contrast, a sufficiently restricted form of CCS
 provides a trivial proof.  In the same paper, Sangiorgi also touches
 on something which seems common within the literature
-\cite{join,stefani:kells,wojciechowski:phd,failure2}; while the
+\cite{join,failure2,wojciechowski:phd,stefani:kells}; while the
 expressiveness of the $\pi$ calculus is interesting, it is necessary
 to restrict it in order to actually have something which is generally
 useful for reasoning over or using as the basis for a full programming
@@ -607,15 +607,16 @@ provides exactly that, by assigning locations to processes and using
 them as part of the relation between processes.
 
 Essentially, this means that each transition is annotated with a
-location name.  A variant of CCS, LCCS, adds an additional piece of
-syntax, $l::E$ to signify that a process $E$ is located at $l$.  This
-association is made within the operational semantics, of which there are
-two variants.  The \emph{static} approach allocates locations initially,
+location name.  In \cite{obslocal}, a located variant of CCS is
+defined, LCCS, which adds an additional piece of syntax, $l::E$ to
+signify that a process $E$ is located at $l$.  This association is
+made within the operational semantics, of which there are two
+variants.  The \emph{static} approach allocates locations initially,
 while the \emph{dynamic} method generates a new location for each
-non-silent transition.  Here, the focus is on the latter, shown in Table
-\ref{tab:lccssemantics}, which essentially gives each process a
-\emph{causal path}, by explicitly representing the number of transitions
-that have been performed.
+non-silent transition.  Here, the focus is on the latter, shown in
+Table \ref{tab:lccssemantics}, which essentially gives each process a
+\emph{causal path}, by explicitly representing the number of
+transitions that have been performed.
 
 \begin{table}
   \caption{LCCS Dynamic SOS Rules}
@@ -778,11 +779,14 @@ the $\tau$ transitions will be relatively unaffected, and, under a weak
 form of bisimulation, are irrelevant anyway.  Essentially, the two
 sequences being compared are:
 
-\begin{align}
-& \locderives{l}{in} \locderives{lk}{\overline{out}} \tag{Specification
-(Localised)} \\
-& \lderives{in} \lderives{\overline{out}} \tag{Implementation}
-\end{align}
+\begin{center}
+\begin{tabular}{c|c}
+Specification (Localised) & Implementation \\
+\hline
+$\locderives{l}{in} \locderives{lk}{\overline{out}}$ &
+$\lderives{in} \lderives{\overline{out}}$
+\end{tabular}
+\end{center}
 
 \noindent when the $\tau$ transitions are ignored.  To localise the
 latter of these, it is necessary to look back to the original two
@@ -1206,12 +1210,12 @@ inside $m$ and is no longer available to be destroyed by
 $\ambopen{n}.\nil$.  Clearly, only one of these reductions is likely to be
 intentional.  
 
-Levi and Sangiorgi's calculus of Mobile Safe Ambients \cite{safeamb00,
-sangiorgi:mobsafeambients} presents a solution to this.  It introduces a
-notion of co-capabilities, which enforce a pairing of mobility
-primitives before a reduction can be made.  The result of this is that
-the ambient being entered, exited or opened is aware of what is taking
-place, and may react accordingly.
+Levi and Sangiorgi's calculus of Mobile Safe Ambients
+\cite{safeamb00,sangiorgi:mobsafeambients} presents a solution to
+this.  It introduces a notion of co-capabilities, which enforce a
+pairing of mobility primitives before a reduction can be made.  The
+result of this is that the ambient being entered, exited or opened is
+aware of what is taking place, and may react accordingly.
 
 With these co-capabilities in place, the reduction rules for the
 calculus run as follows:
@@ -1320,7 +1324,7 @@ largely based on the most natural formalism for a particular task.
 \label{psystems}
 
 While providing a way of modelling concurrent spatially-oriented
-systems, P Systems \cite{membranecomp, membranehandbook} arise from
+systems, P Systems \cite{membranecomp,membranehandbook} arise from
 the area of formal language theory and re-writing rules rather than
 process calculi.  They are considered here, as there exist a number of
 similarities between them and, for example, the ambient calculus both
@@ -1493,7 +1497,7 @@ especially useful for representing the structure of real-world
 biological entities.
 
 Such modelling is becoming commonplace within the literature
- \cite{fran, cardelli:bioambients, biospi}, where concurrent models
+ \cite{fran,cardelli:bioambients,biospi}, where concurrent models
 represent an alternative to the use of ordinary differential equations
 (ODEs).  The usual approach is to create a model of the system within
 the formalism and then perform simulations.  Such simulations rely on
@@ -1622,7 +1626,7 @@ monitored.
 \section{Bigraphs}
 \label{bigraphs}
 
-Bigraphs \cite{bigraph1, bigraph2} are an attempt at providing a
+Bigraphs \cite{bigraph1,bigraph2} are an attempt at providing a
 unifying framework, able to represent both spatial relationships
 (\emph{locality}) in the style of the ambient calculus (see
 \ref{ambientcalculus}) and link-based-relationships

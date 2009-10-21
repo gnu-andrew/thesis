@@ -540,7 +540,7 @@ each receiving process?  For example, transmitting a signal to two
 processes can be written simply as
 
 \begin{equation}
-\mathbf{\overline{a}_1.\overline{a}_2.0}\ |\ a_1.P\ |\ a_2.Q
+\mathbf{\overline{o}.\overline{o}.0} \pc o.P \pc o.Q
 \end{equation}
 
 \noindent where the process on the left (in bold) forms the semantics
@@ -551,7 +551,7 @@ This will work, but what happens when the broadcast agent needs to
 transmit the signal to three processes?
 
 \begin{equation}
-\mathbf{\overline{a}_1.\overline{a}_2.\overline{a}_3.0}\ |\ a_1.P\ |\ a_2.Q\ |\ a_3.R
+\mathbf{\overline{o}.\overline{o}.\overline{o}.0} \pc o.P \pc o.Q \pc o.R
 \end{equation}
 
 \noindent The semantics of the broadcast agent have to change.  Simply
@@ -567,7 +567,7 @@ recurse, it will keep sending the output to whoever will synchronize
 with it.  Thus, the example for three inputs above becomes
 
 \begin{equation}
-\mu X.\overline{o}.X\ |\ o.P\ |\ o.Q\ |\ o.R
+\mathbf{\mu X.\overline{o}.X} \pc o.P \pc o.Q \pc o.R
 \end{equation}
 
 \noindent which works, and will continue to do so if a further

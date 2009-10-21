@@ -198,7 +198,7 @@ resource, so that a process is forced to wait its turn.
 \label{semaphores}
 
 Such access limitations can be imposed by a \emph{semaphore}, a
-solution first proposed by Dijkstra\cite{semaphore}.  A semaphore
+solution first proposed by Dijkstra \cite{semaphore}.  A semaphore
 maintains an integer count which is manipulated by two operations: \texttt{up}
 and \texttt{down}.  The count can be used to limit the number of threads of
 control active in a particular region.  In effect, this is akin to the
@@ -398,7 +398,7 @@ acquire both locks without being descheduled inbetween.
 The solution to these problems is to abstract away from such intimate
 details and allow the programmer to work at a more amenable level.
 One attempt at doing so can be seen in the use of \emph{monitors}
-\cite{mon1, mon2}.  Rather than worrying about the placement and
+\cite{mon1,mon2}.  Rather than worrying about the placement and
 sequencing of individual acquisition and release calls, the programmer
 simply denotes which sections of code must be run in mutual exclusion
 from one another.  The compiler or virtual machine (depending on
@@ -546,7 +546,7 @@ Although mainstream development has migrated from procedural programs
 to the \emph{object-oriented} paradigm, programs, once compiled, still
 tend to be monolithic entities, with generally only a single thread of
 control.  The notion of objects we see being used is not that of
-Simula\cite{simula}, where they are \emph{task-centric} units with
+Simula \cite{simula}, where they are \emph{task-centric} units with
 their own behaviour.  Instead, it is one which is much more
 \emph{data-centric}.  These objects allow data to be separated out
 into neat little bundles and stimulate reuse by allowing hierarchies
@@ -616,17 +616,18 @@ are working together rather than against each other by synchronising
 the passage of data between them.  Each is independent of the other
 and specific to its purpose.
 
-\emph{Microkernels} such as Mach\cite{mach}, MINIX 3\cite{minix3} and
-the GNU HURD\cite{hurd} also utilise this idea of synchronous
+\emph{Microkernels} such as Mach \cite{mach}, the GNU HURD \cite{hurd}
+and MINIX 3 \cite{minix3} also utilise this idea of synchronous
 communication rather than a monolithic design based around shared
 resources.  In this context, it provides an essential stability and
-security advantage; many services, such as device drivers, file systems and
-network protocols, can operate at a similar level to user processes.
+security advantage; many services, such as device drivers, file
+systems and network protocols, can operate at a similar level to user
+processes.
 
 Some elements of the kernel require specialised operations which are
 only available when the processor is in a \emph{privileged} mode of
 operation.  As they are generally unique to a particular processor
-architecture, they also require the code to be written in assembly
+architecture, it is usual for the code to be written in assembly
 language.  However, these restrictions need not apply to the entire
 kernel.  Device drivers are particularly notorious for causing system
 instability by having this level of control.  This is especially true
@@ -667,13 +668,13 @@ rely becomes disadvantageous, due to the potential for failure.  That
 said, the most popular web services in use today do not follow the
 component-based design that would allow the dream of composite web
 services \cite{cashews-sem} to become a reality; the likes of
-\emph{Facebook}, \emph{Twitter} and \emph{Last.fm} \cite{facebook,
-  amazon, twitter, lastfm} all provide web service interfaces which
-simply wrap an earlier monolithic object-oriented design.  Others,
-such as \emph{Amazon} \cite{amazon}, now focus on providing a utility
-service, offering processing power and storage for a price, while
-\emph{Google} \cite{google} prefer to target users with complete
-applications.
+\emph{Facebook}, \emph{Twitter} and \emph{Last.fm}
+\cite{facebook,twitter,lastfm} all provide web service
+interfaces which simply wrap an earlier monolithic object-oriented
+design.  Others, such as \emph{Amazon} \cite{amazon}, now focus on
+providing a utility service, offering processing power and storage for
+a price, while \emph{Google} \cite{google} prefer to target users with
+complete applications.
 
 We believe it is time to reevaluate the benefits of systems focused on
 intercommunication between specialised components.  With modern
@@ -700,11 +701,11 @@ Change does occur when there is little other sensible choice and it
 makes good business sense to do so.  We have already seen this with
 object-oriented programming (OOP). It took about twenty years for OOP
 to become widely adopted from its initial inception in academia, and
-then, as we discussed in \ref{ipc}, it was in a form much closer to
-existing sequential models.  The change happened as programs became
-larger and their design made them more and more unmaintainable, to the
-point where the cost of doing so was more than adopting a different
-technique, in this case OOP.
+even then, as we discussed in \ref{ipc}, it was in a different form
+much closer to existing sequential models.  The change happened as
+programs became larger and their design made them more and more
+unmaintainable, to the point where the cost of doing so was more than
+adopting a different technique, in this case OOP.
 
 We have reached an equivalent juncture now with relation to
 concurrency.  Programs have continued to become larger and more
@@ -856,17 +857,17 @@ knowledge which we believe to be novel:
   as programmatic elements in the Java programming language (see
   chapter \ref{dynamite}).  This allows the specification of system
   interactions to be shifted directly from the theoretical domain into
-  an implementation backed by a formal methodology, helping in turn to
-  improve industrial adoption of concurrent techniques.
+  an implementation backed by a formal methodology, with the intention
+  of improving industrial adoption of concurrent techniques.
 \item The optional addition of a \emph{type system} to Nomadic Time in
   order to allow movement restriction to be based on the group
   membership of processes (see chapter \ref{tnt}); we refer to this
   extended version as Typed Nomadic Time (TNT).
 \end{enumerate}
 
-This work has already produced two peer-reviewed papers \cite{nt,
-  dynamite} and several presentations, both internal and external (at
-the British Colloquium of Theoretical Computer Science (BCTCS) 2006,
-the Relational Methods in Computer Science (RelMiCS) PhD workshop
-2006, the University of York and Principles and Practice of
+This work has already produced two peer-reviewed papers
+\cite{nt,dynamite} and several presentations, both internal and
+external (at the British Colloquium of Theoretical Computer Science
+(BCTCS) 2006, the Relational Methods in Computer Science (RelMiCS) PhD
+workshop 2006, the University of York and Principles and Practice of
 Programming in Java (PPPJ) 2007).

@@ -32,11 +32,12 @@ such as the use of $\ambin{m}$ as a capability and not as part of a
 path \cite{ambienttypes} or the fact that the $x$ in $x(y)$ should be
 represent a link and not a mere value \cite{sangiorgi:types-or}.  It
 may also provide more complex intuitions, by distinguishing individual
-entities, controlling mobility \cite{sangiorgi:mobsafeambients,
-  ambienttypes} or resources \cite{hennessy:dpi98} or even providing a
-full subtyping relation \cite{sangiorgi:typing, boxedamb02}.  This
-section considers a few examples of such type systems for both the
-$\pi$ calculus (\ref{pitypes}) and the ambient calculus
+entities, controlling mobility
+\cite{ambienttypes,sangiorgi:mobsafeambients} or resources
+\cite{hennessy:dpi98} or even providing a full subtyping relation
+\cite{sangiorgi:typing,boxedamb02}.  This section considers a few
+examples of such type systems for both the $\pi$ calculus
+(\ref{pitypes}) and the ambient calculus
 (\ref{ambienttypes}).\subsection{Type Systems for the $\pi$ Calculus}
 \label{pitypes}
 
@@ -53,7 +54,7 @@ termination.
 \label{sorts}
 
 The earliest notion of types was introduced by Milner in
-\cite{milner:93polyadic, milner:pi}.  The discipline of \emph{sorts}
+\cite{milner:93polyadic,milner:pi}.  The discipline of \emph{sorts}
 is simply a way of representing `the length and nature of the vector
 of names a name may carry in communication' \cite{milner:93polyadic}.
 Formally, a sort is a partial function,
@@ -151,7 +152,7 @@ and output prefixing, and restriction.  The rule T-Out ensures
 that an output prefix, $\overline{v}w.M$, is only typeable if:
 
 \begin{table}
-  \caption{Typing Rules from \cite{sangiorgi:types-or}}
+  \caption{Typing Rules from (Sangiorgi, 2002)} 
   \label{tab:sangrules}
   \shrule
  \begin{center}
@@ -201,7 +202,7 @@ Early work \cite{commtypesamb} on providing a type system for the
 ambient calculus focused on typing the derived communication primitives
 and specifically the values being exchanged.  While interesting, this
 doesn't really relate to the focus of the calculus, spatial mobility.
-In \cite{cardelli:typesforambients, cardelli:ambienttypes}, a first
+In \cite{cardelli:typesforambients,cardelli:ambienttypes}, a first
 attempt is made at providing types for mobility, via mobility and locking
 annotations.  Mobility annotations are used to mark an ambient as mobile
 ($\underline{\vee}$) or immobile ($\curvearrowright$), where mobile
@@ -242,8 +243,8 @@ S, T ::= Shh \pc W_1 \times \dots \times W_k
 \end{equation}
 
 \noindent For example, in the simplest form of the calculus,
-$Agent[Shh]$ represents a group called $Agent$, the members of which may
-not exchange values.  Nesting is possible, so $Place[Agent[Shh]]]$
+$Agent[Shh]$ represents a group called $Agent$, the members of which
+may not exchange values.  Nesting is possible, so \\$Place[Agent[Shh]]$
 represents a $Place$ where groups of $Agent$s may stay and continue to
 be silent.
 

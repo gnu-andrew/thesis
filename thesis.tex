@@ -20,6 +20,9 @@
 
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage[dcu]{harvard}
+\citationstyle{dcu}
+\renewcommand{\harvardand}{\&}
 
 \hyphenation{non-deter-min-istic deter-min-istic proto-typical}
 
@@ -61,6 +64,7 @@
 \newcommand{\res}[1]{\setminus {#1}}
 \newcommand{\hide}[1]{/ {#1}}
 \newcommand{\timeout}[3]{\lfloor{#1}\rfloor {#2} ({#3})}
+\newcommand{\tpltimeout}[2]{\lfloor{#1}\rfloor({#2})}
 \newcommand{\stimeout}[3]{\lceil{#1}\rceil {#2} ({#3})}
 \newcommand{\dottimeout}[5]{\timeout{{#1}}{{#2}}{{#3}}\ldots {#4} ({#5})}
 \newcommand{\hid}{/}

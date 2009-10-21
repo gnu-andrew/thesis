@@ -100,7 +100,8 @@ implement certain methods in C, should the need arise.  Many of the
 methods provided by the Java class library do just that, usually to
 make use of a platform-specific application programming interface
 (API).  Doing so has some overhead and means losing the safety and
-memory management benefits of Java, but is possible where necessary.
+memory management benefits of Java, but is possible when a native
+library needs to be used to facilitate reuse.
 
 Performance has been a common criticism of Java, not just because of
 these features but also because the Java bytecodes it uses must be
@@ -157,7 +158,7 @@ The result of this early adoption of multithreading is that its
 implementation in Java is reasonably mature and well-tested.  With
 Java 5, this support was greatly expanded as a result of research led
 by Doug Lea and incorporated into the Java platform via JSR166 and the
-\texttt{java.util.concurrent} packages \cite{concpractice, jsr166}.
+\texttt{java.util.concurrent} packages \cite{concpractice,jsr166}.
 
 The extensions provided by JSR166 take the form of a host of new
 classes, backed by support in the virtual machine.  The Java language
@@ -427,7 +428,9 @@ ever have a type system as advanced as that of most functional
 languages or a separation between pure and impure functions.  But with
 these come maturity and a vast body of developers which we believe to
 be far more useful in achieving our goal than the possibilities of a
-perfect but niche language.
+perfect but niche language.  Java is also the language with which we
+are most familiar, and thus it makes sense to experiment first using
+Java and then turn to other languages.
 
 \section{Mapping Theory to Practicality}
 \label{dyn:maptheory}
@@ -496,10 +499,10 @@ implementation is found in the representation of $\Delta$, realised as
 the class \texttt{Delta}, as it has no transitions.
 
 \begin{verbatim}
-  public Set<Transition> getPossibleTransitions()
-  {
-    return Collections.emptySet();
-  }
+public Set<Transition> getPossibleTransitions()
+{
+  return Collections.emptySet();
+}
 \end{verbatim}
 
 The other method in \texttt{Process},
@@ -516,18 +519,18 @@ from those implementing CCS.  Of these, only CCS has an implementation
 of recursion:
 
 \begin{verbatim}
-  public Set<Transition> getPossibleTransitions()
+public Set<Transition> getPossibleTransitions()
+{
+  Set<Transition> trans = new HashSet<Transition>();
+  for (Transition t : proc.getPossibleTransitions())
   {
-    Set<Transition> trans = new HashSet<Transition>();
-    for (Transition t : proc.getPossibleTransitions())
-      {
-        Process end = (Process) t.getFinish();
-        trans.add(new Transition(this,
-                                 end.substitute(var, this),
-                                 t.getAction()));
-      }
-    return trans;
+    Process end = (Process) t.getFinish();
+    trans.add(new Transition(this,
+                             end.substitute(var, this),
+                             t.getAction()));
   }
+  return trans;
+}
 \end{verbatim}
 
 \noindent as the same rule is used in all three calculi.  Because the
@@ -586,58 +589,58 @@ and their transitions, and apply as required) so we will just look at
 the CCS implementation here for brevity:
 
 \begin{verbatim}
-  public Set<Transition> getPossibleTransitions()
+public Set<Transition> getPossibleTransitions()
+{
+  Set<Transition> trans = new HashSet<Transition>();
+  // Par1
+  for (Transition t : left.getPossibleTransitions())
   {
-    Set<Transition> trans = new HashSet<Transition>();
-    // Par1
-    for (Transition t : left.getPossibleTransitions())
-      {
-        Process nextLeft = (Process) t.getFinish();
-        trans.add(new Transition(this,
-                                 new Par(nextLeft, right),
-                                 t.getAction()));
-      }
-    // Par2
-    for (Transition t : right.getPossibleTransitions())
-      {
-        Process nextRight = (Process) t.getFinish();
-        trans.add(new Transition(this,
-                                 new Par(left, nextRight),
-                                 t.getAction()));
-      }
-    // Now find pairs for synchronisation (Par3)
-    Set<Transition> syncTrans = new HashSet<Transition>();
-    for (Transition t : trans)
-      {
-        String label = t.getAction().getLabel().getText();
-        if (Context.getContext().isRegisteredName(label))
-          {
-            for (Transition t2 : trans)
-              {
-                String label2 = t2.getAction().getLabel().getText();
-                if (Context.isConame(label2) &&
-                    label.equals(Context.convertLabelToName(label2)))
-                  {
-                    Par finish1 = (Par) t.getFinish();
-                    Par finish2 = (Par) t2.getFinish();
-                    Action sync = new Sync(t, t2);
-                    if (!finish1.left.equals(left) &&
-                        !finish2.right.equals(right))
-                      syncTrans.add(new Transition(this,
-                        new Par(finish1.left, finish2.right),
-                        sync);
-                    else if (!finish1.right.equals(right) &&
-                             !finish2.left.equals(left))
-                      syncTrans.add(new Transition(this,
-                        new Par(finish2.left, finish1.right),
-                        sync);
-                  }
-              }
-          }
-      }
-    trans.addAll(syncTrans);
-    return trans;
+    Process nextLeft = (Process) t.getFinish();
+    trans.add(new Transition(this,
+                             new Par(nextLeft, right),
+                             t.getAction()));
   }
+  // Par2
+  for (Transition t : right.getPossibleTransitions())
+  {
+    Process nextRight = (Process) t.getFinish();
+    trans.add(new Transition(this,
+                             new Par(left, nextRight),
+                             t.getAction()));
+  }
+  // Now find pairs for synchronisation (Par3)
+  Set<Transition> syncTrans = new HashSet<Transition>();
+  for (Transition t : trans)
+  {
+    String label = t.getAction().getLabel().getText();
+    if (Context.getContext().isRegisteredName(label))
+    {
+      for (Transition t2 : trans)
+      {
+        String label2 = t2.getAction().getLabel().getText();
+        if (Context.isConame(label2) &&
+            label.equals(Context.convertLabelToName(label2)))
+        {
+          Par finish1 = (Par) t.getFinish();
+          Par finish2 = (Par) t2.getFinish();
+          Action sync = new Sync(t, t2);
+          if (!finish1.left.equals(left) &&
+              !finish2.right.equals(right))
+            syncTrans.add(new Transition(this,
+                          new Par(finish1.left, finish2.right),
+                          sync));
+          else if (!finish1.right.equals(right) &&
+                   !finish2.left.equals(left))
+            syncTrans.add(new Transition(this,
+                          new Par(finish2.left, finish1.right),
+                          sync));
+        }
+      }
+    }
+  }
+  trans.addAll(syncTrans);
+  return trans;
+}
 \end{verbatim}
 
 The class \texttt{Par} maintains references to the two composed
@@ -798,7 +801,7 @@ which uses the given channel and locality implementations.  If one can
 not be found, an \texttt{UnsupportedContextException} is thrown.
 
 DynamiTE supplies an implementation of \texttt{ContextFactory} in the
-form of the \texttt{DynamiTEContextFactory}.  It in turn probes for
+form of the\\ \texttt{DynamiTEContextFactory}.  It in turn probes for
 classes which implement \texttt{Calculus}, \texttt{ChannelFactory} and
 \texttt{LocalityFactory} and an instance of it is returned to the user
 if it finds an implementation of each which meets the user's
@@ -840,13 +843,13 @@ public static <T extends Probeable> Map<String,T>
 {
   Map<String,T> map = new HashMap<String,T>();
   for (T probeable : sl)
-    {
-      Config.logger.config(String.format("Loaded plugin: " +
-        "%s %d.%d.%d%s", probeable.getName(),
-        probeable.getMajorVersion(), probeable.getMinorVersion(),
-        probeable.getMicroVersion(), probeable.getAdditionalInfo()));
-      map.put(probeable.getName(), probeable);
-    }
+  {
+    Config.logger.config(String.format("Loaded plugin: " +
+      "%s %d.%d.%d%s", probeable.getName(),
+      probeable.getMajorVersion(), probeable.getMinorVersion(),
+      probeable.getMicroVersion(), probeable.getAdditionalInfo()));
+    map.put(probeable.getName(), probeable);
+  }
   return Collections.unmodifiableMap(map);
 }
 \end{verbatim}
@@ -929,26 +932,26 @@ clock transitions or simple forms of infinite recursion, such as $\mu
 X.a.X$.
 
 \begin{verbatim}
-  public void evolve(Process p)
+public void evolve(Process p)
+{
+  System.out.println("Evolving process: " + p);
+  Set<Transition> trans = p.getPossibleTransitions();
+  System.out.println("Possible transitions: " + trans);
+  for (Transition t : trans)
   {
-    System.out.println("Evolving process: " + p);
-    Set<Transition> trans = p.getPossibleTransitions();
-    System.out.println("Possible transitions: " + trans);
-    for (Transition t : trans)
+    State f = t.getFinish();
+    if (f instanceof Process)
+    {
+      if (f.equals(p))
+        System.out.println("Not following transition " + t);
+      else
       {
-        State f = t.getFinish();
-        if (f instanceof Process)
-          {
-            if (f.equals(p))
-              System.out.println("Not following transition " + t);
-            else
-              {
-                System.out.println("Following transition " + t);
-                evolve((Process) f);
-              }
-          }
+        System.out.println("Following transition " + t);
+        evolve((Process) f);
       }
+    }
   }
+}
 \end{verbatim}
 
 A more practical \texttt{Evolver} is a more complex undertaking.  It
@@ -1041,18 +1044,18 @@ channel and receiving back the data.  The
 thread that stored it:
 
 \begin{verbatim}
-  public void store(String name, Object data)
+public void store(String name, Object data)
+{
+  ThreadLocal<Object> store = repositories.get(name);
+  if (store == null)
   {
-    ThreadLocal<Object> store = repositories.get(name);
+    ThreadLocal<Object> newStore = new ThreadLocal<Object>();
+    store = repositories.putIfAbsent(name, newStore);
     if (store == null)
-      {
-        ThreadLocal<Object> newStore = new ThreadLocal<Object>();
-        store = repositories.putIfAbsent(name, newStore);
-        if (store == null)
-          store = newStore;
-      }
-    store.set(data);
+      store = newStore;
   }
+  store.set(data);
+}
 \end{verbatim}
 
 The \texttt{repositories} variable stores an instance of
@@ -1748,7 +1751,7 @@ language for the masses.
 \subsection{The Safe Ambients Abstract Machine}
 
 Something closer to our work on DynamiTE is the abstract machine PAN
-for safe ambients \cite{sangiorgi:safeambientsmachine}).  Safe
+for safe ambients \cite{sangiorgi:safeambientsmachine}.  Safe
 ambients were discussed back in \ref{ambvariants}; they provide a form
 of the ambient calculus which is protected from \emph{grave
   interferences} by requiring each mobility action ($in$, $out$ and
@@ -1906,10 +1909,11 @@ and $y^\star ()$.
   Outside academia, even the newest approaches are still relatively
   low-level; the latest offering is CUDA \cite{cuda}, a C-style
   parallel processing language for programming NVIDIA graphics
-  processing units (GPUs).  The develpment direction with frameworks
+  processing units (GPUs).  The development direction with frameworks
   and languages like CUDA is usually the inverse of the academic case;
   little research goes into formalising it but it does get heavily
-  used in real-world situations to produce results.
+  used in real-world situations to produce results, some of which may
+  be true.
 
 As far as implementations go, we believe our work to be novel in
 approaching the task of translating a calculus with both global
@@ -1944,9 +1948,9 @@ development; the code is available at:
 \begin{center}
 \url{https://savannah.nongnu.org/projects/dynamite/} 
 \end{center}
-\noindent and patches are welcome.  At its lowest level, it provides a
-means of simulating the operations of the Nomadic Time process
-calculus, allowing them to be more clearly understood.  In
+\noindent and patch submissions are welcome.  At its lowest level, it
+provides a means of simulating the operations of the Nomadic Time
+process calculus, allowing them to be more clearly understood.  In
 application, it can provide a useful mechanism for structuring
 concurrent programs, clearly dividing internal behaviour and
 interprocess communication.  The possibility to add further

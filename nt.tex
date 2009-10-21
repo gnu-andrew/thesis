@@ -8,7 +8,7 @@
 
 This chapter introduces the process calculus used as the basis for
 DynamiTE, Nomadic Time, in which timed processes are mobile.  Over the
-course of the first half of this chapter, we show how CaSE \cite{case}
+course of the first half of this chapter, we show how CaSE \cite{CaSE}
 (itself a timed derivative of CCS) is first extended with localities
 (see \ref{localising}) and then mobility (see \ref{addingmob}) to
 create a calculus which provides both the ability to migrate processes
@@ -536,13 +536,14 @@ and $A$ ranges over a subset of $\symbols$.
   \shrule
  \vspace{-2mm}
  \begin{center}
- \begin{tabular}{rlrl}
+ \begin{tabular}{rl}
      \Rule{Idle}
      {-}
      {\nil \lderives{\sigma} \nil}
      {}
      &
-     \quad \Rule{Act}
+     \hspace{5mm}
+     \Rule{Act}
      {-}
      {\alpha . E \derives{\alpha} E}
      {}
@@ -552,6 +553,7 @@ and $A$ ranges over a subset of $\symbols$.
      {a.E \derives{\sigma} a.E}
      {}
      &
+     \hspace{5mm}
      \Rule{Stall}
      {-}
      {\Delta_{\sigma} \derives{\rho} \Delta_{\sigma}}
@@ -562,6 +564,7 @@ and $A$ ranges over a subset of $\symbols$.
      {E + F \derives{\kappa} E^\prime}
      {}
      &
+     \hspace{5mm}
      \Rule{Par1}
      {E \derives{\kappa} E^\prime}
      {E \;|\; F \derives{\kappa} E^\prime \;|\; F}
@@ -572,6 +575,7 @@ and $A$ ranges over a subset of $\symbols$.
      {E + F \derives{\sigma} E^\prime + F^\prime}
      {}
      &
+     \hspace{5mm}
       \Rule{Par2}
       {E \derives{a} E^\prime,
         F \derives{\overline{a}} F^\prime}
@@ -585,6 +589,7 @@ and $A$ ranges over a subset of $\symbols$.
       {E \;|\; F \derives{\sigma} E^\prime \;|\; F^\prime}
       {}
      &
+     \hspace{5mm}
       \Rule{FTO1}
       {E \nderives{h}}
       {\timeout{E}{\sigma}{F} \derives{\sigma} F}
@@ -595,6 +600,7 @@ and $A$ ranges over a subset of $\symbols$.
       {\timeout{E}{\sigma}{F} \derives{\gamma} E'}
       {\gamma \ne \sigma}
      &
+     \hspace{5mm}
       \Rule{STO1}
       {E \nderives{h}}
       {\stimeout{E}{\sigma}{F} \derives{\sigma} F}
@@ -605,6 +611,7 @@ and $A$ ranges over a subset of $\symbols$.
       {\stimeout{E}{\sigma}{F} \derives{\kappa} E'}
       {}
      &
+     \hspace{5mm}
       \Rule{STO3}
       {E \derives{\rho} E', E \nderives{h}}
       {\stimeout{E}{\sigma}{F} \derives{\rho} \stimeout{E'}{\sigma}{F}}
@@ -615,6 +622,7 @@ and $A$ ranges over a subset of $\symbols$.
       {\mu X.E \derives{\gamma} E' \{ \mu X.E / X\}}
       {}
       &
+     \hspace{5mm}
       \Rule{Res}
       {E \derives{\gamma} E'}
       {E \res{a} \derives{\gamma} E' \res{a}}
@@ -625,6 +633,7 @@ and $A$ ranges over a subset of $\symbols$.
       {\locv{m}{E}{B}{\vec{\sigma}} \derives{\tau} \locv{m}{E'}{B}{\vec{\sigma}}}
       {\sigma \in \vec{\sigma}}
   &
+     \hspace{5mm}
         \Rule{LHd2}
       {E \derives{h} E'}
       {\locv{m}{E}{B}{\vec{\sigma}} \derives{h} \locv{m}{E'}{B}{\vec{\sigma}}}
@@ -636,6 +645,7 @@ and $A$ ranges over a subset of $\symbols$.
       {\locv{m}{E}{B}{\vec{\sigma}} \derives{\rho} \locv{m}{E'}{B}{\vec{\sigma}}}
       {\rho \not \in \vec{\sigma}, \sigma \in \vec{\sigma}}
 &
+     \hspace{5mm}
       \Rule{Cap1}
       {-}
       {\ambop . E \derives{\ambop} E}
@@ -646,7 +656,8 @@ and $A$ ranges over a subset of $\symbols$.
   {\ambop . E \derives{\sigma} \ambop . E}
   {}
 &
-     \quad \Rule{SCong}
+     \hspace{5mm}
+     \Rule{SCong}
      {E \equiv E', E' \derives{\gamma} F', F' \equiv F}
      {E \derives{\gamma} F}
      {}
