@@ -474,7 +474,7 @@ public class Buffer
 }
 \end{verbatim}
 
-This is a implementation of the buffer example using monitors rather
+This is an implementation of the buffer example using monitors rather
 than semaphores.  There are two main differences between the Java
 implementation of monitors and that proposed in the academic
 literature: the mutual exclusion is limited to blocks of code marked
@@ -626,9 +626,7 @@ processes.
 
 Some elements of the kernel require specialised operations which are
 only available when the processor is in a \emph{privileged} mode of
-operation.  As they are generally unique to a particular processor
-architecture, it is usual for the code to be written in assembly
-language.  However, these restrictions need not apply to the entire
+operation.  However, these restrictions need not apply to the entire
 kernel.  Device drivers are particularly notorious for causing system
 instability by having this level of control.  This is especially true
 when such drivers are provided by third parties who are not as
@@ -704,8 +702,9 @@ to become widely adopted from its initial inception in academia, and
 even then, as we discussed in \ref{ipc}, it was in a different form
 much closer to existing sequential models.  The change happened as
 programs became larger and their design made them more and more
-unmaintainable, to the point where the cost of doing so was more than
-adopting a different technique, in this case OOP.
+unmaintainable, to the point where the cost of continuing to use
+existing models was more than adopting a different technique, in this
+case OOP.
 
 We have reached an equivalent juncture now with relation to
 concurrency.  Programs have continued to become larger and more
@@ -753,7 +752,7 @@ while also being much more approachable.
 We still follow these earlier examples in basing the framework on a
 theoretical model.  This allows us to leverage years of academic work
 in this area, and allows for the possibility of reasoning over such
-programs in the future.  However, we approach this from the point of a
+programs in the future.  However, we approach this from the point of
 view of a software developer wanting an implementation with the
 benefits of a theoretical basis, rather than as a process algebraist
 looking to write code in their favourite calculus.
@@ -816,9 +815,25 @@ instead split the application up by task as follows:
   this to provide input to and control the other components.
 \end{itemize}
 
-In later chapters, we will demonstrate how these components can be
-formally modelled using our process calculus and how they may be
-implemented using DynamiTE.
+\begin{figure}  
+  \centering
+\[\CompileMatrices
+\xymatrix{
+User \ar@{->}[d]^{input} \\
+Interface \ar@{->}[dd]^{filename} \\ 
+& Outputter \\
+Inputter \ar@/^/[ur]_{wave\ data} \ar@/_/[dr]_{wave\ data} \\
+& Visualiser
+}
+\]
+  \caption{Structure of the Prototypical Application}
+  \label{fig:appstructure}
+\end{figure}
+
+Figure \ref{fig:appstructure} provides a diagrammatic illustration of
+how data flows between the various tasks.  In later chapters, we will
+demonstrate how these components can be formally modelled using our
+process calculus and how they may be implemented using DynamiTE.
 
 \section{Structure of the Thesis}
 
