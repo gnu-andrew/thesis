@@ -528,21 +528,24 @@ different way, which may prove more suitable in a particular context.
 \section{Distribution and Migration}
 \label{migration}
 
-Allowing the scope of a name to change during execution is one possible
-way of modelling dynamic behaviour, but it isn't the only way.  The
-concept of \emph{mobility} naively implies the physical movement of
-processes, but, as shown above, this is not what actually happens in the
-$\pi$ calculus.  To do so requires some notion of \emph{distribution};
-this can be provided by \emph{localities}, a term used to refer
-generally to a higher-level form of grouping, above that of processes.
-This concept has been applied to various calculi, in different forms, in
-order to model physical sites \cite{wojciechowski:phd}, administrative
-or security domains \cite{amb,seal} and biological cells \cite{brane04},
-but can theoretically be applied in any context where the grouping of
-processes is useful.  Localities can be used simply for observation or
-as a means to further control the behaviour of the processes
-encapsulated within them.  They are generally named, so as to provide a
-communication target or a known destination for a migrating entity.
+Allowing the scope of a name to change during execution is one
+possible way of modelling dynamic behaviour, but it isn't the only
+way.  The concept of \emph{mobility} naively implies the physical
+movement of processes, but, as shown above, this is not what actually
+happens in the $\pi$ calculus.  To do so requires some notion of
+\emph{distribution}; this can be provided by \emph{localities}, a term
+used to refer generally to a higher-level form of grouping, above that
+of processes.  This concept has been applied to various calculi, in
+different forms, in order to model physical
+sites~\citeaffixed{wojciechowski:phd}{Nomadic Pict,}, administrative
+or security domains \citeaffixed{amb,seal}{the Ambient Calculus and
+  the Seal Calculus,} and biological cells \citeaffixed{brane04}{Brane
+  Calculi,}, but can theoretically be applied in any context where the
+grouping of processes is useful.  Localities can be used simply for
+observation or as a means to further control the behaviour of the
+processes encapsulated within them.  They are generally named, so as
+to provide a communication target or a known destination for a
+migrating entity.
 
 Originally, localities were used to distinguish between processes in
 order to provide further equivalence theories.  Take the following simple
@@ -835,11 +838,14 @@ location to each observable action:
 \noindent and merging the two to give a localised version of both the
 specification and its implementation:
 
-\begin{align}
-& \locderives{l}{in} \locderives{lk}{\overline{out}} \tag{Specification
-(Localised)} \\
-& \locderives{l}{in} \locderives{l}{\overline{out}} \tag{Implementation (Localised)}
-\end{align}
+\begin{center}
+\begin{tabular}{c|c}
+Specification (Localised) & Implementation \\
+\hline
+$\locderives{l}{in} \locderives{lk}{\overline{out}}$ &
+$\locderives{l}{in} \locderives{l}{\overline{out}}$
+\end{tabular}
+\end{center}
 
 \noindent which illustrates a clear difference between the two.
 
