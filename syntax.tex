@@ -1,0 +1,20 @@
+  \begin{aligned}
+    \expr, \exprb \quad \mathrel{::=} \quad &
+      \nil  \mid
+      \Omega \mid
+      \Delta \mid
+      \Delta_{\sigma} \mid
+      \alpha . \expr  \mid
+      \expr + \exprb \mid
+      \expr \mathrel{\!|\!} \exprb \mid
+      \timeout{\expr}{\sigma}{\exprb} \mid \\
+    & \stimeout{\expr}{\sigma}{\exprb} \mid 
+      \mu X . \expr \mid
+      X \mid 
+      \expr \res{A} \mid
+      \locv{m}{\expr}{\exprb}{\vec{\sigma}} \mid
+      \ambop . \expr \\
+   \ambop \quad \mathrel{::=} \quad & \tntin{m} \mid \tntout{m} \mid \tntopen{m} \mid
+      \procin{\beta}{m} \mid \procout{\beta}{m} \mid \bin \mid
+      \bout \mid \bopen
+   \end{aligned}

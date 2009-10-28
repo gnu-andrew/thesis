@@ -443,29 +443,11 @@ require in appropriate subclasses.  Recall the syntax of NT from
 \ref{eqn:nt:syntax}:
 
 \begin{equation}
-  \begin{aligned}
-    \expr, \exprb \quad \mathrel{::=} \quad &
-      \nil  \mid
-      \Omega \mid
-      \Delta \mid
-      \Delta_{\sigma} \mid
-      \alpha . \expr  \mid
-      \expr + \exprb \mid
-      \expr \mathrel{\!|\!} \exprb \mid
-      \timeout{\expr}{\sigma}{\exprb} \mid \\
-    & \stimeout{\expr}{\sigma}{\exprb} \mid 
-      \mu X . \expr \mid
-      X \mid 
-      \expr \res{A} \mid
-      \locv{m}{\expr}{\exprb}{\vec{\sigma}} \mid
-      \ambop . \expr \\
-   \ambop \quad \mathrel{::=} \quad & \tntin{m} \mid \tntout{m} \mid \tntopen{m} \mid
-      \procin{\beta}{m} \mid \procout{\beta}{m} \mid \bin \mid
-      \bout \mid \bopen
-   \end{aligned}
+  \input{syntax}
 \end{equation}
 
-Each process term ($\expr, \exprb$) above becomes a class that implements \texttt{Process}:
+Each process term ($\expr, \exprb$) above becomes a class that
+implements \texttt{Process}:
 
 \begin{verbatim}
 public interface Process
@@ -476,10 +458,55 @@ public interface Process
 }
 \end{verbatim}
 
-Operation follows a top-down approach; the complete system is
-represented by a single instance of one of these classes which, in
-most cases, will be an operator that composes together further
-instances as appropriate.
+A rough translation schema is given in \ref{tab:translationschema},
+where \texttt{sigma} is an instance of \texttt{Clock},
+\texttt{clockSet} is a set of instances of \texttt{Clock},
+\texttt{alpha} is an instance of a subclass of \texttt{Action},
+\texttt{beta} is an instance of \texttt{Name}, \texttt{mobprim} is an
+instance of a subclass of \texttt{MobPrim} and \texttt{proc} and
+\texttt{proc2} are further instances of subclasses of
+\texttt{Process}.  Note that \texttt{Name} is a subclass of
+\texttt{Action} and \texttt{EnvIn}, \texttt{EnvOut}, \texttt{Open},
+\texttt{ProcIn} and \texttt{ProcOut} are all subclasses of
+\texttt{MobPrim} while the \texttt{NIL}, \texttt{OMEGA},
+\texttt{DELTA} constants are instances of the class to which they
+belong.  Similarly, \texttt{BOUNCER\_IN}, \texttt{BOUNCER\_OUT} and
+\texttt{BOUNCER\_OPEN} are instances of anonymous subclasses of
+\texttt{MobPrim}.  Operation follows a top-down approach; the complete
+system is represented by a single instance of one of these classes
+which, in most cases, will be an operator that composes together
+further instances as appropriate.
+
+\begin{table}
+ \caption{Translation Schema from Nomadic Time to DynamiTE Classes}
+ \label{tab:translationschema}
+  \shrule \centering
+  \begin{tabular}{rcl}
+    $\seml \nil \semr$ & = & \texttt{Nil.NIL} \\
+    $\seml \Omega \semr$ & = & \texttt{Omega.OMEGA} \\
+    $\seml \Delta \semr$ & = & \texttt{Delta.DELTA} \\
+    $\seml \Delta_{\sigma} \semr$ & = & \texttt{new Stall(sigma)} \\
+    $\seml \alpha . \expr \semr$ & = & \texttt{new Prefix(alpha, proc)} \\
+    $\seml \expr + \exprb \semr$ & = & \texttt{new Sum(proc, proc2)} \\
+    $\seml \expr \pc \exprb \semr$ & = & \texttt{new Par(proc, proc2)} \\
+    $\seml \timeout{\expr}{\sigma}{\exprb} \semr$ & = & \texttt{new To(proc,sigma,proc2)} \\
+    $\seml \stimeout{\expr}{\sigma}{\exprb} \semr$ & = & \texttt{new STo(proc,sigma,proc2)} \\
+    $\seml \mu X . \expr \semr$ & = & \texttt{new Rec("X", proc)} \\
+    $\seml X \semr$ & = & \texttt{new Var("X")} \\
+    $\seml \expr \res{A} \semr$ & = & \texttt{new Res(proc, "X")} \\
+    $\seml \locv{m}{\expr}{\exprb}{\vec{\sigma}} \semr$ & = & \texttt{new Env("m",proc,proc2,clockSet)} \\
+    $\seml \ambop . \expr \semr$ & = & \texttt{new MobPrefix(mobprim, proc)} \\
+    $\seml \tntin{m} \semr$ & = & \texttt{new EnvIn("m")} \\
+    $\seml \tntout{m} \semr$ & = & \texttt{new EnvOut("m")} \\
+    $\seml \tntopen{m} \semr$ & = & \texttt{new Open("m")} \\
+    $\seml \procin{\beta}{m} \semr$ & = & \texttt{new ProcIn(beta, "m")} \\
+    $\seml \procout{\beta}{m} \semr$ & = & \texttt{new ProcOut(beta, "m")} \\
+    $\seml \bin \semr$ & = & \texttt{MobPrim.BOUNCER\_IN} \\
+    $\seml \bout \semr$ & = & \texttt{MobPrim.BOUNCER\_OUT} \\
+    $\seml \bopen \semr$ & = & \texttt{MobPrim.BOUNCER\_OPEN}
+  \end{tabular}
+  \shrule
+\end{table}
 
 The \texttt{Process} interface itself extends the marker interface,
 \texttt{State}.  This, along with \texttt{Transition}, forms part of
