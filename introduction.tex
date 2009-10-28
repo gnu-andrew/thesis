@@ -862,11 +862,18 @@ chapter \ref{futurework}.
 Through this thesis, we present the following contributions to
 knowledge which we believe to be novel:
 
-\begin{enumerate}
+\begin{enumerate}[\hspace{0.5cm}\bfseries {C}1.]
 \item The development of Nomadic Time, an algebraic process calculus
   with \emph{compositional global synchronisation}, \emph{mobility}
   and security provision via the notion of `\emph{bouncers}'
-  (see chapter \ref{nt}).
+  (see chapter \ref{nt}).  This includes:
+\begin{enumerate}[\bfseries {C}1.1]
+\item The merging of clock hiding from the CaSE process calculus
+  \cite{CaSE} with the notion of distribution, so that the boundaries
+  of a locality (an \emph{environ} in Nomadic Time) encapsulate the
+  behaviour within them.  This makes a locality effectively an opaque
+  reusable component which can be integrated into other systems.
+\end{enumerate}
 \item The realisation of the aforementioned calculus as a \emph{design
   framework}, DynamiTE, through the implementation of its constructs
   as programmatic elements in the Java programming language (see

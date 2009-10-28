@@ -345,7 +345,11 @@ $\mathop{\rightarrow} \mathrel{\subseteq} \procs \times (\actions \cup
 terms ($\procs$), $\alpha$ over the set of actions ($\actions$),
 $\sigma$ and $\rho$ over the set of clocks ($\timers$), $a$ and $b$
 over the set of names ($\names$) and $\gamma$ over $\names \cup
-\timers$.
+\timers$. In Table \ref{tab:casederivation}, we show how the semantics
+for CaSE expand on those for CCS\footnote{We go directly from CCS to
+  CaSE in the table, but as noted above, some concepts were
+  introduced by intermediate calculi such as TPL.}, presented in Table
+\ref{tab:ccssemantics}.
 
 \begin{table}
   \caption{CaSE Semantics}
@@ -359,6 +363,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      {\nil \lderives{\sigma} \nil}
      {}
      &
+     \hspace{5mm}
      \quad \Rule{Act}
      {-}
      {\alpha . E \derives{\alpha} E}
@@ -369,6 +374,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      {a.E \derives{\sigma} a.E}
      {}
      &
+     \hspace{5mm}
      \Rule{Stall}
      {-}
      {\Delta_{\sigma} \derives{\rho} \Delta_{\sigma}}
@@ -379,6 +385,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      {E + F \derives{\alpha} E^\prime}
      {}
      &
+     \hspace{5mm}
      \Rule{Sum2}
      {F \derives{\alpha} F^\prime}
      {E + F \derives{\alpha} F^\prime}
@@ -389,6 +396,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      {E + F \derives{\sigma} E^\prime + F^\prime}
      {}
      &
+     \hspace{5mm}
      \Rule{Par1}
      {E \derives{\alpha} E^\prime}
      {E \;|\; F \derives{\alpha} E^\prime \;|\; F}
@@ -399,6 +407,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      {E \;|\; F \derives{\alpha} E \;|\; F^\prime}
      {}
      &
+     \hspace{5mm}
       \Rule{Par3}
       {E \derives{a} E^\prime,
         F \derives{\overline{a}} F^\prime}
@@ -412,6 +421,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
       {E \;|\; F \derives{\sigma} E^\prime \;|\; F^\prime}
       {}
      &
+     \hspace{5mm}
       \Rule{FTO1}
       {E \nderives{\tau}}
       {\timeout{E}{\sigma}{F} \derives{\sigma} F}
@@ -422,6 +432,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
       {\timeout{E}{\sigma}{F} \derives{\gamma} E^\prime}
       {\gamma \ne \sigma}
      &
+     \hspace{5mm}
       \Rule{STO1}
       {E \nderives{\tau}}
       {\stimeout{E}{\sigma}{F} \derives{\sigma} F}
@@ -432,6 +443,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
       {\stimeout{E}{\sigma}{F} \derives{\alpha} E^\prime}
       {}
      &
+     \hspace{5mm}
       \Rule{STO3}
       {E \derives{\rho} E^\prime, E \nderives{\tau}}
       {\stimeout{E}{\sigma}{F} \derives{\rho} \stimeout{E^\prime}{\sigma}{F}}
@@ -442,6 +454,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
       {\mu X.E \derives{\gamma} E^\prime \{ \mu X.E / X\}}
       {}
       &
+     \hspace{5mm}
       \Rule{Res}
       {E \derives{\gamma} E^\prime}
       {E \res{a} \derives{\gamma} E^\prime \res{a}}
@@ -452,6 +465,7 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      {E / \sigma \derives{\tau} E^\prime / \sigma}
      {}
      &
+     \hspace{5mm}
      \Rule{Hid2}
      {E \derives{\gamma} E^\prime}
      {E / \sigma \derives{\gamma} E^\prime / \sigma}
@@ -459,6 +473,37 @@ over the set of names ($\names$) and $\gamma$ over $\names \cup
      \\
  \end{tabular}
   \end{center}
+  \shrule
+\end{table}
+
+\begin{table}
+ \caption{Derivation of CaSE from CCS}
+ \label{tab:casederivation}
+  \shrule \centering
+  \begin{tabular}{r|c}
+    Rule in CCS & Use in CaSE \\
+    \hline
+    \new & $Idle$; Allows time to run over $\nil$ \\
+    $Act$ & As in CCS \\
+    \new & $Patient$; Allows time to run over the prefix $\alpha.E$ \\
+    \new & Prevents the clock $\sigma$ from ticking \\
+    $Sum1$ & As in CCS \\
+    $Sum2$ & As in CCS \\
+    \new & $Sum3$; Allows time to run over a summation \\
+    $Par1$ & As in CCS \\
+    $Par2$ & As in CCS \\
+    $Par3$ & As in CCS \\
+    \new & $Par4$; Allows time to run over $|$ when not prevented by $\tau$ transitions \\
+    \new & $FTO1$; Allows $\sigma$ to tick, leaving $F$, when there are no $\tau$ transitions \\
+    \new & $FTO2$; Allows anything but $\sigma$ to precede, leaving $E'$ \\
+    \new & $STO1$; Allows $\sigma$ to tick, leaving $F$, when there are no $\tau$ transitions \\
+    \new & $STO2$; Allows $\alpha$ transitions to precede, leaving $E'$ \\
+    \new & $STO3$; Allows other clocks ($\rho$) to tick over $E$ leaving the timeout intact \\
+    $Rec$ & As in CCS, but generalised to $\gamma$ \\
+    $Res$ & As in CCS, but generalised to $\gamma$ \\
+    \new & $Hid1$; Converts the transitions of a hidden clock, $\sigma$, to $\tau$ transitions \\
+    \new & $Hid2$; Allows anything but $\sigma$ to precede, retaining clock hiding
+  \end{tabular}
   \shrule
 \end{table}
 

@@ -493,7 +493,7 @@ possibility of side effects, which we cover in \ref{dyn:evolvers}.
 
 Each \texttt{Process} is required to implement
 \texttt{getPossibleTransitions()} and it is in this method that the
-operational semantics found in tables \ref{tab:casesubset} and
+operational semantics found in tables \ref{tab:core} and
 \ref{tab:mobsubset} are realised in Java code.  The simplest
 implementation is found in the representation of $\Delta$, realised as
 the class \texttt{Delta}, as it has no transitions.
@@ -974,7 +974,7 @@ are also used in \texttt{Prefix}, the implementation of $\alpha.E$:
   \texttt{InputChannel} and storing the result.
 \item Likewise, the class \texttt{Coname} represents the use of a
   co-name in $\alpha.E$ and implements \texttt{perform()} by
-  retrieving a value from storage and transmitting it over an
+  retrieving a value from storage and transmitting it over an \\
   \texttt{OutputChannel}.
 \item The \texttt{Tau} class is the last of the three classes used in
   $\alpha.E$ and is used for the internal action, $\tau$.
@@ -988,7 +988,7 @@ are also used in \texttt{Prefix}, the implementation of $\alpha.E$:
 \end{enumerate}
 
 The \texttt{InputChannel} and \texttt{OutputChannel} instances are
-obtained from the \texttt{ChannelFactory}, via the \texttt{Context},
+obtained from the \\ \texttt{ChannelFactory}, via the \texttt{Context},
 and provide \texttt{read()} and \texttt{write(Object)} methods
 respectively.  Although there is currently no realisation of data
 within the formal layer of the calculus, this only matters to the

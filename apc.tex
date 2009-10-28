@@ -307,6 +307,7 @@ over the set of names ($\names$) and and $\gamma$ over $\names \cup
      {\alpha . E \derives{\alpha} E}
      {}
      &
+     \hspace{5mm}
      \Rule{Sum1}
      {E \derives{\alpha} E^\prime}
      {E + F \derives{\alpha} E^\prime}
@@ -317,6 +318,7 @@ over the set of names ($\names$) and and $\gamma$ over $\names \cup
      {E + F \derives{\alpha} F^\prime}
      {}
      &
+     \hspace{5mm}
      \Rule{Par1}
      {E \derives{\alpha} E^\prime}
      {E \;|\; F \derives{\alpha} E^\prime \;|\; F}
@@ -327,6 +329,7 @@ over the set of names ($\names$) and and $\gamma$ over $\names \cup
      {E \;|\; F \derives{\alpha} E \;|\; F^\prime}
      {}
      &
+     \hspace{5mm}
       \Rule{Par3}
       {E \derives{a} E^\prime,
         F \derives{\overline{a}} F^\prime}
@@ -338,6 +341,7 @@ over the set of names ($\names$) and and $\gamma$ over $\names \cup
       {\mu X.E \derives{\alpha} E' \{ \mu X.E / X\}}
       {}
       &
+     \hspace{5mm}
       \Rule{Res}
       {E \derives{\alpha} E'}
       {E \res{b} \derives{\alpha} E' \res{b}}
@@ -348,6 +352,7 @@ over the set of names ($\names$) and and $\gamma$ over $\names \cup
       {E[f] \derives{f(a)} E'[f]}
       {}
       &
+     \hspace{5mm}
       \Rule{Ren2}
       {E \derives{\overline{a}} E'}
       {E[f] \derives{\overline{f(a)}} E'[f]}

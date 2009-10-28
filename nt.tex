@@ -207,7 +207,7 @@ following process:
 a.P \pc \lcloc{m}{\overline{a}.Q}{\sigma}
 \end{equation}
 synchronisation between the two processes is not permitted as
-they lie on either side of a environ boundary.  This is not an issue,
+they lie on either side of an environ boundary.  This is not an issue,
 as the presence of mobility allows processes to move into a situation
 where the co-action is in scope.  In addition, NT (at present) does not
 incorporate the scoping of environ names.
@@ -432,7 +432,7 @@ equivalent of $\nil$).  For a process or environ to enter another
 environ, its bouncer must allow this to occur by providing the
 corresponding $\bin$ co-capability.  Likewise, it must provide $\bout$
 to allow a process or environ to leave.  With regard to the destruction
-of a environ, the environ's bouncer must allow it to be removed by
+of an environ, the environ's bouncer must allow it to be removed by
 providing a $\bopen$ co-capability.
 
 Recall the example given in \ref{locmob}.
@@ -520,7 +520,7 @@ with labels in $\actions$ are known as \emph{action transitions},
 those in $\timers$ as \emph{clock transitions} and those in $\mobprim$
 as \emph{mobility transitions}.  The transition relation,
 $\mathop{\rightarrow} \mathrel{\subseteq} \procs \times \labels \times
-\procs$ is defined in Tables \ref{tab:casesubset} and
+\procs$ is defined in Tables \ref{tab:core} and
 \ref{tab:mobsubset}.  We use $E$, $F$ and $G$ to range over process
 terms; $\sigma$ and $\rho$ over the set of clocks ($\timers$);
 $\alpha$ over the set of actions ($\actions$); $h$ over $\highpris$;
@@ -531,8 +531,8 @@ $a$ and $b$ over $\symbols \eqdef \left(\labels \setminus
 and $A$ ranges over a subset of $\symbols$.
 
 \begin{table}
-  \caption{Semantics}
- \label{tab:casesubset}
+  \caption{Core Semantics}
+ \label{tab:core}
   \shrule
  \vspace{-2mm}
  \begin{center}
@@ -766,20 +766,112 @@ restriction operators to be combined into a single set (StrResRes).
   \shrule
 \end{table}
 
-Table \ref{tab:casesubset} shows the operational semantics, some of
-which are inherited from CaSE.  $Idle$ and $Patient$ represent
-the progress of time over $\nil$ and action prefixes respectively.
-$Act$ allows an action to be performed, with an appropriately labelled
-transition, with the process continuing as $E$.  $Stall$ represents
-the stopping of a specific clock, $\sigma$, allowing transitions to
-occur for any other clock, $\rho$.
 
-Commutativity is now implied by the presence of structural congruence,
-so $Sum1$ and $Par1$ are sufficient to describe the behaviour of the
-summation and parallel composition operators for single actions.  $Sum2$
-and $Par3$ represent the passage of time over these two operators.  Note
-that time must be able to pass on both sides, and that the restriction
-$E \mid F \nderives{h}$ enforces prioritisation.
+Table \ref{tab:core} shows the core operational semantics, some of
+which are derived from those of CaSE given in Table
+\ref{tab:casesemantics}; the derivation is summarised in Table
+\ref{tab:derivation}.  $Idle$ and $Patient$ represent the progress of
+time over $\nil$ and action prefixes respectively.  $Act$ allows an
+action to be performed, with an appropriately labelled transition,
+with the process continuing as $E$.  $Stall$ represents the stopping
+of a specific clock, $\sigma$, allowing transitions to occur for any
+other clock, $\rho$.  All of these are taken directly from CaSE.
+
+\begin{table}
+ \caption{Derivation of Nomadic Time from CaSE}
+ \label{tab:derivation}
+  \shrule \centering
+  \begin{tabular}{r|c}
+    Rule in CaSE & Use in Nomadic Time \\
+    \hline
+    $Idle$ & As in CaSE \\
+    $Act$ & As in CCS and CaSE \\
+    $Patient$ & As in CaSE \\
+    $Stall$ & As in CaSE \\
+    $Sum1$ & Now includes mobility actions, $\kappa$ replaces $\alpha$ \\
+    $Sum2$ & Redundant due to $SCong$ \\
+    $Sum3$ & $Sum2$; As in CaSE \\
+    $Par1$ & Now includes mobility actions, $\kappa$ replaces $\alpha$ \\
+    $Par2$ & Redundant due to $SCong$ \\
+    $Par3$ & $Par2$; As in CCS and CaSE \\
+    $Par4$ & $Par3$; with $\tau$ generalised to $h$ \\
+    $FTO1$ & $\tau$ generalised to $h$ \\
+    $FTO2$ & As in CaSE \\
+    $STO1$ & $\tau$ generalised to $h$ \\
+    $STO2$ & Now includes mobility actions, $\kappa$ replaces $\alpha$ \\
+    $STO3$ & $\tau$ generalised to $h$ \\
+    $Rec$ & As in CaSE \\
+    $Res$ & As in CaSE \\
+    $Hid1$ & $LHd1$; Clock hiding operator changed to environ, now uses sets of clocks \\
+    \new & $LHd2$; allows high-priority transitions \\
+    $Hid2$ & $LHd3$; Clock hiding operator changed to environ, now uses sets of clocks \\
+    \new & $Cap1$; allows mobility primitives to be performed \\
+    \new & $Cap2$; allows time to run over mobility primitives \\
+    \new & $SCong$; integrates the structural congruence laws 
+  \end{tabular}
+  \shrule
+\end{table}
+
+New to Nomadic Time is the rule $SCong$, which links the structural
+congruence rules to the labelled transition system, and the rules
+$Cap1$ and $Cap2$ which allow the mobility prefix, $\ambop$, to
+evolve.  The former allows commutativity to be implied by the presence
+of structural congruence, so $Sum1$ and $Par1$ from CaSE are
+sufficient to describe the behaviour of the summation and parallel
+composition operators for single actions.  $Sum2$ and $Par3$ represent
+the passage of time over these two operators.  Note that time must be
+able to pass on both sides, and that the restriction $E \mid F
+\nderives{h}$ enforces prioritisation.  Again, these are taken
+directly from CaSE but this time with minor changes to include the
+mobility primitives (by replacing $\alpha$ with $\kappa$) and to
+prevent the progress of time in the presence of any high priority
+transitions ($h$), not just $\tau$ ones.
+
+$Par2$ encapsulates synchronisation; when one of the processes can
+perform an action and the other can perform the matching co-action, a
+silent action is performed and both evolve.  $FTO1$ and $STO1$ are
+essentially identical, allowing the dissolution of the timeout via a
+tick of the associated clock, $\sigma$, on the provision that $E
+\nderives{h}$.  The difference between the two timeouts is shown by
+$FTO2$, $STO2$ and $STO3$.  $FTO2$ is a general rule for the fragile
+timeout, which allows $E$ to be performed and the timeout removed on
+the occurrence of any transition other than the clock tick.  For the
+stable timeout, the effect of clocks and actions are separated.
+According to $STO3$, clocks other than $\sigma$ may tick, but the
+timeout stays in place.  $STO2$ handles the removal of the stable
+timeout, due to an action performed by $E$.  Again, these expand on
+the CaSE equivalents by including mobility primitives and high
+priority transitions as above.
+
+Recursion is provided by $Rec$, which performs substitution of $X$ for
+the body of the recursion as soon as any transition, $\gamma$, occurs.
+The $Res$ rule defines restriction, which disallows any transitions
+for the given name.  Both rules are taken directly from CaSE.
+
+The rules $LHd1$ and $LHd3$ are based on $Hid1$ and $Hid2$ in CaSE,
+but with the clock hiding operator replaced by the new syntax for an
+environ.  With this syntactic change also comes a change from the
+hiding of a single clock, $\sigma$, in CaSE, to the hiding of a set of
+clocks, $\vec{\sigma}$.  For $LHd1$, the Nomadic Time equivalent of
+$Hid1$, this adds a side condition whereby the $\sigma$ used in the
+transition must now be a member of the set $\vec{\sigma}$; in CaSE,
+the two are simply equal.  Likewise, $LHd3$, the equivalent of $Hid2$,
+defines $\sigma$ as a member of $\vec{\sigma}$ and $\rho$ as not being
+a member.  The effect of the two rules is that clock transitions for
+clocks which are members of $\vec{\sigma}$ become $\tau$ transitions,
+while the others are retained as is.  The latter only occurs on the
+provision that there are no transitions from clocks in $\vec{\sigma}$
+as these result in $\tau$ transitions being created which have a
+higher priority than clock transitions.
+
+The three remaining rules, $LHd2$, $Cap1$ and $Cap2$ are new to
+Nomadic Time.  The rule $LHd2$ simply allows high priority transitions
+($h$) to be visible outside the environ.  Note that we don't allow
+actions (i.e. members of $\names$ and $\conames$) to cross the
+boundaries of an environ so communication can not take place between a
+process on the outside and one on the inside.  The $Cap1$ and $Cap2$
+rules are simply the equivalents of $Act$ and $Patient$ but for the
+mobility primitives.  
 
 Consequently,
 
@@ -803,7 +895,7 @@ emitted by the hidden clocks to silent actions: if $E$ can perform a
 $\sigma$ transition, then it performs a $\tau$ transition in any
 context where $\sigma$ is hidden.  As $\tau$ is one of the possible
 values of $h$, the presence of transitions for the clocks being hidden
-prevent transitions being created for those that are not hidden in
+prevents transitions being created for those that are not hidden in
 $LHd3$.  The property is implicit for summation, recursion and
 restriction as if the composed processes can perform a $\sigma$
 transition, then it must not be blocked by a $h$ transition.  The
@@ -812,38 +904,16 @@ and $Cap2$ rules which generate $\sigma$ transitions as the process
 ($\nil$, $\alpha.E$ or $\ambop.E$) remains unchanged as a result of
 performing $\derives{\sigma}$.
 
-$Par2$ encapsulates synchronisation; when one of the processes can
-perform an action and the other can perform the matching co-action, a
-silent action is performed and both evolve.  $FTO1$ and $STO1$ are
-essentially identical, allowing the dissolution of the timeout via a
-tick of the associated clock, $\sigma$, on the provision that $E
-\nderives{h}$.  The difference between the two timeouts is shown by
-$FTO2$, $STO2$ and $STO3$.  $FTO2$ is a general rule for the fragile
-timeout, which allows $E$ to be performed and the timeout removed on
-the occurrence of any transition other than the clock tick.  For the
-stable timeout, the effect of clocks and actions are separated.
-According to $STO3$, clocks other than $\sigma$ may tick, but the
-timeout stays in place.  $STO2$ handles the removal of the stable
-timeout, due to an action performed by $E$.
-
-Recursion is provided by $Rec$, which performs substitution of $X$ for
-the body of the recursion as soon as any transition, $\gamma$, occurs.
-The $Res$ rule defines restriction, which disallows any transitions
-for the given name.  Also included in the table is the rule $SCong$,
-which links the structural congruence rules to the labelled transition
-system, and rules which allow the mobility prefix, $\ambop$, to
-evolve, thus completing the semantics for expressions.
-
-The remaining semantics in Table \ref{tab:mobsubset} focus on
-mobility.  $InEnv$ allows a $\tin$ transition to occur and $n$ to move
-into $m$ if matching $\tntin{m}$ and $\bin$ transitions are available
-from the process $\tntin{m}.E$ and bouncer, $B_1$.  Conversely,
-$OutEnv$ concerns the interaction between $\tntout{m}.E$ and $\bout$,
-allowing a $\tout$ transition to occur and $n$ to move outside $m$.
-Likewise, $\tntopen{m}$ causes a $\topen$ transition to occur when
-both an $\tntopen{m}$ and an $\bopen$ transition are available.  The
-named environ, $m$, is destroyed along with its bouncer, and the two
-clock contexts are unified.
+The semantics in Table \ref{tab:mobsubset} focus on mobility and are
+completely new to Nomadic Time.  $InEnv$ allows a $\tin$ transition to
+occur and $n$ to move into $m$ if matching $\tntin{m}$ and $\bin$
+transitions are available from the process $\tntin{m}.E$ and bouncer,
+$B_1$.  Conversely, $OutEnv$ concerns the interaction between
+$\tntout{m}.E$ and $\bout$, allowing a $\tout$ transition to occur and
+$n$ to move outside $m$.  Likewise, $\tntopen{m}$ causes a $\topen$
+transition to occur when both an $\tntopen{m}$ and an $\bopen$
+transition are available.  The named environ, $m$, is destroyed along
+with its bouncer, and the two clock contexts are unified.
 
 Finally, $ProcIn$ and $ProcOut$ describe the movement of processes
 between environs.  In both rules, $E$ moves due to a mobility
@@ -879,7 +949,7 @@ The winner is the last player left in the game.  A model of
 this game can be created using the NT process calculus.
 
 The game environment is represented using environs.  In the musical
-chairs scenario, each chair is represented by a environ, as is the `sin
+chairs scenario, each chair is represented by an environ, as is the `sin
 bin', to which players are moved when they are no longer in the game.
 These environs are all nested inside a further environ which represents
 the room itself.  This is not a necessity, but makes for a cleaner
@@ -1287,13 +1357,29 @@ calculus of chapter \ref{case} with the notions of localities (see
 We also added the notion of `bouncers', a security mechanism which
 allows the number and type of mobility operations which may be
 performed on an environ (our term for a locality in NT) to be defined.
+
 The first half of the chapter demonstrated how each of these features
 was layered onto the calculus, before finishing with its operational
-semantics (\ref{ntsemantics}).  We then demonstrated how the calculus
-may be used using two examples; the first (\ref{example}) aimed to
-demonstrate each of the features of the calculus in action, while the
-second (\ref{app:nt}) expanded on the application specified in
-\ref{app:req} from a more real-world perspective.
+semantics (\ref{ntsemantics}).  With respect to the core semantics,
+although they are partially derived from CaSE, there was still a
+significant amount of work involved in ensuring that the derived rules
+correctly covered the new possibilities introduced by the expanded
+syntax and transitions available in Nomadic Time.  For example, $Cap1$
+and $Cap2$ were not present in initial revisions, but without these,
+the transitions upon which the mobility semantics (Table
+\ref{tab:mobsubset}) rely would simply not exist.  We believe our
+formulation of the mobility semantics to be novel; while the general
+concepts embodied within them are present in the Ambient Calculus and
+its derivatives, the semantics of these calculi are not constructed as
+structural operational semantics.  We thus believe those presented
+here to be fairly unique, especially with regard to the presence of
+co-mobility primitives from the bouncers.
+
+We then demonstrated how the calculus may be used using two examples;
+the first (\ref{example}) aimed to demonstrate each of the features of
+the calculus in action, while the second (\ref{app:nt}) expanded on
+the application specified in \ref{app:req} from a more real-world
+perspective.
 
 In the next chapter, we show how Nomadic Time may be used to construct
 a concurrent programming framework in the Java programming language.
