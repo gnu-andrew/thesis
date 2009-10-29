@@ -828,7 +828,7 @@ which uses the given channel and locality implementations.  If one can
 not be found, an \texttt{UnsupportedContextException} is thrown.
 
 DynamiTE supplies an implementation of \texttt{ContextFactory} in the
-form of the\\ \texttt{DynamiTEContextFactory}.  It in turn probes for
+form of the \linebreak \texttt{DynamiTEContextFactory}.  It in turn probes for
 classes which implement \texttt{Calculus}, \texttt{ChannelFactory} and
 \texttt{LocalityFactory} and an instance of it is returned to the user
 if it finds an implementation of each which meets the user's
@@ -1001,7 +1001,7 @@ are also used in \texttt{Prefix}, the implementation of $\alpha.E$:
   \texttt{InputChannel} and storing the result.
 \item Likewise, the class \texttt{Coname} represents the use of a
   co-name in $\alpha.E$ and implements \texttt{perform()} by
-  retrieving a value from storage and transmitting it over an \\
+  retrieving a value from storage and transmitting it over an \linebreak
   \texttt{OutputChannel}.
 \item The \texttt{Tau} class is the last of the three classes used in
   $\alpha.E$ and is used for the internal action, $\tau$.
@@ -1015,7 +1015,7 @@ are also used in \texttt{Prefix}, the implementation of $\alpha.E$:
 \end{enumerate}
 
 The \texttt{InputChannel} and \texttt{OutputChannel} instances are
-obtained from the \\ \texttt{ChannelFactory}, via the \texttt{Context},
+obtained from the \linebreak \texttt{ChannelFactory}, via the \texttt{Context},
 and provide \texttt{read()} and \texttt{write(Object)} methods
 respectively.  Although there is currently no realisation of data
 within the formal layer of the calculus, this only matters to the

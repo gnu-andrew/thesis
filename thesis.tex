@@ -1,9 +1,10 @@
 % Thesis
 % Author: Andrew Hughes
 
-\documentclass[12pt,a4paper]{book}
+\documentclass[12pt,a4paper,twoside]{report}
 
 \usepackage{a4wide}
+
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
@@ -168,7 +169,7 @@
 
 \title{DynamiTE:\\A 21st-Century Framework for Concurrent Component-Based Design}
 \author{Andrew~John~Hughes}
-\date{\today\\[12pt]
+\date{November 2009\\[12pt]
 This thesis is submitted for the degree of \emph{Doctor of Philosophy}
 \\[12pt]
 Department of Computer Science\\
@@ -176,12 +177,23 @@ University of Sheffield}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
+\pagestyle{plain}
+\pagenumbering{roman}
 \maketitle
-%\pagestyle{plain}
+
+\cleardoublepage
+\include{abstract}
+
+\setcounter{page}{4}
+
 \tableofcontents
 \listoffigures
 \listoftables
 
+\newpage
+
+\pagestyle{headings}
+\pagenumbering{arabic}
 
 \include{introduction}
 

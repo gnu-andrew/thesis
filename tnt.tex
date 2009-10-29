@@ -29,7 +29,7 @@ Type systems can be used to restrict the calculus in ways that aren't
 always possible via mere manipulation of the syntax and semantics.
 Adding a type system can be as simple as formalising implicit notions,
 such as the use of $\ambin{m}$ as a capability and not as part of a
-path \cite{ambienttypes} or the fact that the $x$ in $x(y)$ should be
+path \cite{ambienttypes} or the fact that the $x$ in $x(y)$ should
 represent a link and not a mere value \cite{sangiorgi:types-or}.  It
 may also provide more complex intuitions, by distinguishing individual
 entities, controlling mobility
@@ -244,7 +244,7 @@ S, T ::= Shh \pc W_1 \times \dots \times W_k
 
 \noindent For example, in the simplest form of the calculus,
 $Agent[Shh]$ represents a group called $Agent$, the members of which
-may not exchange values.  Nesting is possible, so \\$Place[Agent[Shh]]$
+may not exchange values.  Nesting is possible, so \linebreak $Place[Agent[Shh]]$
 represents a $Place$ where groups of $Agent$s may stay and continue to
 be silent.
 
@@ -893,10 +893,12 @@ from the formal notation into objects in DynamiTE:
 
 \begin{verbatim}
 Name sit = new Name("sit");
-Group g = new Group(new String[]{"chair"},null,null,new String[]{"chair"}); 
+Group g = new Group(new String[]{"chair"},null,null,
+                    new String[]{"chair"}); 
 Prefix moving = new Prefix(sit, new Nil(g));
 Clock sigma = new Clock("\u03C3");
-MobPrefix sitAction = new MobPrefix(new ProcIn(sit, "chair"), new Var("X"));
+MobPrefix sitAction = new MobPrefix(new ProcIn(sit, "chair"),
+                                    new Var("X"));
 Process gm4 = new Rec("X", new STo(sitAction, sigma, Nil.NIL));
 Process mp = new STo(moving, sigma, Nil.NIL);
 Process chairMovement = new Par(mp, gm4);

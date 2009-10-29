@@ -1,7 +1,8 @@
 LATEX=latex
 TEX=thesis.pdf
 DEPS=introduction.tex apc.tex globalsynchronisation.tex mobility.tex \
- nt.tex dynamite.tex tnt.tex futurework.tex literature.bib preservation.tex
+ nt.tex dynamite.tex tnt.tex futurework.tex literature.bib preservation.tex \
+ abstract.tex syntax.tex
 
 all: thesis.pdf
 
