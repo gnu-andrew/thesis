@@ -113,18 +113,18 @@ consider a subset of these.
 Algebraic process calculi model the interaction of concurrent
 processes using a (usually small) set of algebraic operators, as
 opposed to the true concurrency of Mazurkiewicz trace theory
-\cite{maz:trace} or the graphical style associated with Petri nets
-\cite{petri:phd} and Hewitt's Actor model \cite{hewitt:actor}.
+\cite*{maz:trace} or the graphical style associated with Petri nets
+\cite*{petri:phd} and Hewitt's Actor model \cite*{hewitt:actor}.
 Interaction between processes is via message-passing, rather than via
 a common shared memory\footnote{Shared memory and message-passing are
   not orthogonal; a shared memory space may be represented as a
   communicating resource in a message-passing system, while message
   queues can be implemented using shared memory.} or a tuple space
-\cite{linda}.
+\cite*{linda}.
 
 The foundational calculi in this field are Hoare's CSP
-\cite{hoare:csp78}, Milner's CCS \cite{milner:ccs} and Bergstra and
-Klop's ACP \cite{acp}, all of which were first developed in the late
+\cite*{hoare:csp78}, Milner's CCS \cite*{milner:ccs} and Bergstra and
+Klop's ACP \cite*{acp}, all of which were first developed in the late
 1970s to early 1980s.  CSP was originally developed as a programming
 language with a relatively large syntax, while Milner aimed for a
 minimal calculus.  Both calculi have influenced each other, with CSP
@@ -135,7 +135,7 @@ to achieve a different goal.
 
 In our work, the focus is on CCS, as it forms the basis for most of
 the other calculi considered, including the $\pi$ calculus
-\cite{picalctutorial} (see \ref{picalculus}) and CaSE \cite{CaSE} (see
+\cite{milner:pi} (see \ref{picalculus}) and CaSE \cite{CaSE} (see
 \ref{case}).  Of the three foundational calculi, CCS has the smallest
 syntax with additional features such as failure (represented in both
 CSP and ACP) needing to be derived from or appended to this core set.
@@ -363,6 +363,7 @@ over the set of names ($\names$) and and $\gamma$ over $\names \cup
 \end{table}
 
 \subsection{The Dining Philosophers}
+\label{philosophers}
 
 To fully appreciate CCS, it is necessary to see how it may be used to
 model an example scenario.  

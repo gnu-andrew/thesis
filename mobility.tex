@@ -43,14 +43,15 @@ calculi in more detail.
 \subsection{The $\pi$ Calculus}
 \label{picalculus}
 
-The $\pi$ calculus follows on from Milner's earlier work on CCS
-discussed in \ref{ccs}. Essentially, it is a value-passing form of CCS
-in which values and channels are replaced simply by \emph{pure names}.
-Thus, channels can be passed between processes, as well as values,
-which means that their scope may change during execution.
+The $\pi$ calculus \cite*{milner:pi} follows on from Milner's earlier
+work on CCS discussed in \ref{ccs}. Essentially, it is a value-passing
+form of CCS in which values and channels are replaced simply by
+\emph{pure names}.  Thus, channels can be passed between processes, as
+well as values, which means that their scope may change during
+execution.
 
 To make this clearer, consider the syntax of the form of $\pi$ calculus
-given in \cite{funcproc}
+given in \cite*{funcproc}
 
 \begin{equation}
 \label{pisyntax}
@@ -69,7 +70,7 @@ below.  Compare this with the syntax given for CCS in Eqn.
 \ref{ccssyntax}.  The nil process, $0$, is still present, as is parallel
 composition and restriction (although in a new form, $(a)E$).
 Non-deterministic choice is present in the original version of the $\pi$
-calculus presented in \cite{picalctutorial}, but is removed from the
+calculus presented in \cite*{picalctutorial}, but is removed from the
 version given in \cite{funcproc} due to the formulation of semantics
 used there.  $!E$ is the syntax for replication, which replaces
 recursion in this particular variant of the calculus to give a simpler
@@ -222,7 +223,7 @@ a more natural way of transmitting information, which makes modelling
 relatively complex systems easier.
 
 The asynchronous $\pi$ calculus
-\cite{boudol:asynchrony,honda:asynchronouscommunication,sangiorgi:asynchronousprocesscalculi}
+\cite*{honda:asynchronouscommunication,boudol:asynchrony,sangiorgi:asynchronousprocesscalculi}
 deliberately reduces the level of expressivity in order to simplify
 reasoning and provide a better framework for distributed
 implementations.  The output prefix, $\overline{x}y.E$ is replaced
@@ -288,7 +289,7 @@ The final variant of the $\pi$ calculus considered here is the
 extension to higher-order operations.  The most obvious change to make
 in this direction is to allow processes to be exchanged.  Such a
 second-order form of the calculus is given by the \emph{Calculus of
-  Higher Order Communicating Systems} (CHOCS) \cite{thomsen:chocs},
+  Higher Order Communicating Systems} (CHOCS) \cite*{thomsen:chocs},
 which actually predates the $\pi$ calculus itself.  This extended CCS
 with mobility by allowing processes, rather than channel names, to be
 transmitted.
@@ -410,7 +411,7 @@ additional ease it provides in modelling certain scenarios.
 \subsubsection{The Join Calculus}
 \label{join}
 
-The Join calculus \cite{join} takes the asynchronous $\pi$ calculus as
+The Join calculus \cite*{join} takes the asynchronous $\pi$ calculus as
 its basis, and focuses on providing a formalism better suited as the
 basis for a distributed implementation.
 
@@ -426,7 +427,7 @@ The problem with implementing this in a distributed setting is that
 there is no concept of location with the $\pi$ calculus.  Each of the
 two receiving processes or \emph{receptors}\footnote{The join calculus
   uses an analogy with chemistry to describe its behaviour, based on
-  the \emph{CHemical Abstract Machine} (CHAM) \cite{cham}.} may be
+  the \emph{CHemical Abstract Machine} (CHAM) \cite*{cham}.} may be
 located at an arbitrary distance both from each other and from the
 transmitter, $\overline{x}a$.  As a result, a \emph{distributed
   consensus problem} arises as to which of the two receptors will
@@ -490,6 +491,7 @@ the syntactic level.\footnote{Such changes have also been made using the
 restrictions imposed by an appropriate type system \cite{sangiorgi:uniformreceptiveness}.}
 
 \subsection{Advantages and Disadvantages of the $\pi$ Calculus}
+\label{pilimit}
 
 The $\pi$ calculus is a powerful formalism drawn from a minimal
 abstract syntax.  As noted at the start of this section, it is capable
@@ -605,7 +607,7 @@ In most situations, this is beneficial.  It means that the specification
 can be met by a concurrent system, composed of multiple processes
 running in parallel, superfluous $\tau$ transitions aside.  When a
 distinction between the number of processes used is required, a finer
-equivalence is needed.  \emph{Location bisimulation} \cite{obslocal}
+equivalence is needed.  \emph{Location bisimulation} \cite*{obslocal}
 provides exactly that, by assigning locations to processes and using
 them as part of the relation between processes.
 
@@ -878,8 +880,9 @@ non-distributed formalisms, such as the Join calculus.
 %The distributed $\pi$ calculus, or D$\pi$ \cite{hennessy:dpi98},
 
 \subsection{The Distributed Join Calculus}
+\label{distjoin}
 
-By adding localities, \cite{djoin} defines a distributed variant of the
+By adding localities, \cite*{djoin} defines a distributed variant of the
 Join calculus shown in \ref{join}.  The extended syntax is as follows:
 
 \begin{align}
@@ -962,16 +965,10 @@ by the ambient calculus, which instead begins again from first
 principles, in an attempt to formalise this more spatial form of
 mobility in a minimal fashion.
 
-%\subsubsection{Nomadic Pict}
-
-%Pawel Wojciechowski defines, in his PhD thesis \cite{wojciechowski:phd},
-%an extension to PICT \cite{daveturner:phd} which incorporates
-%distribution.
-
 \subsection{The Ambient Calculus}
 \label{ambientcalculus}
 
-The ambients within the ambient calculus \cite{amb} are a form of
+The ambients within the ambient calculus \cite*{amb} are a form of
 locality.  Each ambient can contain processes and other ambients,
 allowing a nested structure of ambients to be formed.  This topology
 is dynamic; new ambients may be created and existing ones moved or
@@ -1017,13 +1014,13 @@ processes within them.
 
 Perhaps the most confusing aspect of capabilities is that they are
 emitted by the process, but it is the ambient that actually moves.
-For example, if process $P$ is defined as $in\ n.0$, then performing
+For example, if process $P$ is defined as $\ambin{n}.0$, then performing
 this action has the effect of moving the \emph{ambient} in which $P$
 resides inside $n$, rather than just $P$.  Likewise, $out\ n$ is the
 converse and moves the surrounding ambient outside $n$.
 
 Such behaviour is best illustrated by an example. Suppose the process,
-$in\ n.out\ n.P$ begins its life in the ambient $m$
+$\ambin{n}.\ambout{n}.P$ begins its life in the ambient $m$
 (Fig. \ref{fig:ambient1}).  Performing the first action, $in\ n$,
 moves its surrounding ambient, $m$, inside $n$
 (Fig. \ref{fig:ambient2}).  The converse, $out\ n$, then moves $m$
@@ -1052,10 +1049,10 @@ evolved into $P$.
   \label{fig:ambient3}
 \end{figure}
 
-$open\ n$ is quite different.  It alters the structure, just as $in$ and
+$\ambopen{n}$ is quite different.  It alters the structure, just as $in$ and
 $out$ do, but rather than moving ambients, it destroys them.  It is also
 applied to a child ambient rather than to the surrounding ambient, so
-$open\ m.P\ |\ m[Q]$ (as in \cite{amb}) reduces to $P\ |\ Q$.
+$\ambopen{m}.P \pc m[Q]$ (as in \cite{amb}) reduces to $P \pc Q$.
 
 There are also issues with regard to the applicability of capabilities
 and the use of the names.  A capability may only cause movement to occur
@@ -1073,15 +1070,16 @@ named $m$.
   ambient named $m$.
 \end{itemize}
 
-All three capabilities are non-deterministic.  The same ambient name may
-occur more than once, and each occurrence is regarded as being distinct.
-As a result, the reduction of a capability includes a choice if there is
-more than one applicable ambient present.  For example, $open\ m.P\ |\
-m[Q]\ |\ m[R]$ has two possible derivations,
+All three capabilities are non-deterministic.  The same ambient name
+may occur more than once, and each occurrence is regarded as being
+distinct.  As a result, the reduction of a capability includes a
+choice if there is more than one applicable ambient present.  For
+example, $\ambopen{m}.P \pc m[Q] \pc m[R]$ has two possible
+derivations,
 
 \begin{enumerate}
-\item $open\ m.P\ |\ m[Q]\ |\ m[R] \rightarrow P\ |\ Q\ |\ m[R]$
-\item $open\ m.P\ |\ m[Q]\ |\ m[R] \rightarrow P\ |\ m[Q]\ |\ R$
+\item $\ambopen{m}.P \pc m[Q] \pc m[R] \rightarrow P \pc Q \pc m[R]$
+\item $\ambopen{m}.P \pc m[Q] \pc m[R] \rightarrow P \pc m[Q] \pc R$
 \end{enumerate}
 
 The issue of non-determinism illustrates the behaviour that occurs when
@@ -1217,7 +1215,7 @@ $\ambopen{n}.\nil$.  Clearly, only one of these reductions is likely to be
 intentional.  
 
 Levi and Sangiorgi's calculus of Mobile Safe Ambients
-\cite{safeamb00,sangiorgi:mobsafeambients} presents a solution to
+\cite*{safeamb00,sangiorgi:mobsafeambients} presents a solution to
 this.  It introduces a notion of co-capabilities, which enforce a
 pairing of mobility primitives before a reduction can be made.  The
 result of this is that the ambient being entered, exited or opened is
@@ -1252,7 +1250,7 @@ appropriate type system\footnote{In this case, the type system ensures
   single-threadedness, where only one process within an ambient may
   exercise a capability.}.  Essentially, they represent a move from
 asynchronous to synchronous mobility primitives.  The calculus of
-controlled ambients \cite{controlledamb02} restricts behaviour
+controlled ambients \cite*{controlledamb02} restricts behaviour
 further, by requiring that a co-capability must appear in both the
 source and the destination.  Thus, an $\ambin{m}$ capability requires
 permission both to leave its current location and to enter the
@@ -1261,12 +1259,13 @@ the calculus, controlling resources, but is excessive in most
 circumstances.
 
 A further variant of the ambient calculus is the calculus of boxed
-ambients \cite{boxedamb01}.  This removes the $open$ capability
-altogether, replacing it with a form of directed communication inspired
-by \cite{seal}.  Processes remain within their initial ambient
-permanently (hence the term `boxed') and only the structure of the
-ambient topology changes via the $in$ and $out$ capabilities.  Messages
-may be sent locally, upwards or downwards, but not to siblings.
+ambients \cite*{boxedamb01}.  This removes the $open$ capability
+altogether, replacing it with a form of directed communication
+inspired by the Seal calculus \cite{seal}.  Processes remain within
+their initial ambient permanently (hence the term `boxed') and only
+the structure of the ambient topology changes via the $in$ and $out$
+capabilities.  Messages may be sent locally, upwards or downwards, but
+not to siblings.
 
 An example process from \cite{boxedamb01} is:
 
@@ -1294,6 +1293,7 @@ situations where the removal of a locality corresponds to a similar
 event in the real-world situation being modelled.
 
 \subsection{Advantages and Disadvantages of the Ambient Calculus}
+\label{amblimit}
 
 The most interesting aspect of the ambient calculus is that, while it
 includes no communication primitives, it can encode the asynchronous
@@ -1322,15 +1322,11 @@ Thus, the ambient calculus and the $\pi$ calculus have more in common
 than is initially apparent, and the choice between the two seems to be
 largely based on the most natural formalism for a particular task.
 
-%\subsubsection{The Seal Calculus}
-
-%The seal calculus \cite{seal}
-
 \subsection{P Systems}
 \label{psystems}
 
 While providing a way of modelling concurrent spatially-oriented
-systems, P Systems \cite{membranecomp,membranehandbook} arise from
+systems, P Systems \cite*{membranecomp,membranehandbook} arise from
 the area of formal language theory and re-writing rules rather than
 process calculi.  They are considered here, as there exist a number of
 similarities between them and, for example, the ambient calculus both
@@ -1503,7 +1499,7 @@ especially useful for representing the structure of real-world
 biological entities.
 
 Such modelling is becoming commonplace within the literature
- \cite{biospi,cardelli:bioambients,fran}, where concurrent models
+ \cite*{biospi,cardelli:bioambients,fran}, where concurrent models
 represent an alternative to the use of ordinary differential equations
 (ODEs).  The usual approach is to create a model of the system within
 the formalism and then perform simulations.  Such simulations rely on
@@ -1632,7 +1628,7 @@ monitored.
 \section{Bigraphs}
 \label{bigraphs}
 
-Bigraphs \cite{bigraph1,bigraph2} are an attempt at providing a
+Bigraphs \cite*{bigraph1,bigraph2} are an attempt at providing a
 unifying framework, able to represent both spatial relationships
 (\emph{locality}) in the style of the ambient calculus (see
 \ref{ambientcalculus}) and link-based-relationships

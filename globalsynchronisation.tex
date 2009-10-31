@@ -27,7 +27,7 @@ our attention to its predecessor, TPL.
 \section{Temporal Process Language (TPL)}
 \label{tpl}
 
-Hennessy's Temporal Process Language (TPL) \cite{hennessy:tpl} extends
+Hennessy's Temporal Process Language (TPL) \cite*{hennessy:tpl} extends
 the CCS language discussed in \ref{ccs} with a single clock, akin to a
 hardware clock which emits a signal at an arbitrary point in time.
 These signal emissions are controlled by a concept known as
@@ -67,6 +67,10 @@ $\tpltimeout{\nil}{F}$, we have two possibilities:
 \end{enumerate}
 
 \noindent as both $\nil$ and the timeout produce $\sigma$ transitions.
+Thus, what we have is \emph{prioritised choise}; two alternatives are
+offered as with $+$ but the higher priority of $\tau$ transitions over
+$\sigma$ transitions is instrumental in the choice of which transition
+to follow to the next state.
 
 With these additions, the problem of defining a suitable compositional
 broadcast agent, as mentioned in \ref{ccslimit}, can be solved.
@@ -101,10 +105,10 @@ problems occur.  The use of the clock in one subsystem may conflict
 with its use in another, and there is no clock available to
 co-ordinate the subsystems themselves.
 
-The Calculus for Synchrony and Asynchrony (CSA) \cite{csa} extends TPL
+The Calculus for Synchrony and Asynchrony (CSA) \cite*{csa} extends TPL
 with the idea of multiple clocks, drawn from PMC\footnote{PMC also
   differs from TPL in its use of \emph{insistent} actions; all must be
-  performed before a clock tick.}\cite{pmc}. However, while having
+  performed before a clock tick.}\cite*{pmc}. However, while having
 multiple clocks allows the use of differing patterns of
 synchronisation, it increases the number of clock ticks present within
 the system.  With five clocks, even the nil process has five possible
@@ -113,7 +117,7 @@ transitions (as clocks idle over nil).
 CSA solves this to a limited extent by localising maximal progress to
 a pre-defined scope for each clock.  A more elegant solution is
 provided in the Calculus for Synchrony and Encapsulation (CaSE)
-\cite{CaSE}, which introduces a clock hiding operator into the syntax.
+\cite*{CaSE}, which introduces a clock hiding operator into the syntax.
 The effect of this is the introduction of \emph{synchronous
   encapsulation}, as hidden clocks emit $\tau$ actions (as opposed to
 ticks) outside the operator's scope.  This can be used, in conjunction
@@ -198,6 +202,7 @@ then the following derivations will occur:
 \noindent again with the single clock, $\sigma$, as the context.
 
 \subsection{Timeouts}
+\label{timeouts}
 
 Moving on to the new operators, CaSE, as presented in
 \cite{norton05alg}, includes two variants of the timeout operator,
@@ -319,6 +324,7 @@ P$, whereas $\sigma.P$ allows an arbitrary number of transitions from
 other clocks before this occurs.
 
 \subsection{Encapsulation}
+\label{encapsulation}
 
 Clock hiding is used to provide scoping for the ticks of a
 clock.  Take the following situation,

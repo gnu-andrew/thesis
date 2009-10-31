@@ -1,18 +1,27 @@
-\chapter{Future Work}
+\chapter{Contributions and Future Work}
 \label{futurework}
 
-\section{Introduction}
+This final chapter summarises our contributions to knowledge from
+\ref{contributions}, before turning to the discussion of possible future
+work in \ref{futureworksect}.
 
-This chapter briefly discusses possible future work with regard to the
-process calculus Nomadic Time (\ref{future:nt}), DynamiTE
-(\ref{future:dynamite}) and the type system (\ref{future:types}).  We
-also touch on other possible applications for Nomadic Time
+\section{Our Contributions}
+\label{ourcontributions}
+
+\section{Future Work}
+\label{futureworksect}
+
+In this final section, we look at a number of ideas with regard to
+further developing the process calculus Nomadic Time
+(\ref{future:nt}), the DynamiTE framework (\ref{future:dynamite}) and
+the type system (\ref{future:types}).  We also touch on other possible
+applications for Nomadic Time and its typed derivative, TNT
 (\ref{future:apps}).
 
-\section{Nomadic Time}
+\subsection{Nomadic Time}
 \label{future:nt}
 
-\subsection{Separation of Syntax}
+\subsubsection{Separation of Syntax}
 
 At present, the syntax represents bouncers as a form of process for
 simplicity.  This has the advantage of being minimal, but also means
@@ -23,8 +32,7 @@ $\Omega$ being used as a `normal' process term).  In chapter
 terms invalid, but in hindsight it would better to have a more verbose
 syntax which rules these out from the start.
 
-\subsection{Equivalence}
-\label{future:equiv}
+\subsubsection{Equivalence}
 
 The main element lacking in the current version of Nomadic Time is
 some notion of equivalence.  This is necessary to be able to compare
@@ -56,7 +64,7 @@ $\tntin{m}$ transition along with one for each member of $\timers$.
 Assuming $\timers$ is the same for both, the difference in topology is
 not discernable from merely the set of possible transitions.
 
-\section{DynamiTE}
+\subsection{DynamiTE}
 \label{future:dynamite}
 
 As we hinted at in chapter \ref{dynamite}, there are still a number of
@@ -83,10 +91,10 @@ interprocess communication via web services and supporting other
 process calculi.  Hopefully, third parties may also wish to get
 involved in this area.
 
-\section{The Type System}
+\subsection{The Type System}
 \label{future:types}
 
-\subsection{More Advanced Types}
+\subsubsection{More Advanced Types}
 
 There are a number of ideas that could be further investigated:
 
@@ -101,7 +109,7 @@ There are a number of ideas that could be further investigated:
   deducing results, such as proofs of consistency.
 \end{itemize}
 
-\subsection{Nomadic Time Extended With Data}
+\subsubsection{Nomadic Time Extended With Data}
 \label{tnted}
 
 At present, the calculus does not explicitly represent the passing of
@@ -140,7 +148,7 @@ also has the type $(t_1, t_2, t_3)$.  Clearly, the second rule could
 be widened to allow a subtyping relation between the two types, rather
 than equivalence.
 
-\subsection{Explicit Type Assignment}
+\subsubsection{Explicit Type Assignment}
 
 At present, there is no explicit assignment of types to processes in
 the type system.  We assume that the user either adds their own axioms
@@ -153,7 +161,7 @@ must hold.  In the DynamiTE implementation of the type system (see
 also be added to the formal version by modifying the syntax and
 semantics to use $\nil : T$, $\Delta : T$ and $\Delta_\sigma : T$.
 
-\section{Other Applications}
+\subsection{Other Applications}
 \label{future:apps}
 
 There may be other domains in which our calculus will find

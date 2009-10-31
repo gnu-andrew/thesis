@@ -25,6 +25,7 @@ discuss why we chose Java as the host language for DynamiTE and what
 advantages and disadvantages this brings to its implementation.
 
 \section{Why Java?}
+\label{whyjava}
 
 The first implementation of the Java programming language was released
 in 1995 by Sun Microsystems.  It takes the form of a block structured
@@ -138,7 +139,7 @@ demonstrated in \ref{semaphores}.  It has also had support for threads
 from the very beginning, with support as a core part of the virtual
 machine rather than as an auxillary library (the approach used for C).
 Java's platform independence means that the same threading constructs
-and semantics, as mandated by the VM specification\cite{vmspec}, can
+and semantics, as mandated by the VM specification \cite{vmspec}, can
 be used across all operating systems supported by a Java virtual
 machine.  The actual implementation is provided by the virtual machine
 and class library, which may either map them on to native threads or
@@ -239,7 +240,7 @@ itself is not altered.  It provides support for:
     example, a collection class can allow multiple threads to read
     values as long as there is no thread altering the collection.
     Locks, and other implementations such as \texttt{Semaphore}, are
-    based on \texttt{AbstractQueuedSynchronizer}\cite{aqs} which
+    based on \texttt{AbstractQueuedSynchronizer} \cite{aqs} which
     provides a common framework thread queues.
     \item \textbf{Explicit Condition Queues}.  As in the case of
       locks, Java already has its own implicit condition queues,
@@ -1562,13 +1563,15 @@ those based on process calculi.
 
 The $\pi$ calculus has been the subject of much of this work,
 primarily due to its status as the most prevalant mobile process
-calculus.  Obliq \cite{obliq} and Pict \cite{daveturner:phd} are both
+calculus.  Obliq \cite*{obliq} and Pict \cite*{daveturner:phd} are both
 programming languages with semantics founded in the $\pi$ calculus,
-while Nomadic Pict \cite{wojciechowski:phd} extends Pict by
+while Nomadic Pict \cite*{wojciechowski:phd} extends Pict by
 introducing distribution, a feature not usually present in the $\pi$
 calculus.
 
 \subsection{Obliq}
+\label{obliq}
+
 Obliq was originally developed by Luca Cardelli in 1995, prior to his
 work on the ambient calculus.  While being an object-oriented
 language, it has no notion of classes in the same way that languages
@@ -1714,6 +1717,7 @@ of early research in this area, but we don't see it being of much
 practical use.
 
 \subsection{Nomadic Pict}
+\label{nomadicpict}
 
 Pict is a programming language based on the asynchronous $\pi$
 calculus (see \ref{pivariants}).  Nomadic Pict extends this by adding
@@ -1776,9 +1780,10 @@ very useful in some areas, it's not suitable as a general purpose
 language for the masses.
 
 \subsection{The Safe Ambients Abstract Machine}
+\label{safeambmachine}
 
 Something closer to our work on DynamiTE is the abstract machine PAN
-for safe ambients \cite{sangiorgi:safeambientsmachine}.  Safe
+for safe ambients \cite*{sangiorgi:safeambientsmachine}.  Safe
 ambients were discussed back in \ref{ambvariants}; they provide a form
 of the ambient calculus which is protected from \emph{grave
   interferences} by requiring each mobility action ($in$, $out$ and
@@ -1848,9 +1853,10 @@ the research the project produced by feeding it into the development
 of DynamiTE.
 
 \subsection{JavaSeal}
+\label{javaseal}
 
 The final piece of related work we will consider is the Seal calculus
-\cite{seal}.  This is probably the closest of those covered here to
+\cite*{seal}.  This is probably the closest of those covered here to
 DynamiTE; it was designed with implementation in mind \cite{javaseal},
 specifically `secure distributed applications', and uses a similar
 technique of `cherry-picking' some of the best features from other

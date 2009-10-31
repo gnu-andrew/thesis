@@ -33,12 +33,13 @@ path \cite{ambienttypes} or the fact that the $x$ in $x(y)$ should
 represent a link and not a mere value \cite{sangiorgi:types-or}.  It
 may also provide more complex intuitions, by distinguishing individual
 entities, controlling mobility
-\cite{ambienttypes,sangiorgi:mobsafeambients} or resources
-\cite{hennessy:dpi98} or even providing a full subtyping relation
-\cite{sangiorgi:typing,boxedamb02}.  This section considers a few
+\cite*{ambienttypes,sangiorgi:mobsafeambients} or resources
+\cite*{hennessy:dpi98} or even providing a full subtyping relation
+\cite*{sangiorgi:typing,boxedamb02}.  This section considers a few
 examples of such type systems for both the $\pi$ calculus
-(\ref{pitypes}) and the ambient calculus
-(\ref{ambienttypes}).\subsection{Type Systems for the $\pi$ Calculus}
+(\ref{pitypes}) and the ambient calculus (\ref{ambienttypes}).
+
+\subsection{Type Systems for the $\pi$ Calculus}
 \label{pitypes}
 
 Various type systems have been introduced for the $\pi$ calculus in
@@ -54,7 +55,7 @@ termination.
 \label{sorts}
 
 The earliest notion of types was introduced by Milner in
-\cite{milner:93polyadic,milner:pi}.  The discipline of \emph{sorts}
+\cite*{milner:93polyadic,milner:pi}.  The discipline of \emph{sorts}
 is simply a way of representing `the length and nature of the vector
 of names a name may carry in communication' \cite{milner:93polyadic}.
 Formally, a sort is a partial function,
@@ -263,7 +264,7 @@ $\mathbf{G}$ includes the groups that the ambient may cross via standard
 subjective movement.  Finally, $\mathbf{H}$ distinguishes the groups
 whose ambients may be $\ambopen{e}$, while $T$ is as defined above.
 
-A similar system is adopted in \cite{m3}, but, as this refers to boxed
+A similar system is adopted in \cite*{m3}, but, as this refers to boxed
 ambients (see \ref{ambvariants}), no control of $open$ is required.  It
 does introduce a new set of groups, however, to handle the lightweight
 process mobility presented.  In both cases, the type system has a
@@ -824,6 +825,7 @@ public interface TypedEvolver
 are left up to each implementation.
 
 \section{Typed Musical Chairs}
+\label{typedexample}
 
 With our typed variant of Nomadic Time, TNT, we can control the
 movement of processes in a much more fine grained manner using groups.

@@ -835,29 +835,8 @@ how data flows between the various tasks.  In later chapters, we will
 demonstrate how these components can be formally modelled using our
 process calculus and how they may be implemented using DynamiTE.
 
-\section{Structure of the Thesis}
-
-The first half of this thesis focuses on existing research in order to
-provide the necessary background material for the novel work presented
-in later chapters.  Through this evaluation, we make clear the
-motivation for our work and also allow this thesis to remain
-relatively self-contained.  In the next chapter, we introduce existing
-research in to the area of algebraic process calculi through an
-exploration of the Calculus of Concurrent Systems (CCS)
-\cite{milner:ccs}.  The following two chapters then focus on specific
-extensions to such calculi: global synchronisation (\ref{globsync})
-and mobility (\ref{mobility}).
-
-In chapter \ref{nt}, we introduce our own research in the form of the
-Nomadic Time process calculus, while chapter \ref{dynamite} covers the
-development of the DynamiTE (Dynamic Theory Execution) framework.  The
-following chapter (\ref{tnt}) demonstrates how Nomadic Time may
-optionally be extended with a type system to create TNT (Typed Nomadic
-Time).  Both of the latter two chapters also cover related work in
-these particular areas.  We close with suggestions for future work in
-chapter \ref{futurework}.
-
 \section{Contributions to Knowledge}
+\label{contributions}
 
 Through this thesis, we present the following contributions to
 knowledge which we believe to be novel:
@@ -867,12 +846,33 @@ knowledge which we believe to be novel:
   with \emph{compositional global synchronisation}, \emph{mobility}
   and security provision via the notion of `\emph{bouncers}'
   (see chapter \ref{nt}).  This includes:
-\begin{enumerate}[\bfseries {C}1.1]
+\begin{enumerate}[\bfseries {C1.}1]
 \item The merging of clock hiding from the CaSE process calculus
   \cite{CaSE} with the notion of distribution, so that the boundaries
   of a locality (an \emph{environ} in Nomadic Time) encapsulate the
   behaviour within them.  This makes a locality effectively an opaque
   reusable component which can be integrated into other systems.
+\item The combining of this localised form of CaSE with structural
+  mobility primitives from the ambient calculus \cite{amb} to give a
+  new mobile calculus with the local and global synchronisation
+  properties of CaSE.
+\item The addition of a pair of process mobility primitives which
+  allow direct process movement by synchronising on a name.
+\item The introduction of `bouncers', which add a security mechanism
+  to the calculus by taking the general idea of co-mobility primitives
+  from the safe ambient calculus \cite{sangiorgi:mobsafeambients} and
+  using them in a new specialised process, attached to individual
+  environs.
+\item The creation of a set of structural congruence laws for Nomadic
+  Time (Table \ref{tab:structcong}), allowing process terms to be
+  simplified and the number of semantic rules to be reduced.
+\item The provision of structured operational semantics for Nomadic
+  Time (Tables \ref{tab:core} and \ref{tab:mobsubset}).  These extend
+  those from CaSE as demonstrated in Table \ref{tab:derivation},
+  extending the notion of prioritisaton and adding new rules to handle
+  the introduction of environs and mobility primitives.
+\item The demonstration of the properties of \emph{prioritisation} and
+  \emph{time determinacy} inherent in the new calculus.
 \end{enumerate}
 \item The realisation of the aforementioned calculus as a \emph{design
   framework}, DynamiTE, through the implementation of its constructs
@@ -880,11 +880,34 @@ knowledge which we believe to be novel:
   chapter \ref{dynamite}).  This allows the specification of system
   interactions to be shifted directly from the theoretical domain into
   an implementation backed by a formal methodology, with the intention
-  of improving industrial adoption of concurrent techniques.
+  of improving industrial adoption of concurrent techniques.  This includes:
+\begin{enumerate}[\bfseries {C2.}1]
+\item The creation of a translation schema (Table
+  \ref{tab:translationschema}), mapping process terms in Nomadic Time
+  to Java objects.
+\item The implementation of the operational semantics as methods in
+  the appropriate Java objects defined in the schema.
+\item The design and implementation of a plugin framework, allowing
+  the use of different process calculi and different \emph{side
+    effects} as the result of performing a transition.
+\item The design and implementation of the \emph{evolver} framework,
+  allowing the execution semantics to be both clearly denoted and
+  interchangable.
+\end{enumerate}
 \item The optional addition of a \emph{type system} to Nomadic Time in
   order to allow movement restriction to be based on the group
   membership of processes (see chapter \ref{tnt}); we refer to this
-  extended version as Typed Nomadic Time (TNT).
+  extended version as Typed Nomadic Time (TNT).  This includes:
+\begin{enumerate}[\bfseries {C3.}1]
+\item The design of a group type which can be applied to a Nomadic
+  Time process to restrict movement.
+\item The provision of typing rules (Tables \ref{tab:basictypes},
+  \ref{tab:totypes}, \ref{tab:botypes} and \ref{tab:mobtypes}) for the
+  new typed form of Nomadic Time.
+\item Proofs of type safety for the type system.
+\item The extension of DynamiTE to handle type systems in general, and
+  specifically TNT.
+\end{enumerate}
 \end{enumerate}
 
 This work has already produced two peer-reviewed papers
@@ -893,3 +916,182 @@ external (at the British Colloquium of Theoretical Computer Science
 (BCTCS) 2006, the Relational Methods in Computer Science (RelMiCS) PhD
 workshop 2006, the University of York and Principles and Practice of
 Programming in Java (PPPJ) 2007).
+
+\section{Structure of the Thesis}
+
+The first half of this thesis focuses on existing research in order to
+provide the necessary background material for the novel work presented
+in later chapters.  Through this evaluation, we make clear the
+motivation for our work and also allow this thesis to remain
+relatively self-contained.  
+
+We begin the next chapter with a focus on the need for abstract models
+which can represent concurrent systems and the problems inherent
+therein, as covered earlier in this chapter.  We then introduce
+existing research in this area in the form of algebraic process
+calculi and proceed with an exploration of the Calculus of Concurrent
+Systems (CCS) \cite{milner:ccs} in \ref{ccs}.  This includes, in
+\ref{philosophers}, an example of how CCS can be used to model
+scenarios involving parallel behaviour, using Dijkstra's
+`Dining Philosophers' problem \cite{dijkstra:philosophers}.  We close
+the chapter with a critique of CCS (\ref{ccslimit}), demonstrating
+how, while it provides a good foundation for concurrent modelling, it
+does have its limitations.
+
+One specific limitation of CCS covered at the end of the second
+chapter is its inability to represent a \emph{compositional} broadcast
+agent; by this, we mean one that can synchronise with an undefined
+number of receipients and then proceed to do something else.  CCS can
+produce such agents that work with a known number of recipients, but
+the semantics of the agent have to be changed if the number of
+recipients changes.  In chapter \ref{globsync}, we move onto the topic
+of \emph{global synchronisation} (as opposed to local synchronisation
+between two parties), which allows this problem to be solved.
+
+In \ref{tpl}, we introduce the Temporal Process Language (TPL)
+\cite{hennessy:tpl}, which adds an abstract clock and a timeout
+operator to CCS.  Together, these allow \emph{prioritised choice}; the
+progress of time has a lower priority than the progress of work being
+done, so we can construct agents of the form `do X until there is no
+more work to be done, then do Y'.  Thus, we can design a compositional
+broadcast agent in TPL as 'broadcast until there are no more
+recipients, then do something else'.
+
+The following section (\ref{tplext}) briefly covers a number of
+calculi that extend TPL and provide the necessary stepping stones to
+the Calculus of Synchronous Encapsulation \cite{CaSE} covered in
+\ref{case}.  CaSE retains the notion of a timeout operator
+(\ref{timeouts}), but incorporates multiple clocks and the notions of
+clock stopping (\ref{clockcontrol}) and encapsulation
+(\ref{encapsulation}).  We provide examples and the operational
+semantics of the calculus in \ref{case}, and return to CaSE further in
+\ref{nt} as the basis for our calculus.
+
+Chapter (\ref{mobility}) covers a number of \emph{mobile} calculi,
+where the context of a process can change during execution.  There are
+two ways this can happen; via a change in scope (\ref{scopemobility})
+or a change in physical structure (\ref{migration}).  The foremost
+example of scope mobility is the $\pi$ calculus \cite{milner:pi} which
+we explore in \ref{picalculus}.  This extends CCS so that the name of
+a channel may become known to a process during the course of
+execution, extending its scope.  This is akin to passing a pointer or
+memory reference to a function in a programming language; the
+receipient then has knowledge of and can access something which it
+could not, prior to the call.
+
+The following section (\ref{pivariants}) covers a number of variations
+of the $\pi$ calculus, including its asynchronous and polyadic forms,
+and some theoretical results with regard to the expressivity and
+equivalence of its various forms.  Another such extension is the Join
+calculus \cite{join}, which is briefly covered in \ref{join}.  Section
+\ref{pilimit} closes the discussion of scope mobility with a critique
+of the $\pi$ calculus and its derivatives.
+
+In \ref{migration}, we cover the notion of \emph{localisation}; the
+process of giving a physical position to a process.  The initial
+discussion covers the use of localities within the area of equivalence
+theory \cite{obslocal}, before we move onto the distributed form of
+the Join calculus \cite{djoin} (\ref{distjoin}) and the foremost
+proponent of located mobility, the ambient calculus \cite{amb}
+(\ref{ambientcalculus}).  We give examples of the various operators of
+the ambient calculus, before discussing the various extensions and
+derivatives (\ref{ambvariants}), as we did with the $\pi$ calculus.
+Of particular note are safe ambients \cite{sangiorgi:mobsafeambients},
+from which the form of mobility in our calculus, Nomadic Time, is most
+closely derived.  Again, we close with a critique of the various
+ambient-based calculi in \ref{amblimit}.
+
+The final part of chapter \ref{mobility} covers some more leftfield
+examples.  In \ref{psystems}, we explore P Systems
+\cite{membranecomp}, a dominant modelling language in the field of
+biology which has some parallels with the ambient calculus previously
+discussed.  We look more closely at the comparison between the two in
+\ref{bioapps} where we compare their different approaches to modelling
+biological scenarios.  The final section (\ref{bigraphs}) deals with
+bigraphs \cite{bigraph1}, a framework proposed by Milner which aim to
+unify the various process calculi using a common representation.
+
+The second part of the thesis introduces our own research and novel
+contributions.  Chapter \ref{nt} introduces the Nomadic Time process
+calculus, a novel convergence of ideas from CCS, CaSE and the safe
+ambient calculus.  We begin by localising the calculus
+(\ref{localising}), combining CaSE's notion of encapsulation
+(\ref{encapsulation}) with the concept of localisation
+(\ref{migration}) to introduce \emph{environs} and give our first
+contribution, \cont{1.1}.  We then add a form of structural mobility
+to this localised form of CaSE using the primitives of the ambient
+calculus (\ref{locmob}); this is contribution \cont{1.2}.
+Contribution \cont{1.3} occurs in \ref{procmob}, where we add two
+additional mobility primitives that allow processes to be moved
+directly, without altering the hierarchical structure of the
+localities.  These reuse the names introduced by CCS, with the new
+mobility primitives synchronising in the same manner as a co-name, but
+causing the process to move location.  The final addition to the
+calculus comes in \ref{bouncers}, where we take the idea of
+co-mobility primitives from the safe ambient calculus, but use them in
+a new special type of process we refer to as a `bouncer' or guardian
+of an environ; this is contribution \cont{1.4}.
+
+The following section \ref{ntsemantics} provides Nomadic Time with a
+set of structural congruence laws and a structured operational
+semantics; these form contributions \cont{1.5} and \cont{1.6}.  We
+close this section by showing how the properties of prioritisation and
+time determinacy hold; this is contribution \cont{1.7}.  We close the
+chapter with two sections which give examples of the calculus in use;
+\ref{example} demonstrates the way compositional broadcast can be used
+with mobility through the example of a game of musical chairs, while
+\ref{app:nt} provides the next stage in the development of our
+prototypical application from \ref{app:req} by providing the design of
+the communication infrastructure in Nomadic Time.
+
+Chapter \ref{dynamite} covers the development of the DynamiTE (Dynamic
+Theory Execution) framework, beginning with a explanation
+(\ref{whyjava}) of why we chose Java for our initial implementation
+work.  In \ref{dyn:maptheory}, we then show how the process terms from
+Nomadic Time are mapped onto Java objects and how these objects are
+then implemented so as to return the possible transitions for each
+construct; these give contributions \cont{2.1} and \cont{2.2}.  The
+next section, \ref{dyn:context}, describes the plugin framework which
+allows DynamiTE to be used with different process calculi, and allows
+the implementation of side effects, which may optionally be called
+when a transition is followed; this represents contribution
+\cont{2.3}.  In \ref{dyn:evolvers}, contribution \cont{2.4}, the
+evolver framework, is introduced, which allows the user to choose the
+execution semantics to apply to the system they have developed.
+Section \ref{app:dynamite} returns to the prototypical application
+with the implementation stage, showing how the design from
+\ref{app:nt} can be directly implemented in DynamiTE and how this is
+simpler and less error-prone than creating a bespoke communication
+structure for the application.  We close the chapter in
+\ref{dyn:relatedwork} with coverage of related work in the area of
+concurrent frameworks, including Obliq \cite{obliq} (\ref{obliq}),
+Nomadic Pict \cite{wojciechowski:phd} (\ref{nomadicpict}), the safe
+ambients abstract machine \cite{sangiorgi:safeambientsmachine}
+(\ref{safeambmachine}) and JavaSeal \cite{javaseal} (\ref{javaseal}).
+
+The following chapter (\ref{tnt}) demonstrates how Nomadic Time may
+optionally be extended with a type system to create TNT (Typed Nomadic
+Time).  We begin by looking at existing attempts. The first section,
+\ref{pitypes}, covers type systems in the context of the $\pi$
+calculus, including sorts which enforce the requirement that the
+number of items being sent matches the number being received.  We then
+turn to typing systems for the ambient calculus in \ref{ambienttypes}
+and cover the notion of groups.  In \ref{typesys}, we then take this
+idea of a group type and create our own for the Nomadic Time process
+calculus, which is then used to give typing rules for the new Typed
+Nomadic Time calculus; this forms contributions \cont{3.1} and
+\cont{3.2}.  Contribution \cont{3.3} is found in appendices
+\ref{progress} and \ref{preservation} in the form of proofs of type
+safety for TNT.  Section \ref{dyn:type} returns to DynamiTE and shows
+how it can be extended to perform type checking, using the example of
+supporting TNT; this is contribution \cont{3.4}.  The chapter closes
+with an example use of the type system (\ref{typedexample}) in the
+context of the musical chairs example from \ref{example}.
+
+Finally, chapter \ref{futurework} summarises our contributions
+(\ref{ourcontributions}) and provides some suggestions for future
+work.  A number of ideas are proposed for the further development of
+Nomadic Time (\ref{future:nt}), DynamiTE (\ref{future:dynamite}) and
+the type system (\ref{future:types}), along with other possible
+applications for the calculus (\ref{future:apps}).
+
