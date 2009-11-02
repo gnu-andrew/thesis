@@ -9,19 +9,36 @@
 In this chapter, we introduce DynamiTE, the Dynamic Theory Execution
 framework.  This provides the solution we first proposed in
 \ref{solution}, using the Nomadic Time (NT) calculus introduced in
-\ref{nt} and \ref{tnt} as a foundation for application development.
-When using DynamiTE, programmers compose NT processes, realised as
-Java objects, to create a working system.  The framework handles
-running these processes, in parallel if necessary, and negotiates the
+chapter \ref{nt} as a foundation for application development.  When
+using DynamiTE, programmers compose NT processes, realised as Java
+objects, to create a working system.  The framework handles running
+these processes, in parallel if necessary, and negotiates the
 communication between them.  Both features are provided by leveraging
 existing facilities in the underlying Java virtual machine and class
 library.
 
-Over the course of this chapter, we will describe how NT processes are
-mapped onto Java objects (see \ref{dyn:maptheory}) and then show how
-DynamiTE can be used to create an implementation of the application we
-introduced in \ref{app:req} (see \ref{app:dynamite}).  But first, we
-discuss why we chose Java as the host language for DynamiTE and what
+The first half of this chapter explores the design of the framework
+and its initial implementation in the Java programming language. In
+\ref{dyn:maptheory}, we describe how Nomadic Time processes are mapped
+onto Java objects (see \ref{dyn:maptheory}) with the provision of a
+translation schema (\cont{2.1}) and examples of how the semantics are
+implemented (\cont{2.2}).  The next section, \ref{dyn:context}, deals
+with practicalities beyond simply implementing the syntax of the
+calculus; we describe how the \emph{context} of the calculus is
+represented and also how we attach additional side effects to
+transitions via the plugin framework (\cont{2.3}).  In
+\ref{dyn:evolvers}, we look at the final piece of the jigsaw;
+executing the processes in order to produce behaviour.  The execution
+semantics are embodied in the evolver framework (\cont{2.4}), which
+allows the programmer to swap in different implementations, depending
+on whether they want to simply examine all the possible transitions of
+a process or to follow a single determinstic route with side effects.
+
+Finally, we show how DynamiTE can be used to create an implementation
+of the application we introduced in \ref{app:req} (see
+\ref{app:dynamite}), before closing with a brief look at other similar
+concurrent frameworks in \ref{dyn:relatedwork}.  But first, we discuss
+why we chose Java as the host language for DynamiTE and what
 advantages and disadvantages this brings to its implementation.
 
 \section{Why Java?}
@@ -459,7 +476,7 @@ public interface Process
 }
 \end{verbatim}
 
-A rough translation schema is given in \ref{tab:translationschema},
+A rough translation schema is given in \ref{tab:translationschema1},
 where \texttt{sigma} is an instance of \texttt{Clock},
 \texttt{clockSet} is a set of instances of \texttt{Clock},
 \texttt{alpha} is an instance of a subclass of \texttt{Action},
@@ -476,11 +493,15 @@ belong.  Similarly, \texttt{BOUNCER\_IN}, \texttt{BOUNCER\_OUT} and
 \texttt{MobPrim}.  Operation follows a top-down approach; the complete
 system is represented by a single instance of one of these classes
 which, in most cases, will be an operator that composes together
-further instances as appropriate.
+further instances as appropriate.  Table \ref{tab:translationschema2}
+supplements the schema, by showing how names, co-names, silent actions
+and clocks are converted into objects.  The first three are all
+subclasses of \texttt{Action}, more details of which can be found in
+\ref{dyn:evolvers}.
 
 \begin{table}
- \caption{Translation Schema from Nomadic Time to DynamiTE Classes}
- \label{tab:translationschema}
+ \caption{Translation Schema from Nomadic Time to DynamiTE \texttt{Process} Subclasses}
+ \label{tab:translationschema1}
   \shrule \centering
   \begin{tabular}{rcl}
     $\seml \nil \semr$ & = & \texttt{Nil.NIL} \\
@@ -505,6 +526,19 @@ further instances as appropriate.
     $\seml \bin \semr$ & = & \texttt{MobPrim.BOUNCER\_IN} \\
     $\seml \bout \semr$ & = & \texttt{MobPrim.BOUNCER\_OUT} \\
     $\seml \bopen \semr$ & = & \texttt{MobPrim.BOUNCER\_OPEN}
+  \end{tabular}
+  \shrule
+\end{table}
+
+\begin{table}
+ \caption{Translation Schema from Nomadic Time to DynamiTE Classes}
+ \label{tab:translationschema2}
+  \shrule \centering
+  \begin{tabular}{rcl}
+    $\seml a \semr$ & = & \texttt{new Name("a")} \\
+    $\seml \overline{a} \semr$ & = & \texttt{new Coname("a")} \\
+    $\seml \tau \semr$ & = & \emph{Subclass of \texttt{Tau}} \\
+    $\seml \sigma \semr$ & = & \texttt{new Clock("sigma")} \\
   \end{tabular}
   \shrule
 \end{table}
@@ -1961,13 +1995,17 @@ majority of software developers.
 \section{Conclusion}
 
 To conclude, we have presented the overall structure of the DynamiTE
-framework for concurrent systems, including the process framework for
-implementing operational semantics and the evolver framework for
-working with execution semantics.  We believe that the framework
-provides a unique way of developing concurrent systems.  It provides
-features which have already proved advantageous in a theoretical
-setting, such as the n-ary process synchronisation mechanism described
-in chapter \ref{globsync}.  The existence of a formal theory for
+framework for concurrent systems, giving the second set of novel
+contributions (\cont{2.1} through \cont{2.4}) in this thesis.  This
+includes the translation from Nomadic Time to a process framework
+(\cont{2.1}) with an implementation of the operational semantics
+(\cont{2.2}), the plugin framework for introducing side effects
+(\cont{2.3}) and the evolver framework for working with execution
+semantics (\cont{2.4}).  We believe that the framework provides a
+unique way of developing concurrent systems.  It provides features
+which have already proved advantageous in a theoretical setting, such
+as the n-ary process synchronisation mechanism described in chapter
+\ref{globsync} and mobility.  The existence of a formal theory for
 DynamiTE's behaviour gives many advantages over more ad-hoc
 approaches, potentially allowing the underlying design to be
 rigorously examined before being applied to the implementation.  The
@@ -1989,5 +2027,17 @@ concurrent programs, clearly dividing internal behaviour and
 interprocess communication.  The possibility to add further
 implementations of the channel and locality factories, via the plugin
 mechanism, also means that fairly complex concepts can then be
-leveraged by the programmer in the simple manner provided by the
+leveraged by the programmer in the same simple manner provided by the
 framework.
+
+In the next chapter, we look at how Nomadic Time, and DynamiTE in
+turn, can be extended with a type system, providing the final set
+(\cont{C3.1} to \cont{C3.4}) of novel contributions.  We begin the
+chapter with a look at existing work on type systems for process
+calculi in \ref{typedcalculi}, before moving onto the design of our
+typing rules (\cont{3.2}) using a group type for processes
+(\cont{3.1}) to define further restrictions on migration.  The
+standard type safety proofs of progress and progression are given
+(\cont{3.3}), before we again return to DynamiTE in \ref{dyn:type} to
+show how it may be extended to support this new type system
+(\cont{3.4}).

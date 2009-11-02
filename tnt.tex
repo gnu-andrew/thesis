@@ -11,14 +11,26 @@ especially true, when the intended use of the calculus is as the basis
 for a programming language or a distributed system, which is the case
 here.  In this final chapter of original research, we demonstrate how
 Nomadic Time may be extended with a type system based on the notion of
-groups (see \ref{typesys}) and how this may then be used in DynamiTE
-(see \ref{dyn:type}).  Each process is assigned to a group, which then
-determines which environs it may \emph{reside} in, \emph{open},
-\emph{leave} or \emph{enter}.  This can be used to restrict movement
-based on \emph{which} process is attempting to do so, rather than by
-enumeration of possible actions.
+groups (see \ref{typesys}).  In Typed Nomadic Time, each process is
+assigned to a group (\cont{3.1}), which then determines which environs
+it may \emph{reside} in, \emph{open}, \emph{leave} or \emph{enter}.
+This can be used to restrict movement based on \emph{which} process is
+attempting to do so, rather than by enumeration of possible actions,
+the mechanism employed by our bouncer construct.  These restrictions
+are enforced by the typing rules for Nomadic Time (\cont{3.2}), for
+which we prove type safety (\cont{3.3}).
 
-Before we enter into the technicalities of how this system is
+Section \ref{dyn:type} looks at how this typed form of Nomadic Time
+may be used in the DynamiTE framework described in \ref{dynamite}.  We
+extend the process framework from \ref{dyn:maptheory} using a new
+\texttt{TypedProcess} interface, which allows the objects from our
+translation schema (Table \ref{tab:translationschema1}) to
+provide typing rules in addition to operational semantics
+(\cont{3.4}).  We close the chapter in \ref{typedexample} by returning
+to the musical chairs example from \ref{example}, showing how the type
+system may be applied to it and the result implemented using DynamiTE.
+
+But before we enter into the technicalities of how this is all
 implemented, we first present some existing type systems used in other
 process calculi, including the origins of this group-based system.
 
@@ -264,9 +276,10 @@ $\mathbf{G}$ includes the groups that the ambient may cross via standard
 subjective movement.  Finally, $\mathbf{H}$ distinguishes the groups
 whose ambients may be $\ambopen{e}$, while $T$ is as defined above.
 
-A similar system is adopted in \cite*{m3}, but, as this refers to boxed
-ambients (see \ref{ambvariants}), no control of $open$ is required.  It
-does introduce a new set of groups, however, to handle the lightweight
+A similar system is adopted by the type system of the $M^3$ calculus
+\cite*{m3}, but, as this is based on boxed ambients (see
+\ref{ambvariants}), no control of $open$ is required.  It does
+introduce a new set of groups, however, to handle the lightweight
 process mobility presented.  In both cases, the type system has a
 positive effect on the calculus.  Not only does it alleviate some of
 the syntax ambiguity, but it also allows a more fine-grained notion of
@@ -925,16 +938,33 @@ fail with a \texttt{UntypeableProcessException}.
 
 \section{Conclusion}
 
-In this chapter, we have considered a number of type systems from the
+In this chapter, we presented the typed variant of our calculus, Typed
+Nomadic Time or TNT, giving the third and final set of novel
+contributions (\cont{3.1} through \cont{3.4}) in this thesis.
+Following consideration of a number of type systems from the
 literature, including the use of sorts for typing communication (see
 \ref{sorts}) and the use of groups to restrict ambient movement (see
-\ref{ambienttypes}).  We then adapted the latter to create a type
-system for Nomadic Time, resulting in the typed variant Typed Nomadic
-Time or TNT (see \ref{typesys}). Finally, we showed how DynamiTE could
-be modified to support this (see \ref{dyn:type}).  To conclude, we
-believe that our type system provides a useful optional addition to
-the calculus.  It can be employed, when needed, to provide a finer
-level of access control than the simple approach of enumerating
-possible actions, as used by bouncers.  There are possibilities for
-extending the type system further, which we will discuss as part of
-the next and final chapter on future work.
+\ref{ambienttypes}), we created our own group type (\cont{3.1}) and
+formed a set of typing rules using it (\cont{3.2}) in \ref{typesys}.
+While the general idea of group-based restriction is taken from
+existing ambient type systems, we believe our construction here and
+its associated type system to be novel.  As is standard in the
+literature, we proved type safety for TNT by showing that typed
+processes may progress, and that types are preserved correctly in
+doing so (\cont{3.3}).
+
+We closed the chapter by showing how DynamiTE could be modified to
+support TNT in \ref{dyn:type} (\cont{3.4}), and put this into
+practice in \ref{typedexample} by adapting the musical chairs example.
+Just as DynamiTE is not intended to be strongly tyed to Nomadic Time
+as its process calculus, the same is true of the typed variant of
+DynamiTE and TNT; we expect that other type systems could be
+implemented in the same manner for other process calculi.
+
+To conclude, we believe that our type system provides a useful
+optional addition to Nomadic Time.  It can be employed, when needed,
+to provide a finer level of access control than the simple approach of
+enumerating possible actions used by bouncers.  There are
+possibilities for extending the type system further, which we will
+discuss in \ref{future:types} as part of the next and final chapter on
+future work.

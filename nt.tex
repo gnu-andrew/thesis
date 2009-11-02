@@ -7,20 +7,130 @@
 \section{Introduction}
 
 This chapter introduces the process calculus used as the basis for
-DynamiTE, Nomadic Time, in which timed processes are mobile.  Over the
-course of the first half of this chapter, we show how CaSE \cite{CaSE}
-(itself a timed derivative of CCS) is first extended with localities
-(see \ref{localising}) and then mobility (see \ref{addingmob}) to
-create a calculus which provides both the ability to migrate processes
-during execution and to perform global synchronisation in a
-compositional manner.  We then introduce the concept of `bouncers'
-(see \ref{bouncers}), which allow migration to be restricted; they
-define which mobility actions may be performed and how many times.
-This is followed by the operational semantics of the calculus (see
-\ref{ntsemantics}).  Finally, we close with a comprehensive example
-(see \ref{example}) demonstrating each feature of the calculus and the
-application of the calculus to our prototypical application (see
-\ref{app:nt}).
+DynamiTE, Nomadic Time, in which timed processes are mobile.  In the
+preceding chapters, we have looked at a number of existing calculi and
+the features of the main ones\footnote{We miss out some covered
+  earlier due to space restrictions, but it should be clear how these
+  fit into the matrix.  CSA bridges the gap between TPL and CaSE with
+  timeouts and multiple clocks, but no clock hiding.  The join
+  calculus has the same features as the $\pi$ calculus, while the
+  distributed join calculus adds localities to the feature set.  The
+  boxed ambients calculus is the same as the ambient calculus, but
+  without destruction; it has directed communication instead.} are
+summarised in Table \ref{tab:litsummary}.  \emph{Synchronisation}
+refers to the single transition arising from the pairing of a name and
+a co-name running in parallel, which is fundamental to CCS (see
+\ref{ccs}) and is retained in TPL, CaSE, the $\pi$ calculus and our
+own Nomadic Time.  It is usually used to represent sender-receiver
+communication between two processes.  \emph{Timeouts} were introduced
+in our discussion of TPL in \ref{tpl} and solved the problem of
+providing a compositional broadcast agent.  \emph{Multiple clocks} and
+\emph{clock hiding} allow this feature to scale up to larger systems.
+
+\begin{table}
+ \caption{Feature Summary from the Literature Survey}
+ \label{tab:litsummary}
+\begin{center}
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+    \hline
+    & CCS & TPL & CaSE & $\pi$ & Ambient & Safe & P & \textbf{Nomadic} \\
+    & & & & & Calculus & Amb. & Systems & \textbf{Time} \\
+    \hline
+    Synchronisation & \tick & \tick & \tick & \tick & & & & \tick \\
+    \hline
+    Timeouts & & \tick & \tick & & & & & \tick \\
+    \hline
+    Multiple Clocks & & & \tick & & & & & \tick \\
+    \hline
+    Clock Hiding & & & \tick &&&&& \tick \\
+    \hline
+    Scope Mobility & & & & \tick & & & & \\
+    \hline
+    Localities & & & & & \tick & \tick & \tick & \tick  \\
+    \hline
+    Location Mobility & & & & & \tick & \tick & & \tick \\
+    \hline
+    Destruction & & & & & \tick & \tick & \tick & \tick \\
+    \hline
+    Co-Migration & & & & & & \tick & & \tick  \\
+    \hline
+    Process Mobility & & & & & & & \tick & \tick \\
+    \hline
+\end{tabular}
+\end{center}
+\end{table}
+    
+\emph{Scope mobility} is a concept introduced by the $\pi$ calculus
+(see \ref{picalculus}), allowing processes to gain knowledge of
+communication channels during execution, thus increasing their scope.
+\emph{Localities} were discussed in \ref{migration} and allow
+distribution to be modelled.  \emph{Location mobility} refers to the
+movement of localities, including all contents, as provided by the
+$\ambin{m}$ and $\ambout{m}$ operations of the ambient calculus from
+\ref{ambientcalculus}.  \emph{Destruction} refers to the ability to
+destroy a locality.  This can be seen in the use of $\ambopen{m}$ in
+the ambient calculus or the dissolution of a membrane in P Systems
+(see \ref{psystems}).  \emph{Co-migration} refers to the need for a
+mobility primitive to synchronise with a corresponding co-mobility
+primitive, as in the $\ambin{m}$ and $\sambin{m}$ pairs found in the
+safe ambients calculus (see \ref{ambvariants}).  Finally,
+\emph{process mobility} refers to the ability to directly move a
+process from one locality to another, without changing the structure
+of the localities.  P Systems have something close to this in that an
+object can move between membranes, but these objects don't have any
+behaviour; the D$\pi$ calculus \cite{hennessy:dpi98} and the $M^3$
+calculus \cite{m3}, derivatives of the $\pi$ calculus and the ambient
+calculus respectively, provide examples of the same idea being applied
+to processes.
+
+\begin{figure}  
+  \centering
+\[\CompileMatrices
+\xymatrix{
+CCS \ar@{->}[d]^{abstract\ time} & &
+Ambient\ Calculus \ar@{->}[d]^{co-mobility} \\ 
+CaSE \ar@/_/[dr]^{\mathbf{C1.1}} & &
+Safe\ Ambients \ar@/^/[dl]_{\mathbf{C1.2,4}} \\
+& Nomadic\ Time & \\
+}
+\]
+\caption{Derivation of Nomadic Time}
+\label{fig:ntderiv}
+\end{figure}
+
+As can be seen from the table, Nomadic Time has the features of both
+CaSE and the safe ambients calculus, from which it draws its
+inspiration.  This is illustrated in Figure \ref{fig:ntderiv}, which
+also shows how our creation of Nomadic Time fits in with our
+contributions to knowledge. Over the first half of this chapter, we go
+through this process in detail.  CaSE \cite{CaSE} (itself a timed
+derivative of CCS) is first extended with localities (see
+\ref{localising}), merging them with clock hiding to give contribution
+\cont{1.1}.  We then introduce location mobility in the style of the
+ambient calculus (see \ref{locmob}), as well as a form of objective
+process mobility which reuses the concept of name-based
+synchornisation from CCS and CaSE; this gives contributions \cont{1.2}
+and \cont{1.3}. At this stage, we have a calculus which provides both
+the ability to migrate processes during execution and to perform
+global synchronisation in a compositional manner.  Finally, we
+introduce the concept of co-mobility primitives from the safe ambients
+calculus, but rather than applying these to normal processes, we
+introduce `bouncers' (see \ref{bouncers}), which guard a particular
+locality (an \emph{environ} in Nomadic Time).  This effectively gives
+each environ a security policy, allowing the migration primitives
+which effect it to be restricted; the bouncers define which mobility
+actions may be performed and how many times.  This addition forms
+contribution \cont{1.4}.
+
+The second half of this chapter contains the operational semantics of
+the calculus, including a set of structural congruence rules (see
+\ref{ntsemantics}); these form contributions \cont{1.5} and
+\cont{1.6}.  We also demonstrate how the properties of prioritisation
+and time determinacy are provided by the semantics; this is
+contribution \cont{1.7}.  Finally, we close with a comprehensive
+example (see \ref{example}) demonstrating each feature of the calculus
+and the application of the calculus to our prototypical application
+(see \ref{app:nt}).
 
 \section{Localising the Calculus}
 \label{localising}
@@ -320,9 +430,10 @@ has two possible derivations
       $\lcloc{m}{\tntopen{n}.E\;|\;\lcloc{n}{F}{\sigma}\;|\;\lcloc{n}{G}{\gamma}}{\rho}
       \derives{\tntopen{n}} \lcloc{m}{E \pc \lcloc{n}{F}{\rho} \pc G}{\gamma , \rho}$
 \end{enumerate}
-and, as a result, two different resulting clock contexts.  In
-the full calculus, this non-determinism is restricted by the notion of
-\emph{bouncers}, introduced in section \ref{bouncers}, which reduce the possibility of \emph{grave interferences} (see \ref{ambvariants}).  
+and, as a result, two different resulting clock contexts.  In the full
+calculus, this non-determinism is restricted by the notion of
+\emph{bouncers}, introduced in section \ref{bouncers}, which reduce
+the possibility of \emph{grave interferences} (see \ref{ambvariants}).
 
 \subsection{Process Mobility}
 \label{procmob}
@@ -605,8 +716,8 @@ and $A$ ranges over a subset of $\symbols$.
      \hspace{5mm}
       \Rule{Res}
       {E \derives{\gamma} E'}
-      {E \res{a} \derives{\gamma} E' \res{a}}
-      {\gamma \ne a}
+      {E \res{A} \derives{\gamma} E' \res{A}}
+      {\gamma \not \in A}
      \\
       \Rule{LHd1}
       {E \derives{\sigma} E'}
@@ -879,7 +990,7 @@ prevents transitions being created for those that are not hidden in
 $LHd3$.  The property is implicit for summation, recursion and
 restriction as if the composed processes can perform a $\sigma$
 transition, then it must not be blocked by a $h$ transition.  The
-presence of time determinancy is obvious from the $Idle$, $Patient$
+presence of time determinacy is obvious from the $Idle$, $Patient$
 and $Cap2$ rules which generate $\sigma$ transitions as the process
 ($\nil$, $\alpha.E$ or $\ambop.E$) remains unchanged as a result of
 performing $\derives{\sigma}$.
@@ -1330,42 +1441,63 @@ begun!
 
 \section{Conclusion}
 
-In this chapter, we introduced our process calculus, Nomadic Time, the
-first novel work in this thesis.  This extends the CaSE process
-calculus of chapter \ref{case} with the notions of localities (see
-\ref{migration}) and process migration (see \ref{ambientcalculus}).
-We also added the notion of `bouncers', a security mechanism which
-allows the number and type of mobility operations which may be
+In this chapter, we introduced our process calculus, Nomadic Time,
+giving the first set of novel contributions (\cont{1.1} through
+\cont{1.7}) in this thesis.  Nomadic Time extends the CaSE process
+calculus described in \ref{case} with the notions of localities (see
+\ref{migration}) (\cont{1.1}) and migration (see
+\ref{ambientcalculus}) (\cont{1.2} and \cont{1.3}).  We also
+introduced the notion of `bouncers' (\cont{1.4}), a security mechanism
+which allows the number and type of mobility operations which may be
 performed on an environ (our term for a locality in NT) to be defined.
+The first half of the chapter (\ref{localising} to \ref{bouncers})
+demonstrated how each of these features was layered onto the calculus
+from the stage before, with CaSE as our starting point.
 
-The first half of the chapter demonstrated how each of these features
-was layered onto the calculus, before finishing with its operational
-semantics (\ref{ntsemantics}).  With respect to the core semantics,
+In \ref{ntsemantics}, we presented the operational semantics for
+Nomadic Time (\cont{1.6}).  With respect to the core semantics,
 although they are partially derived from CaSE, there was still a
-significant amount of work involved in ensuring that the derived rules
-correctly covered the new possibilities introduced by the expanded
-syntax and transitions available in Nomadic Time.  For example, $Cap1$
-and $Cap2$ were not present in initial revisions, but without these,
-the transitions upon which the mobility semantics (Table
-\ref{tab:mobsubset}) rely would simply not exist.  We believe our
-formulation of the mobility semantics to be novel; while the general
-concepts embodied within them are present in the Ambient Calculus and
-its derivatives, the semantics of these calculi are not constructed as
-structural operational semantics.  We thus believe those presented
-here to be fairly unique, especially with regard to the presence of
-co-mobility primitives from the bouncers.
+significant amount of novel work involved in ensuring that the derived
+rules correctly covered the new possibilities introduced by the
+expanded syntax and transitions available in Nomadic Time.  For
+example, $Cap1$ and $Cap2$ were not present in initial revisions, but
+without these, the transitions upon which the mobility semantics
+(Table \ref{tab:mobsubset}) rely would simply not exist.  We believe
+our formulation of the mobility semantics to be novel; while the
+general concepts embodied within them are present in the Ambient
+Calculus and its derivatives, the semantics of these calculi are not
+constructed as structural operational semantics.  We thus believe
+those presented here to be fairly unique, especially with regard to
+the presence of co-mobility primitives from the bouncers.
 
-We then demonstrated how the calculus may be used using two examples;
-the first (\ref{example}) aimed to demonstrate each of the features of
-the calculus in action, while the second (\ref{app:nt}) expanded on
-the application specified in \ref{app:req} from a more real-world
-perspective.
+Unlike CaSE, Nomadic Time also has a set of structural congruence
+rules (\cont{1.5}).  These allow two of the rules from CaSE ($Sum2$
+and $Par2$) by defining the summation and parallel composition
+operators to be commutative.  They also allow redundant $\nil$
+processes and restriction operators to be removed, and for a pair of
+restriction operators to be unified into one.  Section
+\ref{ntsemantics} also demonstrates how the properties of
+prioritisation and time determinacy hold for our new calculus
+(\cont{1.7}).
+
+The final sections demonstrated how the calculus may be used via two
+motivating examples; the first (\ref{example}) aimed to demonstrate
+each of the features of the calculus in action, while the second
+(\ref{app:nt}) expanded on the application specified in \ref{app:req}
+from a more real-world perspective.
 
 In the next chapter, we show how Nomadic Time may be used to construct
 a concurrent programming framework in the Java programming language.
 We refer to this framework as the DynamiTE (Dynamic Theory Execution)
-framework, and this forms the second novel work in this thesis.  We
-then use this framework to implement a prototypical application, using
+framework, and this forms the second set of novel contributions
+(\cont{2.1} to \cont{2.4}) in this thesis.  The first half of the
+chapter focuses on different elements of DynamiTE; the implementation
+of the Nomadic Time syntax and semantics as Java objects
+(\ref{dyn:maptheory}; \cont{2.1} and \cont{2.2}), the plugin framework
+(\ref{dyn:context}; \cont{2.3}) and the provision of execution
+semantics via the evolver framework (\ref{dyn:evolvers}; \cont{2.4}).
+We then use DynamiTE to implement a prototypical application, using
 the design from \ref{app:nt} to construct corresponding Java classes
 which meet the requirements in \ref{app:req}.  Finally, we cover some
-other existing attempts to provide implementations of process calculi.
+other existing attempts to provide implementations of process calculi
+in \ref{dyn:relatedwork}.
