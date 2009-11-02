@@ -236,6 +236,58 @@ $\tntin{m}$ transition along with one for each member of $\timers$.
 Assuming $\timers$ is the same for both, the difference in topology is
 not discernable from merely the set of possible transitions.
 
+\subsubsection{Scoping of Environ Names}
+
+Back in \ref{addingmob}, we noted that Nomadic Time does not yet
+support the scoping of names.  In the ambient calculus, $(\nu n)E$ is
+used to restrict the scope of the ambient name, $n$, to within $E$,
+thus allowing only mobility operations which form part of $E$ to use
+the name $n$.  Instead, Nomadic Time currently assumes that all
+environ names are available globally.  While in most cases this isn't
+a problem, as references to environs relate to siblings or parents, it
+becomes an issue if a process moves location and now refers to an
+environ it wouldn't have before.
+
+For example, in
+
+\begin{equation}
+\locv{n}{\locv{m}{\tntout{n}.P \pc \tntin{k}.Q}{B_1}{\sigma}}{B_2}{\rho} \pc \locv{k}{R}{B_3}{\gamma}
+\end{equation}
+
+\noindent the environ $m$ may move outside $n$\footnote{Assuming
+  appropriate bouncers are available.}, due to $\tntout{n}.P$, giving:
+
+\begin{equation}
+\locv{n}{\nil}{B_2}{\rho} \pc \locv{k}{R}{B_3}{\gamma} \pc \locv{m}{P \pc \tntin{k}.Q}{B_1}{\sigma}
+\end{equation}
+
+\noindent In such a situation, $\tntin{k}.Q$ may now cause $m$ to move
+inside $k$, but, prior to the move, it couldn't as $k$ wasn't a
+sibling of $m$.  It is, of course, possible that such behaviour was
+intentional and such changes in context are, after all, the point of
+having migration in the calculus to begin with.  However, the current
+calculus does not give the user the option of preventing such
+situations from occurring.  Adding a scoping operator, in a similar
+manner to the ambient calculus, would allow the two references to $k$
+in the above to remain distinct from one another and prevent the
+$\tntin{k}$ from operating on the $k$ environ.
+
+Note that the above assumes that the bouncer $B_3$ will allow $m$ to
+enter.  Similarly, the type of the processes could also be used to
+control access to $k$ with TNT.  Both these existing mechanisms reduce
+the damage inherent in the use of global names, but they don't remove
+it altogether.
+
+\subsubsection{Bigraphs}
+
+Back in \ref{bigraphs}, we look at Milner's unifying framework of
+bigraphs \cite{bigraph1} and saw how these could be used to represent
+both features of both the $\pi$ calculus and the ambient calculus.  It
+would be interesting to see if Nomadic Time could also be represented
+in the same framework.  The biggest challenge here is likely to be
+incorporating the notion of time, and so it may be best to first try
+and represent a simpler calculus such as TPL.
+
 \subsection{DynamiTE}
 \label{future:dynamite}
 
@@ -262,6 +314,41 @@ more complex implementations of the plugin services such as
 interprocess communication via web services and supporting other
 process calculi.  Hopefully, third parties may also wish to get
 involved in this area.
+
+\subsubsection{The Abstract Nomadic Time Machine}
+
+In \ref{safeambmachine}, we looked at the abstract machine PAN which
+is used to provide an implementation of the safe ambients calculus
+\cite{sangiorgi:safeambientsmachine}.  Our existing translation schema
+from Nomadic Time to DynamiTE, given in Table
+\ref{tab:translationschema1}, goes directly from the calculus to a
+programming language, Java.  With an abstract machine in the same vein
+as PAN, but for Nomadic Time, we could instead express the translation
+in more general terms.  The syntactic constructs of Nomadic Time would
+be translated into operations using the abstract machine, while
+DynamiTE would no longer implement the calculus directly, but instead
+provide an implementation of the abstract machine.
+
+By providing this additional layer of abstraction, we have an
+implementation of Nomadic Time that exists at a more formal level.
+This allows us to prove properties of this implementation, without
+having to contend with the complicated semantics of a programming
+language such as Java.  It may also be possible to express other
+calculi using the same abstract machine, thus giving a general
+framework for implementations of process calculi.
+
+\subsubsection{Implement Bigger Applications with DynamiTE}
+
+Through the course of this thesis, we've shown how DynamiTE and its
+associated development process can be used to take an application
+through the usual stages of requirements analysis (\ref{app:req}),
+design (\ref{app:nt}) and implementation (\ref{app:dynamite}).  For
+this, we used the example of a music player with a fairly limited set
+of requirements.  While this is fine as an easily digestable example
+here, to really prove the utility of DynamiTE, we need to develop some
+big examples using the framework and prove that it really helps with
+concurrent applications on a scale where tracking down race conditions
+and deadlocks starts to become intractable.
 
 \subsection{The Type System}
 \label{future:types}
