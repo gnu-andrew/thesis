@@ -226,6 +226,22 @@ the two hidden clocks, $\rho$ and $\sigma$, but can see the ticks of
 $\gamma$ and any other clocks in $\timers$, its set of visible clocks
 being $\timers \backslash \{\sigma, \rho\}$.
 
+\begin{figure}  
+  \centering
+  \includegraphics[scale=0.3]{environs}
+  \caption{Clock Hiding in $\lcloc{n}{E\;|\;\lcloc{m}{F\;|\;\lcloc{k}{G}{\sigma}}{\rho}}{\gamma}$}
+  \label{fig:clockhiding}
+\end{figure}
+
+This is illustrated in Figure \ref{fig:clockhiding} which shows the
+scope of each clock.  The smallest circle represent the scope of
+$\sigma$, and contains just the process $G$.  The middle circle
+represents the scope of $\rho$ and incorporates $F$ and the environ
+$k$ in which $G$ resides.  The largest circle represents the scope of
+$\gamma$, which covers the entire system.  Within each circle, the
+ticks of the respective clock are visible.  Outside it, they become
+silent actions.
+
 \section{Adding Mobility}
 \label{addingmob}
 
@@ -342,7 +358,7 @@ to give:
     \mu X . \expr \;\,|\,\; 
     X \;\,|\,\; 
     \expr \setminus a \;\,|\,\; 
-    \lcloc{m}{\expr}{\vec{\sigma}} \;\,|\,\;
+    \lclocv{m}{\expr}{\vec{\sigma}} \;\,|\,\;
     \ambop . \expr
   \end{aligned}
 \end{equation}
@@ -356,56 +372,96 @@ the ambient calculus ($\tntin{m}$ being $\ambin{m}$, $\tntout{m}$ being
 $\ambout{m}$ and $\tntopen{m}$ being $\ambopen{m}$)\footnote{The mnemonics
 $\tntin{m}$, $\tntout{m}$ and $\tntopen{m}$ are used to prevent
 confusion with the names of actions.}, so just a short recap of section
-\ref{ambientcalculus} is given here, using the syntax above.  Note that
-the syntactic abbreviation, $\lncloc{m}{E}$, is used to represent
-$\lcloc{m}{E}{}$.
+\ref{ambientcalculus} is given here, using the syntax above.
 
 When a process emits an $\tntin{m}$ capability, the surrounding environ
 may move into a sibling environ with the name, $m$.  Given the context,
 \begin{equation}
-\lncloc{m}{E}\;|\;\lncloc{n}{\nil}
+\lclocv{m}{E}{\emptyset}\;|\;\lclocv{n}{\nil}{\emptyset}
 \end{equation}
+or, diagramatically,
+\[\CompileMatrices
+\xymatrix{
+m \ar@{->}[d] &
+n \ar@{->}[d] \\
+E & \nil \\
+}
+\]
 if $E$ is defined as
 \begin{equation}
 E \eqdef \tntin{n}.E^\prime
 \end{equation}
 then this will allow the derivation
 \begin{equation}
-\lncloc{m}{\tntin{n}.E^\prime \pc \lncloc{n}{\nil}} \derives{\tntin{n}} 
-\lncloc{n}{\lncloc{m}{E^\prime} \pc \nil}
+\lclocv{m}{\tntin{n}.E^\prime \pc \lclocv{n}{\nil}{\emptyset}}{\emptyset} \derives{\tntin{n}} 
+\lclocv{n}{\lclocv{m}{E^\prime}{\emptyset} \pc \nil}{\emptyset}
 \end{equation}
-to occur.  Similarly, defining $E^\prime$ to be
+to occur, giving
+\[\CompileMatrices
+\xymatrix{
+&
+n \ar@{->}[ld] \ar@{->}[rd] & \\
+m \ar@{->}[d] & & \nil \\
+E' & &
+}
+\]
+Similarly, defining $E^\prime$ to be
 \begin{equation}
 E^\prime \eqdef \tntout{n}.E^{\prime\prime}
 \end{equation}
 allows the converse
 \begin{equation}
-\lncloc{n}{\lncloc{m}{\tntout{n}.E^{\prime\prime}\;|\;\nil}} \derives{\tntout{n}}
-\lncloc{m}{E^{\prime\prime}}\;|\;\lncloc{n}{\nil}
+\lclocv{n}{\lclocv{m}{\tntout{n}.E^{\prime\prime} \pc \nil}{\emptyset}}{\emptyset} \derives{\tntout{n}}
+\lclocv{m}{E^{\prime\prime}}{\emptyset} \pc \lclocv{n}{\nil}{\emptyset}
 \end{equation}
-to take place, $\tntout{m}$ allowing the surrounding environ
-to move outside a parent environ named $m$.  As noted above, these are
-fairly dull, both being identical to the same primitives in the ambient
-calculus.  The behaviour of $\tntopen{m}$ is more interesting, due to
-its interaction with the environ's clock environment.
+to take place, returning us to
+\[\CompileMatrices
+\xymatrix{
+m \ar@{->}[d] &
+n \ar@{->}[d] \\
+E^{\prime\prime} & \nil \\
+}
+\]
+as $\tntout{n}$ allows the surrounding environ to move outside a
+parent environ named $n$.  As noted above, these are fairly dull, both
+being identical to the same primitives in the ambient calculus.  The
+behaviour of $\tntopen{m}$ is more interesting, due to its interaction
+with the environ's clock environment.
 
 Take the example context,
 \begin{equation}
-\lcloc{m}{E\;|\;\lcloc{n}{F}{\sigma}}{\rho}
+\lcloc{m}{E \pc \lcloc{n}{F}{\sigma}}{\rho}
 \end{equation}
+or, diagramatically,
+\[\CompileMatrices
+\xymatrix{
+&
+m \ar@{->}[ld] \ar@{->}[rd] & \\
+E & & n \ar@{->}[d] \\
+& & F
+}
+\]
 where $E$ is defined as
 \begin{equation}
 E \eqdef \tntopen{n}.E^\prime
 \end{equation}
 and thus may cause the environ, $n$, to be destroyed
 \begin{equation}
-\lcloc{m}{\tntopen{n}.E^\prime \;|\;\lcloc{n}{F}{\sigma}}{\rho} \derives{\tntopen{n}}
-\lcloc{m}{E'^\prime\;|\;F}{\sigma, \rho}
+\lcloc{m}{\tntopen{n}.E^\prime \pc \lcloc{n}{F}{\sigma}}{\rho} \derives{\tntopen{n}}
+\lcloc{m}{E^\prime \pc F}{\sigma, \rho}
 \end{equation}
-and the two clock environments to merge.  As a result, not
-only does the context of $F$ change with respect to nearby processes, as
-in the ambient calculus, but now $E$ is also affected.  Prior to the
-emission of $\tntopen{n}$, $E$ could only see ticks from the clock
+giving
+\[\CompileMatrices
+\xymatrix{
+&
+m \ar@{->}[ld] \ar@{->}[rd] & \\
+E & & F
+}
+\]
+and causing the two clock environments to merge.  As a result, not
+only does the context of $F$ change with respect to nearby processes,
+as in the ambient calculus, but now $E$ is also affected.  Prior to
+the emission of $\tntopen{n}$, $E$ could only see ticks from the clock
 $\rho$.  The ticks of $\sigma$ were converted to silent actions by the
 environ barrier.  Following the dissolution of the environ, $n$, these
 ticks become visible to $E$.  So, the $open$ capability in NT not only
@@ -417,18 +473,43 @@ subject to the availability of applicable environs, thus allowing for
 stalled capabilities (when there are none) and non-determinism (when
 there are several). For example, the process
 \begin{equation}
-\lcloc{m}{\tntopen{n}.E\;|\;\lcloc{n}{F}{\sigma}\;|\;\lcloc{n}{G}{\gamma}}{\rho}
+\lcloc{m}{\tntopen{n}.E \pc \lcloc{n}{F}{\sigma} \pc \lcloc{n}{G}{\gamma}}{\rho}
 \end{equation}
+or, diagramatically,
+\[\CompileMatrices
+\xymatrix{
+&
+m \ar@{->}[ld] \ar@{->}[d] \ar@{->}[rd] & \\
+\tntopen{n}.E & n \ar@{->}[d] & n \ar@{->}[d] \\
+& F & G
+}
+\]
 has two possible derivations
 
 \begin{enumerate}
 \item
       $\lcloc{m}{\tntopen{n}.E\;|\;\lcloc{n}{F}{\sigma}\;|\;\lcloc{n}{G}{\gamma}}{\rho}
       \derives{\tntopen{n}} \lcloc{m}{E \pc F \pc
-      \lcloc{n}{G}{\gamma}}{\sigma , \rho}$
+      \lcloc{n}{G}{\gamma}}{\sigma , \rho}$ \\
+\[\CompileMatrices
+\xymatrix{
+&
+m \ar@{->}[ld] \ar@{->}[d] \ar@{->}[rd] & \\
+\tntopen{n}.E & F & n \ar@{->}[d] \\
+& & G
+}
+\]
 \item
       $\lcloc{m}{\tntopen{n}.E\;|\;\lcloc{n}{F}{\sigma}\;|\;\lcloc{n}{G}{\gamma}}{\rho}
-      \derives{\tntopen{n}} \lcloc{m}{E \pc \lcloc{n}{F}{\rho} \pc G}{\gamma , \rho}$
+      \derives{\tntopen{n}} \lcloc{m}{E \pc \lcloc{n}{F}{\rho} \pc G}{\gamma , \rho}$ \\
+\[\CompileMatrices
+\xymatrix{
+&
+m \ar@{->}[ld] \ar@{->}[d] \ar@{->}[rd] & \\
+\tntopen{n}.E & n \ar@{->}[d] & G \\
+& F & 
+}
+\]
 \end{enumerate}
 and, as a result, two different resulting clock contexts.  In the full
 calculus, this non-determinism is restricted by the notion of
