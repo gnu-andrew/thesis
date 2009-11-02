@@ -461,7 +461,7 @@ resolve any of the competition problems, and a strong element of
 non-determinism, as to which philosopher gets which fork, still
 exists.  It does, however, give a formal representation of the problem
 and allows the effects of varying the relative numbers of philosophers
-and forks to be observed via execution of the model.
+and forks to be observed via simulation.
 
 Modifying this slightly gives a model that corresponds
 exactly to a specified number of philosophers and forks, $n$.  From
@@ -514,7 +514,7 @@ will consider this in more detail as part of chapter \ref{mobility}.
 
 CCS models are also relatively static; while processes may evolve
 (e.g. $a.P$ may become $P$), the communication structure doesn't.
-Notably, if a process, $E$ knows about the channels $x$ and $y$
+Notably, if a process, $E$, knows about the channels $x$ and $y$
 initially, while $F$ only knows about $x$ (due to restriction on $y$),
 this status can not change during the course of the various
 transitions inherent in the system.  The effect of restriction is more
@@ -550,7 +550,7 @@ processes can be written simply as
 \end{equation}
 
 \noindent where the process on the left (in bold) forms the semantics
-for the broadcast agent and the processes, $P$ and $Q$ are the
+for the broadcast agent and the processes, $P$ and $Q$, are the
 continuations of the input processes
 
 This will work, but what happens when the broadcast agent needs to

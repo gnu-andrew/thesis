@@ -851,18 +851,18 @@ $\locderives{l}{in} \locderives{l}{\overline{out}}$
 
 \noindent which illustrates a clear difference between the two.
 
-For the first transition, the two can match each other, as both are
-capable of performing $\locderives{l}{in}$.  However, the relation
-breaks down on the second transition which compares $\locderives{lk}{\overline{out}}$
-with $\locderives{l}{\overline{out}}$.  Under a normal weak
-bisimulation, these two transitions would be judged equivalent, as only
-the action is available for comparison; both perform an
-$\overline{out}$.  However, a localised bisimulation requires the
-locations to also match, which fails here.  The specification has a
-longer causal path, as its single process has performed two visible
-actions.  In contrast, the two processes involved in the implementation
-have performed one action each, resulting in two separate paths with a
-length of one.
+For the first transition, both are capable of performing
+$\locderives{l}{in}$ and can thus match each other.  However, the
+relation breaks down on the second transition which compares
+$\locderives{lk}{\overline{out}}$ with
+$\locderives{l}{\overline{out}}$.  Under a normal weak bisimulation,
+these two transitions would be judged equivalent, as only the action
+is available for comparison; both perform an $\overline{out}$.
+However, a localised bisimulation requires the locations to also
+match, which fails here.  The specification has a longer causal path,
+as its single process has performed two visible actions.  In contrast,
+the two processes involved in the implementation have performed one
+action each, resulting in two separate paths with a length of one.
 
 This shows that localities can be used to provide a stronger equivalence
 theory; a dynamic location bisimulation can distinguish more processes

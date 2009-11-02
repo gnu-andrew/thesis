@@ -535,11 +535,11 @@ only be achieved by reducing the need for resource contention.
 \subsection{Interprocess Communication}
 \label{ipc}
 
-To achieve this, we need to focus on more short-lived processes which
-interact directly with one another, rather than via the means of
-shared resources.  This is nothing new.  However, it has never
-achieved universal acceptance as a design paradigm because having to
-deal with the kind of concurrency issues outlined above has
+To reduce resource contention, we need to focus on more short-lived
+processes which interact directly with one another, rather than via
+the means of shared resources.  This is nothing new.  However, it has
+never achieved universal acceptance as a design paradigm because
+having to deal with the kind of concurrency issues outlined above has
 traditionally been avoidable.  This is no longer the case.
 
 Although mainstream development has migrated from procedural programs
@@ -724,7 +724,7 @@ programming interface (API) called \emph{Grand Central}
 \cite{grandcentral}, which shifts the responsibility for managing
 threads to the operating system.  Developers instead design their code
 as a series of tasks, which are submitted to the operating system
-through the API.  They are then later scheduled and executed using a
+through the API.  They are then scheduled and later executed using a
 pool of threads; this allows threads to be reused and thus increases
 performance by reducing the amount of thread creation that takes
 place.  A similar approach is available to Java developers, which we
