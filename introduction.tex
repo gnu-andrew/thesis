@@ -772,8 +772,61 @@ which best suits its position at the core of our framework.
 The best way to demonstrate the use of a framework is through example.
 Hence, through the course of this thesis, we present a music player
 application and show how different elements of it may be developed
-using DynamiTE.  At this juncture, we specify the requirements for it
-as follows:
+using DynamiTE.  We expect DynamiTE to be usable with most existing
+software development processes, such as the traditional one shown in
+Figure \ref{fig:process1}.  The change we envisage is shown in Figure
+\ref{fig:process2}; the singular design process is split into two
+separate stages, \emph{Tasks} and \emph{Communication}.  We expect
+each task to go through the design process independently; it should
+have a defined set of inputs and outputs and be verifiable without the
+others or the communication infrastructure being in place.  Similarly,
+we expect the communication infrastructure to be developed and tested
+separately before being integrated with the tasks.  As the design of
+the communication infrastructure is expressed in a process calculus,
+it should be possible to use simulation techniques to verify its
+behaviour and, in some cases, to prove properties such as the absence
+of deadlock, prior to it being used with the tasks.
+
+\begin{figure}  
+  \centering
+\[\CompileMatrices
+\xymatrix{
+Requirements \ar@{->}[r] &
+Design \ar@{->}[r] &
+Implementation \ar@{->}[r] &
+Testing \\
+}
+\]
+  \caption{The Traditional Software Development Process}
+  \label{fig:process1}
+\end{figure}
+
+\begin{figure}  
+  \centering
+\[\CompileMatrices
+\xymatrix{
+& Tasks \ar@{->}[rd] & & \\
+Requirements \ar@{->}[ru] \ar@{->}[rd] &
+&
+Implementation \ar@{->}[r] &
+Testing \\
+& Communication \ar@{->}[ru] & & \\
+}
+\]
+  \caption{DynamiTE Variant of the Software Development Process}
+  \label{fig:process2}
+\end{figure}
+
+This independence within the development process should mean that
+development itself can proceed in parallel.  It is only at the final
+integration stage that the whole system needs to be tested.  The
+independent development of each task also means that it should be more
+suitable for reuse in other systems as a result.  For our music
+system, we elide the design of the individual tasks, and focus on just
+the design and implementation of the communication infrastructure as
+the part that's relevant here; these are covered in \ref{app:nt} and
+\ref{app:dynamite}.  At this juncture, we specify the requirements for
+it as follows:
 
 \begin{itemize}
 \item The application should provide some form of interface with which
