@@ -32,7 +32,7 @@ executing the processes in order to produce behaviour.  The execution
 semantics are embodied in the evolver framework (\cont{2.4}), which
 allows the programmer to swap in different implementations, depending
 on whether they want to simply examine all the possible transitions of
-a process or to follow a single determinstic route with side effects.
+a process or to follow a single deterministic route with side effects.
 
 Finally, we show how DynamiTE can be used to create an implementation
 of the application we introduced in \ref{app:req} (see
@@ -111,7 +111,7 @@ with the aim of creating a safer and more portable language:
 \end{itemize}
 
 Although these changes are made at the expense of flexibility for the
-programmer and possible efficency gains, they save time overall in
+programmer and possible efficiency gains, they save time overall in
 chasing bugs caused by memory allocation errors, buffer overflows or
 leaks.  Besides, the Java Native Interface (JNI) can be used to
 implement certain methods in C, should the need arise.  Many of the
@@ -137,7 +137,7 @@ JIT compiler to create native code when it believes the code is used
 enough (`hot' enough) to make doing so worthwhile.
 
 Of these changes, the absence of unsigned types is the only one that
-seems to have no advantage, other than simplifing the language.  Many
+seems to have no advantage, other than simplifying the language.  Many
 file formats and network protocols include unsigned types, so working
 with them in Java becomes harder than is necessary.  Although their
 absence may have made sense in earlier versions of the language, the
@@ -154,7 +154,7 @@ is its broad support for concurrency.  Java is one of the few
 languages to have an implementation of \emph{monitors}, a feature we
 demonstrated in \ref{semaphores}.  It has also had support for threads
 from the very beginning, with support as a core part of the virtual
-machine rather than as an auxillary library (the approach used for C).
+machine rather than as an auxiliary library (the approach used for C).
 Java's platform independence means that the same threading constructs
 and semantics, as mandated by the VM specification \cite{vmspec}, can
 be used across all operating systems supported by a Java virtual
@@ -410,7 +410,7 @@ prototype language.
 
 \subsection{Popularity}
 
-Popularity is rarely a good reason to do anything but, in combatting
+Popularity is rarely a good reason to do anything but, in combating
 developer inertia, it is a good weapon to have.  The simple fact is
 that most of today's developers know Java and sometimes little else;
 it (or its close relative, C\#) is taught as part of most computer
@@ -609,7 +609,7 @@ processes, and create new transitions based on the transitions of
 these processes.  As a result, most of the implementations of
 \texttt{getPossibleTransitions()} in DynamiTE operate by looping over
 the set of transitions from each component process, checking if they
-meet the prerequisties for one of the rules and then creating new
+meet the prerequisites for one of the rules and then creating new
 transitions\footnote{It is possible to make the implementations shown
   here more efficient, firstly by retrieving the transitions of the
   subprocesses simultaneously using separate threads and secondly by
@@ -1596,7 +1596,7 @@ research concerned with providing concurrent frameworks, including
 those based on process calculi.
 
 The $\pi$ calculus has been the subject of much of this work,
-primarily due to its status as the most prevalant mobile process
+primarily due to its status as the most prevalent mobile process
 calculus.  Obliq \cite*{obliq} and Pict \cite*{daveturner:phd} are both
 programming languages with semantics founded in the $\pi$ calculus,
 while Nomadic Pict \cite*{wojciechowski:phd} extends Pict by
@@ -1798,7 +1798,7 @@ Perhaps the clearest thing about Nomadic Pict from this example is
 that it is not the most readable of languages.  Being designed
 primarily as a way of programming in the $\pi$ calculus rather than as
 a usable language means that the syntax leads something to be desired
-and is fairly unaccessible for those who don't know the calculus in
+and is fairly inaccessible for those who don't know the calculus in
 detail.  On the positive side, this does give the language a strong
 formal background and semantics, and unlike Obliq, it has a rich type
 system with polymorphism and subtyping. This can be seen above where

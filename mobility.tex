@@ -116,7 +116,7 @@ following processes defined using the $\pi$ calculus:
 
 \noindent where the scope of $a$ is again restricted, this time to the
 two processes $a(x).\overline{x}a.0$ and $\overline{a}y.0$.  If these
-two processes synchronize, the system evolves to:
+two processes synchronise, the system evolves to:
 
 \begin{equation}
 (a)(\overline{y}a.0\;|\;0)\;|\;y(z).P
@@ -298,7 +298,7 @@ The more general area of higher-order $\pi$ calculus, and the theory
 behind it, is covered in Sangiorgi's thesis \cite{sangiorgi:phd}.  It
 defines an extension to the $\pi$ calculus, HO$\pi$, which not only
 allows the transmission of names (first-order) and processes
-(second-order), but also parameterised processes of arbitrarily high
+(second-order), but also parametrised processes of arbitrarily high
 order ($\omega$-order).  This is best illustrated by some examples,
 drawn from \cite{sangiorgi:phd}.  In the simplest case, an `executor'
 process can be defined, $x(X).X$, which will receive and then execute an
@@ -332,7 +332,7 @@ on $z$ to indicate zero and thus, the end of the number:
 \noindent Using HO$\pi$, the addition of these numbers can be encoded
 in a very simple way.  In the $\pi$ calculus, summation is achieved
 via an indirect reference to the two numbers, using channel names.  In
-HO$\pi$, the parameterised processes or \emph{agents} that represent
+HO$\pi$, the parametrised processes or \emph{agents} that represent
 the numbers can be used directly in the representation of addition.
 Thus, actually adding the two numbers together becomes a simple matter
 of running the two concurrently, and linking them via a common
@@ -679,7 +679,7 @@ route the process has taken through each location.  The final rule,
 $\textsf{Act3}$, simply handles silent actions, which are unaltered from their
 behaviour in CCS, and have no association with locations.
 
-How this actually works in practice is best shown by reconsidering the
+How this actually works in practise is best shown by reconsidering the
 earlier CCS example.  Recall the specification defined in
 \ref{lccsspec}.  This is a process with essentially three actions, $in$,
 $\tau$ and $\overline{out}$, which may be localised via use of the LCCS
@@ -1095,7 +1095,7 @@ For example,
 \end{equation}
 
 \noindent may never progress to become $P$ as there is no $\overline{a}$
-for $a$ to synchronize with.  This behaviour is particularly relevant
+for $a$ to synchronise with.  This behaviour is particularly relevant
 with respect to $\ambout{m}$, where the sole use of the name is to stop
 the surrounding ambient leaving its parent if the names don't match.
 
@@ -1237,7 +1237,7 @@ P \pc Q_1 \pc Q_2 \tag{SafeOpen}
 \end{align}
 
 \noindent where, in each case, the capability must be able to
-synchronize with a co-capability in the relevant ambient for the
+synchronise with a co-capability in the relevant ambient for the
 reduction to take place.  For example, in SafeIn, $\ambin{m}.P_1$ must
 pair up with $\sambin{m}.Q_1$ in the ambient $m$.  As a result, $Q_1$
 can react appropriately to the change in structure, based on the fact
@@ -1279,9 +1279,9 @@ and $\langle M \rangle$ and $\langle N \rangle$ represent outputs.
 The use of the superscript on $(x)^p$ indicates a downward
 communication into the ambient $p$, while the use of $\uparrow$ in
 $\langle N \rangle^\uparrow$ indicates an upward communication
-directed at the parent ambient.  Thus, $(x)Q$ may synchronize with
+directed at the parent ambient.  Thus, $(x)Q$ may synchronise with
 either $\langle M \rangle$ locally or the upward communication from
-$\langle N \rangle$.  $(x)^pP$ must synchronize with $\langle M
+$\langle N \rangle$.  $(x)^pP$ must synchronise with $\langle M
 \rangle$, as the only output in $p$.
 
 The ideas behind the boxed ambients calculus result in a formalism which
@@ -1313,7 +1313,7 @@ compositional broadcast agent considered in \ref{ccslimit}.  The
 operation is performed by destroying and recreating ambients, as a
 signal to the other process involved in the synchronisation.  Extending
 this would seem to require using more ambients, which again leads to the
-problem of enumerating the number of entities who wish to synchronize.
+problem of enumerating the number of entities who wish to synchronise.
 As before, this is possible but not compositional; every time
 synchronisation is performed with a different number of agents, the
 semantics of the process must be recreated.
@@ -1567,7 +1567,7 @@ moving process.  Both must also mention the same channel name
 shown above, both \texttt{Mol} and \texttt{Porin} permanently offer
 their halves of this pairing.  However, the spatial context makes one of
 them inapplicable.  Initially, \texttt{exit} and \texttt{expel} won't
-synchronize, as \texttt{Mol} is not inside the ambient from which it is
+synchronise, as \texttt{Mol} is not inside the ambient from which it is
 being expelled.  Likewise, once it has entered, it can't do so again,
 even though the actions make this possible.
 

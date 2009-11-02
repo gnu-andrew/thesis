@@ -185,7 +185,7 @@ state.  For example, $a.E$ may perform the action $a$ and become $E$.
 We represent this using the notation $a.E \derives{a} E$.
 
 For two processes to communicate with one another, they must
-\emph{synchronize}; they must perform a corresponding pair of actions
+\emph{synchronise}; they must perform a corresponding pair of actions
 (e.g. $a$ and $\overline{a}$) at the same time.  For this to occur,
 the two processes must be running in parallel.  Parallel composition
 in CCS is represented by the $|$ operator.  When two processes are
@@ -421,7 +421,7 @@ with the resource in order to obtain access to it.
 Eating = \overline{take}.\overline{take}.\tau.\overline{replace}.\overline{replace}.Philosopher
 \end{equation}
 
-\noindent which needs to synchronize with two available forks if the
+\noindent which needs to synchronise with two available forks if the
 philosopher is to be able to eat (represented by $\tau$) and then
 replace the forks again.  It follows that the forks must also be
 represented using the process
@@ -541,7 +541,7 @@ provides this behaviour.  In CCS, there are at least two ways of
 defining semantics for the agent, but not one that provides a suitably
 compositional solution.  Perhaps the most obvious is simply to extend
 the familiar synchronisation of two processes.  An input and output
-pair can synchronize, so why not just create multiple pairs, one for
+pair can synchronise, so why not just create multiple pairs, one for
 each receiving process?  For example, transmitting a signal to two
 processes can be written simply as
 
@@ -569,7 +569,7 @@ provide a compositional broadcast agent.
 A second solution lies in recursion.  If the problem with the previous
 solution lies in the broadcasting agent doing too little (i.e. not
 transmitting to all the possible receivers), then, by making it
-recurse, it will keep sending the output to whoever will synchronize
+recurse, it will keep sending the output to whoever will synchronise
 with it.  Thus, the example for three inputs above becomes
 
 \begin{equation}

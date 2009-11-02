@@ -113,7 +113,7 @@ this chapter, we go through this process in detail.  CaSE \cite{CaSE}
 contribution \cont{1.1}.  We then introduce location mobility in the
 style of the ambient calculus (see \ref{locmob}), as well as a form of
 objective process mobility which reuses the concept of name-based
-synchornisation from CCS and CaSE; this gives contributions \cont{1.2}
+synchronisation from CCS and CaSE; this gives contributions \cont{1.2}
 and \cont{1.3}. At this stage, we have a calculus which provides both
 the ability to migrate processes during execution and to perform
 global synchronisation in a compositional manner.  Finally, we
@@ -383,7 +383,7 @@ may move into a sibling environ with the name, $m$.  Given the context,
 \begin{equation}
 \lclocv{m}{E}{\emptyset}\;|\;\lclocv{n}{\nil}{\emptyset}
 \end{equation}
-or, diagramatically,
+or, diagrammatically,
 \[\CompileMatrices
 \xymatrix{
 m \ar@{->}[d] &
@@ -436,7 +436,7 @@ Take the example context,
 \begin{equation}
 \lcloc{m}{E \pc \lcloc{n}{F}{\sigma}}{\rho}
 \end{equation}
-or, diagramatically,
+or, diagrammatically,
 \[\CompileMatrices
 \xymatrix{
 &
@@ -479,7 +479,7 @@ there are several). For example, the process
 \begin{equation}
 \lcloc{m}{\tntopen{n}.E \pc \lcloc{n}{F}{\sigma} \pc \lcloc{n}{G}{\gamma}}{\rho}
 \end{equation}
-or, diagramatically,
+or, diagrammatically,
 \[\CompileMatrices
 \xymatrix{
 &
@@ -1421,7 +1421,7 @@ From this, we can already determine some things about the other processes in the
 \end{itemize}
 
 \noindent and definitions for $\Out$ and $\Analy$ follow fairly
-trivally\footnote{We could represent these processes outputting on
+trivially\footnote{We could represent these processes outputting on
   channels representing the speakers and display respectively, but in
   reality these are going to be system calls in the $\tau$ process,
   just as the $\tau$ in $\In$ performs reading and decoding operations
@@ -1443,7 +1443,7 @@ will miss out.
 From \ref{tpl} and \ref{example}, we already know the best way to
 solve this; with a timeout.  $\In$ needs to recurse over the
 $\overline{o}$ action until it can no longer synchronise with a
-reciepient, at which point it reads the next piece of sound data; this
+recipient, at which point it reads the next piece of sound data; this
 is exactly the same logic as we employed for the compositional
 broadcast agent in \ref{tpl}.  As a result, $\In$ now looks like this:
 

@@ -75,7 +75,7 @@ believe to be novel:
   handle the introduction of environs and mobility primitives.  The
   main contributions in the semantics come from formulating
   appropriate structural operational semantics for the new mobility
-  primitives, especially with regard to the three-way sychronisation
+  primitives, especially with regard to the three-way synchronisation
   present in the process mobility operators, and the generalisation of
   ideas from CaSE to incorporate mobility.  The latter includes the
   creation of a notion of \emph{high priority transitions}; this
@@ -133,7 +133,7 @@ believe to be novel:
   same implementation of recursion (\texttt{Rec}).
 \item The design and implementation of the \emph{evolver} framework,
   allowing the execution semantics to be both clearly denoted and
-  interchangable.  By providing just two implementations in DynamiTE
+  interchangeable.  By providing just two implementations in DynamiTE
   -- the \texttt{Simulator}, which explores all transitions in a
   depth-first fashion, and the \texttt{RandomExecutor}, which follows
   one transition at random -- it is already possible to evaluate the
@@ -374,7 +374,7 @@ There are a number of ideas that could be further investigated:
 At present, the calculus does not explicitly represent the passing of
 data in any form.  When synchronisation occurs on a channel, $a$, it
 simply produces a $\tau$ transition.  Within DynamiTE, the transfer of
-a single \texttt{Object} from sender to reciepient takes place.  This
+a single \texttt{Object} from sender to recipient takes place.  This
 may be inefficient if many objects need to be sent, and it would be
 preferable to transfer multiple items in a single synchronisation.  It
 would also be preferable if the type of the data was represented, so

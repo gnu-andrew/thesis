@@ -263,7 +263,7 @@ be silent.
 
 The full type system, given in \cite{ambienttypes}, includes these
 exchange types along with types to control the opening and crossing of
-ambients.  Groups are parameterised over $F$,
+ambients.  Groups are parametrised over $F$,
 
 \begin{equation}
 F ::= ^\curvearrowright \mathbf{G}, ^\circ \mathbf{H}, T
@@ -832,7 +832,7 @@ public Type getType()
 \noindent The call to \texttt{procType.canEnter(String)} ensures that
 $m \in g(\mathscr{E})$ holds.  The actual code executed by the call
 depends on the type of \texttt{procType}; for a \texttt{Group}, the
-check only searchs the single $\mathcal{E}$ set belonging to that
+check only searches the single $\mathcal{E}$ set belonging to that
 group, but for \texttt{ProdType}, it must ensure that $m$ is in the
 $\mathcal{E}$ set of both composed groups.
 
@@ -968,8 +968,8 @@ doing so (\cont{3.3}).
 
 We closed the chapter by showing how DynamiTE could be modified to
 support TNT in \ref{dyn:type} (\cont{3.4}), and put this into
-practice in \ref{typedexample} by adapting the musical chairs example.
-Just as DynamiTE is not intended to be strongly tyed to Nomadic Time
+practise in \ref{typedexample} by adapting the musical chairs example.
+Just as DynamiTE is not intended to be strongly tied to Nomadic Time
 as its process calculus, the same is true of the typed variant of
 DynamiTE and TNT; we expect that other type systems could be
 implemented in the same manner for other process calculi.

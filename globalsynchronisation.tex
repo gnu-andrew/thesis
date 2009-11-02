@@ -67,7 +67,7 @@ $\tpltimeout{\nil}{F}$, we have two possibilities:
 \end{enumerate}
 
 \noindent as both $\nil$ and the timeout produce $\sigma$ transitions.
-Thus, what we have is \emph{prioritised choise}; two alternatives are
+Thus, what we have is \emph{prioritised choice}; two alternatives are
 offered as with $+$ but the higher priority of $\tau$ transitions over
 $\sigma$ transitions is instrumental in the choice of which transition
 to follow to the next state.
@@ -99,7 +99,7 @@ possible, the clock is allowed to tick and the recursion stops.
 The extensions to TPL considered here focus on expanding the
 scalability of the language.  As demonstrated above, TPL adequately
 provides for situations where an arbitrary number of processes must
-synchronize.  But what happens when a solution, like the one above, is
+synchronise.  But what happens when a solution, like the one above, is
 integrated into a larger system?  With only one clock, further
 problems occur.  The use of the clock in one subsystem may conflict
 with its use in another, and there is no clock available to
@@ -183,7 +183,7 @@ possible derivations for $a.0\;|\;b.0$ (where $b \ne \overline{a}$):
 
 \noindent with the same clock context as above.  The third derivation
 is duplicated for each available clock that can tick over both sides
-of the composition.  In cases where both sides may synchronize,
+of the composition.  In cases where both sides may synchronise,
 causing a $\tau$ transition, this takes precedence over the clock
 transitions, due to \emph{maximal progress} (see \ref{timing}) and the
 original set of derivations for parallel composition (see \ref{ccs})
