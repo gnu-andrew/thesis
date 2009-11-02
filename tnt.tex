@@ -309,14 +309,27 @@ system for Nomadic Time, which fulfils two main goals:
       secondary mechanism orthogonal to the use of bouncers.
 \end{enumerate}
 
+\begin{figure}  
+  \centering
+\[\CompileMatrices
+\xymatrix{
+M^3 \ar@{-->}[dr] & &
+Typed\ Ambients \ar@{-->}[dl] \\
+& Typed\ Nomadic\ Time & \\
+}
+\]
+\caption{Derivation of Typed Nomadic Time}
+\label{fig:tntderiv}
+\end{figure}
+
 Our type system is inspired in part by those given for the ambient
 calculus (see \ref{ambienttypes}), specifically the notion of groups
-presented in \cite{ambienttypes} and \cite{m3}.  However, the
-structure of the groups and the typing rules are novel.  Each process
-is assigned a group type, which determines the use of the mobility
-primitives.  Each group is a tuple comprising four sets of environ
-names\footnote{Each group $g$ is defined abstractly to be of kind
-  $Group$.}:
+presented in \cite{ambienttypes} and \cite{m3}; see Figure
+\ref{fig:tntderiv}.  However, the structure of the groups and the
+typing rules are novel.  Each process is assigned a group type, which
+determines the use of the mobility primitives.  Each group is a tuple
+comprising four sets of environ names\footnote{Each group $g$ is
+  defined abstractly to be of kind $Group$.}:
 
 \begin{tabular}{rlcl}
 $\quad \bullet$ & $\mathscr{R}$ & -- & Environs in which the process may
