@@ -8,6 +8,178 @@ work in \ref{futureworksect}.
 \section{Our Contributions}
 \label{ourcontributions}
 
+We have presented the following contributions to knowledge which we
+believe to be novel:
+
+\begin{enumerate}[\hspace{0.5cm}\bfseries {C}1.]
+\item Nomadic Time, an algebraic process calculus with
+  \emph{compositional global synchronisation}, \emph{mobility} and
+  security provision via the notion of `\emph{bouncers}' (see chapter
+  \ref{nt}).  This includes:
+\begin{enumerate}[\bfseries {C1.}1]
+\item The merging of clock hiding from the CaSE process calculus
+  \cite{CaSE} with the notion of distribution, so that the CaSE term
+  $E / \sigma$ becomes $\loc{m}{E}{B}{\sigma}$ in Nomadic Time.  In
+  CaSE, clock hiding is used as a form of encapsulation; hiding a
+  clock makes its ticks appear as silent actions to processes outside
+  the scope of the clock hiding operator.  We can think of the
+  processes encapsulated by the scope of the clock hiding operator as
+  forming a component, and so it seems natural to name it.  The
+  localised form of clock hiding present in Nomadic Time allows this
+  through the use of named \emph{environs} (such as $m$ in the
+  previous example).  Note that we use a set of clocks in Nomadic
+  Time, so a CaSE term like $E / \sigma / \rho$ can be simplified to
+  just $\loc{m}{E}{B}{\sigma, \rho}$.
+\item The combining of this localised form of CaSE with structural
+  mobility primitives from the ambient calculus \cite{amb} to give a
+  new mobile calculus with the local and global synchronisation
+  properties of CaSE.  This adds a new process form, $\ambop . \expr$,
+  to the existing syntax of CaSE, where $\ambop$ is one of
+  $\tntin{m}$, $\tntout{m}$ and $\tntopen{m}$, each in turn exhibiting
+  the behaviour of $\ambin{m}$, $\ambout{m}$ and $\ambopen{m}$ from
+  the ambient calculus.  We change the name of the operators in
+  Nomadic Time to make them more distinct from our existing names and
+  co-names, which aren't present in the ambient calculus.
+\item The addition of a pair of process mobility primitives which
+  allow direct process movement by synchronising on a name.  We add
+  two new alternatives to $\ambop$, namely $\procin{a}{m}$ and
+  $\procout{a}{m}$.  Just as a process, $a.P$, can synchronise with
+  $\overline{a}.Q$ in CCS or CaSE, it can also synchronise with
+  $\procin{a}{m}.Q$ or $\procout{a}{m}.Q$ in Nomadic Time.  If such a
+  synchronisation happens, not only does $a.P$ becomes $P$, but it is
+  also moved inside or outside of $m$.  This kind of direct process
+  migration appears in few process calculi, and we believe this
+  particular form, which leverages the existing synchronisation
+  process, to be unique.
+\item The introduction of `bouncers', which add a security mechanism
+  to the calculus.  The range of $\ambop$ is again extended to include
+  $\bin$, $\bout$ and $\bopen$, which correspond to $\sambin{m}$,
+  $\sambout{m}$ and $\sambopen{m}$ respectively from the safe ambient
+  calculus.  The difference between their use in the safe ambient
+  calculus and their use in Nomadic Time is that these co-actions must
+  come from a process which is attached to the top-right of an environ
+  such as $B$ in $\loc{m}{E}{B}{\sigma}$.  This is why the operators
+  themselves do not need to name an environ.
+\item The creation of a set of structural congruence laws for Nomadic
+  Time (Table \ref{tab:structcong}), allowing process terms to be
+  simplified and the number of semantic rules to be reduced.  With
+  these rules in place, we were able to drop the $Sum2$ and $Par2$
+  rules taken from CaSE's semantics.  They are also useful in cases
+  where, for example, a number of processes have evolved to $\nil$
+  e.g. $\nil \pc \nil \pc \nil$ can be rewritten as $\nil$ using
+  $StrIdent$.
+\item The provision of structured operational semantics for Nomadic
+  Time (Tables \ref{tab:core} and \ref{tab:mobsubset}).  These extend
+  those from CaSE as demonstrated in Table \ref{tab:derivation},
+  extending the notion of prioritisation and adding new rules to
+  handle the introduction of environs and mobility primitives.  The
+  main contributions in the semantics come from formulating
+  appropriate structural operational semantics for the new mobility
+  primitives, especially with regard to the three-way sychronisation
+  present in the process mobility operators, and the generalisation of
+  ideas from CaSE to incorporate mobility.  The latter includes the
+  creation of a notion of \emph{high priority transitions}; this
+  includes $\tau$ transitions and the transitions which occur when a
+  mobility synchronisation (e.g. $\tntin{m}$ and $\bin{m}$) takes
+  place.  So, although a number of the rules are derived from CaSE,
+  they have had to be extensively re-examined to ensure that they work
+  correctly in the context of the new mobility primitives.
+\item The demonstration of the properties of \emph{prioritisation} and
+  \emph{time determinacy} inherent in the new calculus.  This follows
+  on from the semantics and explicitly shows how the high priority
+  transitions defined there prevent any clock transitions from taking
+  place.
+\end{enumerate}
+\item The realisation of the aforementioned calculus as a \emph{design
+  framework}, DynamiTE, through the implementation of its constructs
+  as programmatic elements in the Java programming language (see
+  chapter \ref{dynamite}).  This allows the specification of system
+  interactions to be shifted directly from the theoretical domain into
+  an implementation backed by a formal methodology, with the intention
+  of improving industrial adoption of concurrent techniques.  This includes:
+\begin{enumerate}[\bfseries {C2.}1]
+\item The creation of a translation schema (Table
+  \ref{tab:translationschema1}), mapping process terms in Nomadic Time
+  to Java objects.  This was largely a mechanical process of turning
+  the syntax into objects, but there are a few areas that required
+  more finesse.  In particular, it was necessary to create $\nil$,
+  $\Omega$, $\Delta$ and the bouncer primitives as singletons in order
+  to avoid there being multiple distinct instances of them.  Having
+  only a single instance of each reduces memory usage and means that
+  two separate references to them can be judged equivalent by
+  comparing just the references and not the objects referred to.  The
+  \texttt{Action} framework is also notable, particularly as it is the
+  abstract notion of \texttt{Tau} which connects the
+  intercommunication mechanism provided by DynamITE to the user's own
+  code.
+\item The implementation of the operational semantics as methods in
+  the appropriate Java objects defined in the schema.  This was again
+  a largely mechanical process, but did require significant testing to
+  get right.  It also had the additional benefit of showing whether
+  the semantics performed as expected in a practical situation.
+\item The design and implementation of a plugin framework, allowing
+  the use of different process calculi and different \emph{side
+    effects} as the result of performing a transition.  As with any
+  plugin framework, the full merits of this remain to be discovered,
+  as other alternate implementations are developed and used with it.
+  It does provide an important separation between the calculus, the
+  framework and the side-effecting mechanism which will hopefully mean
+  that others can use DynamiTE even if they do not wish to use Nomadic
+  Time.  We believe DynamiTE to be novel in this respect, allowing
+  other calculi to be used and also for existing implementations to be
+  extended; so calculi that extend each other in the theoretical
+  domain can also do so at the implementation level.  This is the case
+  with CCS, CaSE and Nomadic Time, which, as noted earlier, share the
+  same implementation of recursion (\texttt{Rec}).
+\item The design and implementation of the \emph{evolver} framework,
+  allowing the execution semantics to be both clearly denoted and
+  interchangable.  By providing just two implementations in DynamiTE
+  -- the \texttt{Simulator}, which explores all transitions in a
+  depth-first fashion, and the \texttt{RandomExecutor}, which follows
+  one transition at random -- it is already possible to evaluate the
+  communication semantics with the former, change a single line of
+  code, and execute the process (including side effects) with the
+  latter.
+\end{enumerate}
+\item The optional addition of a \emph{type system} to Nomadic Time in
+  order to allow movement restriction to be based on the group
+  membership of processes (see chapter \ref{tnt}); we refer to this
+  extended version as Typed Nomadic Time (TNT).  This includes:
+\begin{enumerate}[\bfseries {C3.}1]
+\item The design of a group type which can be applied to a Nomadic
+  Time process to restrict movement.  Although the idea of a type
+  system based on groups is derived from existing work on type systems
+  for ambient calculi (see \ref{ambienttypes}), our particular form of
+  group, using the sets $\mathscr{R}$ (\emph{resides in}),
+  $\mathscr{O}$ (\emph{opens}), $\mathscr{L}$ (\emph{leaves}) and
+  $\mathscr{E}$ (\emph{enters}) is believed to be novel.
+\item The provision of typing rules (Tables \ref{tab:basictypes},
+  \ref{tab:totypes}, \ref{tab:botypes} and \ref{tab:mobtypes}) for the
+  new typed form of Nomadic Time.  Again, we believe these to be
+  novel.  In a number of cases, the rules are obvious, with the
+  majority of work focusing on handling what happens when two groups
+  converge (T-Sum, T-Par, T-FTO and T-STO) and the actual use of the
+  groups in the mobility rules (T-EnvIn, T-EnvOut, T-Open, T-ProcIn
+  and T-ProcOut).  We believe the rules to be useful in providing an
+  additional layer of security, above and beyond the bouncer
+  mechanism, when required.
+\item Proofs of type safety for the type system.  These were largely
+  mechanical but areas such as handling substitution required
+  significant thought, and they did expose some holes in the type
+  system which led to it being further revised and rectified.
+\item The extension of DynamiTE to handle type systems in general, and
+  specifically TNT.  This has many similarities with \cont{2.1} and
+  \cont{2.2}, with the processes in the translation schema from
+  \cont{2.1} now implementing \texttt{TypedProcess} and the typing
+  rules being implemented in a similar manner to the way the
+  operational semantics were in \cont{2.2}.  The main considerations
+  apart from this involved how to represent the group type, leading to
+  the \texttt{ProcessType} interface and its subclasses, and how to
+  signal a failure to type a process in an appropriate way, for which
+  a specific exception type was used.
+\end{enumerate}
+\end{enumerate}
+
 \section{Future Work}
 \label{futureworksect}
 
