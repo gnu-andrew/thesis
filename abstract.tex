@@ -19,31 +19,31 @@ operations becoming sequential again.  In addition, the usual method
 for protecting data, using \emph{semaphores} or \emph{monitors}, tends
 to be very error-prone.
 
-In this thesis, we propose a new design method whereby applications
+In this thesis, we introduce a new design method whereby applications
 are constructed from small sequential \emph{tasks} connected by
-intercommunication primitives.  This in itself is not new -- UNIX
-pipelines, for example, followed this approach back in the 1970s --
-but it has now become almost a \emph{necessity}; the only practical
+intercommunication primitives.  This general idea is not new -- UNIX
+pipelines, for example, followed a similar approach back in the 1970s
+-- but it has now become almost a \emph{necessity}; the only practical
 and maintainable way to write large concurrent applications is to go
 back to the design stage and completely rethink our ideas from this
 perspective.  This is painstakingly clear when we consider the
 alternative of debugging unreproducible race conditions and deadlocks.
 
-What we envisage is a two-stage design process.  First, the individual
-tasks are created as independent entities and tested with appropriate
-inputs.  Secondly, the communication infrastructure between them is
-developed.  We provide support for the latter via the DynamiTE
-framework, which allows the interactions to be defined using the terms
-of a process calculus.  Depending on the developer's background, they
-can treat this as just another API, as a design pattern or as an
-algebraic expression which can be property checked for issues such as
-deadlocks.  Either way, the communication layer can be developed,
-tested and evaluated separately from the tasks once it is known how
-the tasks will interface with one another.
+Our approach is based on a two-stage design process.  First, the
+individual tasks are created as independent entities and tested with
+appropriate inputs.  Secondly, the communication infrastructure
+between them is developed.  We provide support for the latter via the
+DynamiTE framework, which allows the interactions to be defined using
+the terms of a process calculus.  Depending on the developer's
+background, they can treat this as just another API, as a design
+pattern or as an algebraic expression which can be property checked
+for issues such as deadlocks.  Either way, the communication layer can
+be developed, tested and evaluated separately from the tasks once it
+is known how the tasks will interface with one another.
 
-To supplement DynamiTE, we propose our own process calculus, Nomadic
-Time, which contains a carefully chosen selection of constructs based
-on our survey of the field contained within.  Among the features of
+To supplement DynamiTE, we define our own process calculus, Nomadic
+Time, using a carefully chosen novel selection of constructs derived
+from our survey of the field contained within.  Among the features of
 the calculus are the ability to perform communication both locally
 (\emph{one-to-one}) and globally (\emph{one-to-many}), and the
 flexibility to change the location of tasks during execution.

@@ -3,7 +3,7 @@ TEX=thesis.pdf
 #DEPS=introduction.tex apc.tex globalsynchronisation.tex mobility.tex \
 # nt.tex dynamite.tex tnt.tex futurework.tex literature.bib preservation.tex \
 # abstract.tex syntax.tex progress.tex
-DEPS=*.tex
+DEPS=*.tex literature.bib
 
 all: thesis.pdf
 

@@ -1597,11 +1597,17 @@ those based on process calculi.
 
 The $\pi$ calculus has been the subject of much of this work,
 primarily due to its status as the most prevalent mobile process
-calculus.  Obliq \cite*{obliq} and Pict \cite*{daveturner:phd} are both
-programming languages with semantics founded in the $\pi$ calculus,
-while Nomadic Pict \cite*{wojciechowski:phd} extends Pict by
+calculus.  Obliq \cite*{obliq} and Pict \cite*{daveturner:phd} are
+both programming languages with semantics founded in the $\pi$
+calculus, while Nomadic Pict \cite*{wojciechowski:phd} extends Pict by
 introducing distribution, a feature not usually present in the $\pi$
-calculus.
+calculus.  The Seal calculus \cite*{seal} is an example of yet another
+distributed variant of the $\pi$ calculus, and this has also lead to
+an implementation in the form of JavaSeal \cite*{javaseal}.  However,
+the ambient calculus has not been neglected, and an implementation
+exists in the form of the safe ambients abstract machine
+\cite*{sangiorgi:safeambientsmachine}.  In the remainder of this
+chapter, we look at these implementations in more detail.
 
 \subsection{Obliq}
 \label{obliq}
