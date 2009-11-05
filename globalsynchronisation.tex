@@ -108,7 +108,7 @@ co-ordinate the subsystems themselves.
 The Calculus for Synchrony and Asynchrony (CSA) \cite*{csa} extends TPL
 with the idea of multiple clocks, drawn from PMC\footnote{PMC also
   differs from TPL in its use of \emph{insistent} actions; all must be
-  performed before a clock tick.}\cite*{pmc}. However, while having
+  performed before a clock tick.} \cite*{pmc}. However, while having
 multiple clocks allows the use of differing patterns of
 synchronisation, it increases the number of clock ticks present within
 the system.  With five clocks, even the nil process has five possible
@@ -127,7 +127,7 @@ when combined with the global form of maximal progress introduced by
 TPL and retained in CaSE, integrated into the `synchronous cycle'
 \cite{CaSE} of clocks at the level above.
 
-\section{Calculus of Synchronous Encapsulation (CaSE)}
+\section{The Calculus of Synchronous Encapsulation}
 \label{case}
 
 The syntax for CaSE, given in \cite{norton05alg}, is as follows:
@@ -170,7 +170,7 @@ a.0 \derives{\sigma} a.0
 \end{equation}
 
 \noindent assuming a clock context containing just the one clock,
-$\sigma$. Similarly, non-deterministic choice and parallel composition
+$\sigma$. Similarly, parallel composition and non-deterministic choice
 exist through time, so both sides can evolve due to a clock tick,
 while the operator remains in place.  This gives the following
 possible derivations for $a.0\;|\;b.0$ (where $b \ne \overline{a}$):
@@ -486,28 +486,28 @@ for CaSE expand on those for CCS\footnote{We go directly from CCS to
  \caption{Derivation of CaSE from CCS}
  \label{tab:casederivation}
   \shrule \centering
-  \begin{tabular}{r|c}
+  \begin{tabular}{r|l}
     Rule in CCS & Use in CaSE \\
     \hline
-    \new & $Idle$; Allows time to run over $\nil$ \\
+    \new & $Idle$; Allows clocks to tick over $\nil$ \\
     $Act$ & As in CCS \\
-    \new & $Patient$; Allows time to run over the prefix $\alpha.E$ \\
+    \new & $Patient$; Allows clocks to tick over the prefix $\alpha.E$ \\
     \new & Prevents the clock $\sigma$ from ticking \\
     $Sum1$ & As in CCS \\
     $Sum2$ & As in CCS \\
-    \new & $Sum3$; Allows time to run over a summation \\
+    \new & $Sum3$; Allows clocks to tick over a summation \\
     $Par1$ & As in CCS \\
     $Par2$ & As in CCS \\
     $Par3$ & As in CCS \\
-    \new & $Par4$; Allows time to run over $|$ when not prevented by $\tau$ transitions \\
-    \new & $FTO1$; Allows $\sigma$ to tick, leaving $F$, when there are no $\tau$ transitions \\
+    \new & $Par4$; Allows clocks to tick over $|$ when not prevented by $\tau$s \\
+    \new & $FTO1$; Allows $\sigma$ to tick, leaving $F$, when there are no $\tau$s \\
     \new & $FTO2$; Allows anything but $\sigma$ to precede, leaving $E'$ \\
-    \new & $STO1$; Allows $\sigma$ to tick, leaving $F$, when there are no $\tau$ transitions \\
+    \new & $STO1$; Allows $\sigma$ to tick, leaving $F$, when there are no $\tau$s \\
     \new & $STO2$; Allows $\alpha$ transitions to precede, leaving $E'$ \\
-    \new & $STO3$; Allows other clocks ($\rho$) to tick over $E$ leaving the timeout intact \\
+    \new & $STO3$; Allows other clocks to tick over $E$, keeping the timeout \\
     $Rec$ & As in CCS, but generalised to $\gamma$ \\
     $Res$ & As in CCS, but generalised to $\gamma$ \\
-    \new & $Hid1$; Converts the transitions of a hidden clock, $\sigma$, to $\tau$ transitions \\
+    \new & $Hid1$; Converts the hidden clock $\sigma$'s transitions to $\tau$s \\
     \new & $Hid2$; Allows anything but $\sigma$ to precede, retaining clock hiding
   \end{tabular}
   \shrule

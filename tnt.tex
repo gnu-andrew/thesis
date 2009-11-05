@@ -385,42 +385,45 @@ summation operator.
   \shrule
  \begin{center}
  \begin{tabular}{rlrl}
-     \Rule{T-Env}
+     \Rule{T-Env\quad\quad}
      {\xi : T \in \Gamma}
      {\Gamma \vdash \xi : T}
      {}
-  &
-  \Rule{T-Nil}
+  &\hspace{3mm}
+  \Rule{T-Nil\quad\quad}
      {\Gamma \vdash g : Group}
      {\Gamma \vdash \nil : g}
      {}
   \\[3ex]
-     \Rule{T-Stop\quad}
+     \Rule{T-Stop\quad\quad}
      {\Gamma \vdash g : Group}
      {\Gamma \vdash \Delta : g}
      {}
-     &
-     \Rule{T-Stall\quad}
+     &   \hspace{3mm}
+
+     \Rule{T-Stall\quad\quad}
      {\Gamma \vdash g : Group}
      {\Gamma \vdash \Delta_\sigma : g}
      {}
      \\[3ex]
-     \Rule{T-Var}
+     \Rule{T-Var\quad\quad}
      {\Gamma \vdash t : T}
      {\Gamma \vdash X : t}
      {}
-     &
-     \Rule{T-Act}
+     &   \hspace{3mm}
+
+     \Rule{T-Act\quad\quad}
      {\Gamma \vdash E : g : Group}
      {\Gamma \vdash \alpha . E : g}
      {}
   \\[3ex]
-     \Rule{T-Rec\quad}
+     \Rule{T-Rec\quad\quad}
      {\Gamma \vdash E : g : Group}
      {\Gamma, X : g \vdash \mu X.E : g}
      {}
-     &
-     \Rule{T-Res}
+     &   \hspace{3mm}
+
+     \Rule{T-Res\quad\quad}
      {\Gamma \vdash E : g : Group}
      {\Gamma \vdash E \res{a} : g}
      {}
@@ -429,8 +432,9 @@ summation operator.
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash E + F : g \oplus g'}
    {}
-   &
-   \Rule{T-Par}
+   &   \hspace{3mm}
+
+   \Rule{T-Par\quad\quad}
    {\Gamma \vdash E : g : Group, F : g' : Group}
    {\Gamma \vdash E \pc F : g \otimes g'}
    {}
@@ -485,6 +489,7 @@ operator, $+$ to be typeable as well.
    {\Gamma \vdash \Omega : Bouncer}
    {}
   &
+   \hspace{5mm}
   \Rule{BRec\quad}
   {\Gamma \vdash B : Bouncer}
   {\Gamma, X : Bouncer \vdash \mu X.B : Bouncer}
@@ -495,6 +500,7 @@ operator, $+$ to be typeable as well.
   {\Gamma \vdash \bin .B : Bouncer}
   {}
   &
+   \hspace{5mm}
   \Rule{BOut\quad}
   {\Gamma \vdash B : Bouncer}
   {\Gamma \vdash \bout .B : Bouncer}
@@ -505,6 +511,7 @@ operator, $+$ to be typeable as well.
   {\Gamma \vdash \bopen .B : Bouncer}
   {}
   &
+   \hspace{5mm}
   \Rule{BSum\quad}
    {\Gamma \vdash B, B^\prime : Bouncer}
    {\Gamma \vdash B + B^\prime : Bouncer}
@@ -515,7 +522,6 @@ operator, $+$ to be typeable as well.
 %  {\Gamma \vdash B, B^\prime : Bouncer}
 %  {B\{B'/X\} : Bouncer}
 %  {}
-  \\[3ex]
  \end{tabular}
   \end{center}
   \shrule
@@ -838,7 +844,7 @@ $\mathcal{E}$ set of both composed groups.
 
 Finally, the type checks may be performed at runtime by an evolver
 that supports them.  We add an additional interface,
-\texttt{TypedEvolver} to correspond to \texttt{TypedProcess}:
+\texttt{TypedEvolver}, to evolve a \texttt{TypedProcess}:
 
 \begin{verbatim}
 public interface TypedEvolver

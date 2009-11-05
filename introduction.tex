@@ -78,15 +78,15 @@ necessary, and then executing it.  During execution, data was read in
 and the results of computation output for the user to later digest.
 
 It soon become clear that having an expensive processor sit idle while
-input/output (I/O) operations took place was wasteful.  To solve this
-problem, a new generation of machines were introduced which provided a
-\emph{scheduler} as part of the operating system.  Instead of running
-each job to completion before attempting the next, the system read in
-multiple jobs to begin with, each forming a \emph{process} in memory.
-These processes consisted not only of the code being executed, but
-also included contextual information, such as the current instruction
-being executed (the \emph{program counter}) and environmental data
-(e.g. open file handles).
+input and output (I/O) operations took place was wasteful.  To solve
+this problem, a new generation of machines were introduced which
+provided a \emph{scheduler} as part of the operating system.  Instead
+of running each job to completion before attempting the next, the
+system read in multiple jobs to begin with, each forming a
+\emph{process} in memory.  These processes consisted not only of the
+code being executed, but also included contextual information, such as
+the current instruction being executed (the \emph{program counter})
+and environmental data (e.g. open file handles).
 
 If a process being run by the system reached a point where it had to
 wait for an I/O operation, the scheduler would move the process into a

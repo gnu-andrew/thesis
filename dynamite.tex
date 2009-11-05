@@ -500,7 +500,7 @@ subclasses of \texttt{Action}, more details of which can be found in
 \ref{dyn:evolvers}.
 
 \begin{table}
- \caption{Translation Schema from Nomadic Time to DynamiTE \texttt{Process} Subclasses}
+ \caption{Translation Schema from NT to DynamiTE \texttt{Process} Subclasses}
  \label{tab:translationschema1}
   \shrule \centering
   \begin{tabular}{rcl}
@@ -531,7 +531,7 @@ subclasses of \texttt{Action}, more details of which can be found in
 \end{table}
 
 \begin{table}
- \caption{Translation Schema from Nomadic Time to DynamiTE Classes}
+ \caption{Translation Schema from NT to DynamiTE Classes}
  \label{tab:translationschema2}
   \shrule \centering
   \begin{tabular}{rcl}
@@ -817,10 +817,11 @@ advantages over just allowing the use of any arbitrary string:
 As a repository for names and co-names, \texttt{Context} becomes an
 appropriate place for other methods related to their use.  As a
 result, it also includes a number of static utility methods which are
-used with co-names; these are \texttt{convertLabelToName(String)},
-\texttt{convertConameToLabel(String)} and \texttt{isConame(String)}.
-In our implementation, we differentiate names from co-names by marking
-each letter with a combining macron (so $a$ becomes $\overline{a}$).
+used with co-names; these are \texttt{convertLabelToName},
+\texttt{convertConameToLabel} and \texttt{isConame}, each of which
+take a single \texttt{String} argument.  In our implementation, we
+differentiate names from co-names by marking each letter with a
+combining macron (so $a$ becomes $\overline{a}$).
 \texttt{convertConameToLabel(String)} creates these labels from the
 original name, and \texttt{convertLabelToName(String)} returns the
 original name by removing the macrons.  The \texttt{isConame(String)}
@@ -852,26 +853,26 @@ instance of \texttt{Context} exists\footnote{Should DynamiTE be used
   central store.}, which is created at startup by a
 \texttt{ContextFactory}.  As with \texttt{Context}, an instance of
 \texttt{ContextFactory} is obtained using a static method rather than
-a constructor.  The user calls
-\texttt{ContextFactory.getInstance(String,String,String)}, supplying
-the name of a process calculus, a \emph{channel implementation} and a
-\emph{locality implementation}.  The two latter arguments are used to
-determine the execution semantics for synchronisation and movement
-respectively.  The returned \texttt{ContextFactory} will be able to
-supply a \texttt{Context} instance for the specified process calculus
-which uses the given channel and locality implementations.  If one can
-not be found, an \texttt{UnsupportedContextException} is thrown.
+a constructor.  The user calls \texttt{ContextFactory.getInstance},
+supplying three \texttt{String} arguments; the name of a process
+calculus, a \emph{channel implementation} and a \emph{locality
+  implementation}.  The two latter arguments are used to determine the
+execution semantics for synchronisation and movement respectively.
+The returned \texttt{ContextFactory} will be able to supply a
+\texttt{Context} instance for the specified process calculus which
+uses the given channel and locality implementations.  If one can not
+be found, an \texttt{UnsupportedContextException} is thrown.
 
 DynamiTE supplies an implementation of \texttt{ContextFactory} in the
-form of the \linebreak \texttt{DynamiTEContextFactory}.  It in turn probes for
+form of the \texttt{DynamiTEContextFactory}.  It in turn probes for
 classes which implement \texttt{Calculus}, \texttt{ChannelFactory} and
 \texttt{LocalityFactory} and an instance of it is returned to the user
 if it finds an implementation of each which meets the user's
 requirements.  Once the user has obtained an instance of
 \texttt{ContextFactory}, they can call \texttt{getContext} on it to
-return a \texttt{Context} instance, which can then be supplied to the
-\texttt{Context.setContext(Context)} method to later be returned by
-\texttt{Context.getContext()}.
+return a \texttt{Context} instance.  This is stored using the static
+method \linebreak \texttt{Context.setContext(Context)}, and
+later retrieved by \texttt{Context.getContext()}.
 
 Although this may sound convoluted and unnecessary, it makes the
 framework much more flexible and ready for future extension, while
@@ -920,20 +921,20 @@ public static <T extends Probeable> Map<String,T>
 \texttt{Probeable}, so that the name and version information can be
 obtained programatically.  In DynamiTE, the \texttt{Calculus},
 \texttt{ChannelFactory} and \texttt{LocalityFactory} interfaces all
-extend \texttt{Probeable} so \texttt{DynamiTEContextFactory} need only
-call the above method with an appropriate service loader for the
-interface and it will receive back a \texttt{Map} linking names to
-instances of implementations of that interface.  Most of the actual
-work is done by \texttt{ServiceLoader} which reads from a text file
-named after the interface, which contains a list of implementing
-classes.  The DynamiTE framework supplies such text files for its
-implementations of \texttt{ContextFactory}, \texttt{Calculus},
-\texttt{ChannelFactory} and \texttt{LocalityFactory}.  The
-\texttt{ServiceLoader} loads a listed class each time its
-\texttt{next()} method is called\footnote{This happens indirectly in
-  \texttt{probePlugins} via each iteration of the for-each loop.}, and
-returns an instance of it, which \texttt{probePlugins} then stores in
-the map.
+extend \texttt{Probeable} so \linebreak
+\texttt{DynamiTEContextFactory} need only call the above method with
+an appropriate service loader for the interface and it will receive
+back a \texttt{Map} linking names to instances of implementations of
+that interface.  Most of the actual work is done by
+\texttt{ServiceLoader} which reads from a text file named after the
+interface, which contains a list of implementing classes.  The
+DynamiTE framework supplies such text files for its implementations of
+\texttt{ContextFactory}, \texttt{Calculus}, \texttt{ChannelFactory}
+and \texttt{LocalityFactory}.  The \texttt{ServiceLoader} loads a
+listed class each time its \texttt{next()} method is
+called\footnote{This happens indirectly in \texttt{probePlugins} via
+  each iteration of the for-each loop.}, and returns an instance of
+it, which \texttt{probePlugins} then stores in the map.
 
 The \texttt{Context} class stores and provides indirect access to the
 implementations chosen via the \texttt{ContextFactory}.  For instance,
@@ -1132,16 +1133,16 @@ changed by another thread in the interim period between performing a
 \texttt{get} and a \texttt{put}.
 
 This applies to the method above, as we need to check whether or not a
-\texttt{ThreadLocal} instance has been created for a particular
-channel name, and if not, create one.  The initial \texttt{get}
-operation will return \texttt{null} if we have not yet created a mapping
-between that channel name and a \texttt{ThreadLocal}.  However, in the
-time it takes for this thread to check the return value and create a
-\texttt{ThreadLocal}, another thread may have added such a mapping.
-The \texttt{ConcurrentMap} interface (which \texttt{ConcurrentHashMap}
-implements) provides an additional operation for just this issue:
-\texttt{putIfAbsent}.  This provides an atomic version of the
-following code:
+\linebreak \texttt{ThreadLocal} instance has been created for a
+particular channel name, and if not, create one.  The initial
+\texttt{get} operation will return \texttt{null} if we have not yet
+created a mapping between that channel name and a
+\texttt{ThreadLocal}.  However, in the time it takes for this thread
+to check the return value and create a \texttt{ThreadLocal}, another
+thread may have added such a mapping.  The \texttt{ConcurrentMap}
+interface (which \texttt{ConcurrentHashMap} implements) provides an
+additional operation for just this issue: \texttt{putIfAbsent}.  This
+provides an atomic version of the following code:
 
 \begin{verbatim}
 if (map.containsKey(key))

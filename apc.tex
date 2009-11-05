@@ -107,7 +107,7 @@ issues that may arise in the design of the program.  Many such models
 have been developed, and over the next three chapters, we will
 consider a subset of these.
 
-\section{The Calculus of Communicating Systems (CCS)}
+\section{The Calculus of Communicating Systems}
 \label{ccs}
 
 Algebraic process calculi model the interaction of concurrent
@@ -122,16 +122,18 @@ a common shared memory\footnote{Shared memory and message-passing are
   queues can be implemented using shared memory.} or a tuple space
 \cite*{linda}.
 
-The foundational calculi in this field are Hoare's CSP
-\cite*{hoare:csp78}, Milner's CCS \cite*{milner:ccs} and Bergstra and
-Klop's ACP \cite*{acp}, all of which were first developed in the late
-1970s to early 1980s.  CSP was originally developed as a programming
-language with a relatively large syntax, while Milner aimed for a
-minimal calculus.  Both calculi have influenced each other, with CSP
-later being refined and given a theoretical basis, following Milner's
-work.  ACP shares many of the ideas of CCS, and can be regarded as an
-`alternative formulation' \cite{acp}, using a similar set of operators
-to achieve a different goal.
+The foundational calculi in this field are Hoare's Communicating
+Sequential Processes (CSP) \cite*{hoare:csp78}, Milner's Calculus of
+Communicating Systems (CCS) \cite*{milner:ccs} and Bergstra and Klop's
+Algebra of Communicating Processes (ACP) \cite*{acp}, all of which
+were first developed in the late 1970s to early 1980s.  CSP was
+originally developed as a programming language with a relatively large
+syntax, while Milner aimed for a minimal calculus.  Both calculi have
+influenced each other, with CSP later being refined and given a
+theoretical basis, following Milner's work.  ACP shares many of the
+ideas of CCS, and can be regarded as an `alternative formulation'
+\cite{acp}, using a similar set of operators to achieve a different
+goal.
 
 In our work, the focus is on CCS, as it forms the basis for most of
 the other calculi considered, including the $\pi$ calculus

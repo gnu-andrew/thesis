@@ -33,8 +33,8 @@ providing a compositional broadcast agent.  \emph{Multiple clocks} and
 \begin{center}
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
-    & CCS & TPL & CaSE & $\pi$ & Ambient & Safe & P & \textbf{Nomadic} \\
-    & & & & & Calculus & Amb. & Systems & \textbf{Time} \\
+    & CCS & TPL & CaSE & $\pi$ & Amb. & Safe & P & \textbf{NT} \\
+    & & & & & & Amb. & Systems & \\
     \hline
     Synchronisation & \tick & \tick & \tick & \tick & & & & \tick \\
     \hline
@@ -98,13 +98,13 @@ Safe\ Ambients \ar@/^/[dl]_{\mathbf{C1.2,4}} \\
 \label{fig:ntderiv}
 \end{figure}
 
-As can be seen from the table, Nomadic Time has the features of both
-CaSE and the safe ambients calculus, from which it draws its
-inspiration\footnote{The only missing feature of Nomadic Time,
-  according to the table, is scope mobility; this could be added in
-  just the same way CCS was extended to create the $\pi$ calculus but
-  it would be superfluous, given we already have a form of mobility
-  based on localities.}.  This is illustrated in Figure
+As can be seen from the table, Nomadic Time (\textbf{NT}) has the
+features of both CaSE and the safe ambients calculus, from which it
+draws its inspiration\footnote{The only missing feature of Nomadic
+  Time, according to the table, is scope mobility; this could be added
+  in just the same way CCS was extended to create the $\pi$ calculus
+  but it would be superfluous, given we already have a form of
+  mobility based on localities.}.  This is illustrated in Figure
 \ref{fig:ntderiv}, which also shows how our creation of Nomadic Time
 fits in with our contributions to knowledge. Over the first half of
 this chapter, we go through this process in detail.  CaSE \cite{CaSE}
@@ -957,7 +957,7 @@ other clock, $\rho$.  All of these are taken directly from CaSE.
  \caption{Derivation of Nomadic Time from CaSE}
  \label{tab:derivation}
   \shrule \centering
-  \begin{tabular}{r|c}
+  \begin{tabular}{r|l}
     Rule in CaSE & Use in Nomadic Time \\
     \hline
     $Idle$ & As in CaSE \\
@@ -978,9 +978,9 @@ other clock, $\rho$.  All of these are taken directly from CaSE.
     $STO3$ & $\tau$ generalised to $h$ \\
     $Rec$ & As in CaSE \\
     $Res$ & As in CaSE \\
-    $Hid1$ & $LHd1$; Clock hiding operator changed to environ, now uses sets of clocks \\
+    $Hid1$ & $LHd1$; Clock hiding changed to environ, now uses sets of clocks \\
     \new & $LHd2$; allows high-priority transitions \\
-    $Hid2$ & $LHd3$; Clock hiding operator changed to environ, now uses sets of clocks \\
+    $Hid2$ & $LHd3$; Clock hiding changed to environ, now uses sets of clocks \\
     \new & $Cap1$; allows mobility primitives to be performed \\
     \new & $Cap2$; allows time to run over mobility primitives \\
     \new & $SCong$; integrates the structural congruence laws 
