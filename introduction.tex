@@ -105,7 +105,7 @@ the running time of the process was recorded, as such results were now
 dependent on factors such as system load and the arbitrary choices of
 the scheduler.
 
-Over time, schedulers have been extended so as to also switch when a
+Over time, schedulers have been extended so as also to switch when a
 quantum of time allocated to a process has been depleted.  This
 ensures a greater degree of fairness; a processor-intensive task which
 rarely blocks can no longer become overly dominant.  For batch
@@ -143,9 +143,9 @@ as they are heavily dependent on timing.  This is especially true of
 single processor systems, where concurrency is merely simulated by the
 scheduler switching between processes.  Whether or not file corruption
 occurs depends on the choices made by the scheduler, which in turn
-depends on a number of factors, such as system load.  If many
-processes are competing for the processor, then there is less chance
-of one which accesses the same file being picked.
+depend on a number of factors, such as system load.  If many processes
+are competing for the processor, then there is less chance of one
+which accesses the same file being picked.
 
 A print spooler is a program which allows a printer (another shared
 resource) to be used by many processes while maintaining separation
@@ -158,7 +158,7 @@ different jobs mixed together.
 Instead, the spooler tackles this concurrency problem by acting as an
 mediator between the programs and the printer.  However, such an
 application must be carefully designed to ensure it doesn't fall foul
-to the same issue.  Imagine the spooler operates by reading a list of
+of the same issue.  Imagine the spooler operates by reading a list of
 files to print from a shared file.  When a process wants to add a new
 job to the queue, it writes the filename as a new entry at the end of
 the file:
@@ -824,9 +824,9 @@ independent development of each task also means that it should be more
 suitable for reuse in other systems as a result.  For our music
 system, we elide the design of the individual tasks, and focus on just
 the design and implementation of the communication infrastructure as
-the part that's relevant here; these are covered in \ref{app:nt} and
-\ref{app:dynamite}.  At this juncture, we specify the requirements for
-it as follows:
+the part that's relevant here; these are covered in sections
+\ref{app:nt} and \ref{app:dynamite}.  At this juncture, we specify the
+requirements for it as follows:
 
 \begin{itemize}
 \item The application should provide some form of interface with which
@@ -1007,7 +1007,7 @@ operator to CCS.  Together, these allow \emph{prioritised choice}; the
 progress of time has a lower priority than the progress of work being
 done, so we can construct agents of the form `do X until there is no
 more work to be done, then do Y'.  Thus, we can design a compositional
-broadcast agent in TPL as 'broadcast until there are no more
+broadcast agent in TPL as `broadcast until there are no more
 recipients, then do something else'.
 
 The following section (\ref{tplext}) briefly covers a number of
@@ -1020,17 +1020,17 @@ clock stopping (\ref{clockcontrol}) and encapsulation
 semantics of the calculus in \ref{case}, and return to CaSE further in
 \ref{nt} as the basis for our calculus.
 
-Chapter (\ref{mobility}) covers a number of \emph{mobile} calculi,
-where the context of a process can change during execution.  There are
-two ways this can happen; via a change in scope (\ref{scopemobility})
-or a change in physical structure (\ref{migration}).  The foremost
-example of scope mobility is the $\pi$ calculus \cite{milner:pi} which
-we explore in \ref{picalculus}.  This extends CCS so that the name of
-a channel may become known to a process during the course of
-execution, extending its scope.  This is akin to passing a pointer or
-memory reference to a function in a programming language; the
-recipient then has knowledge of and can access something which it
-could not, prior to the call.
+Chapter \ref{mobility} covers a number of \emph{mobile} calculi, where
+the context of a process can change during execution.  There are two
+ways this can happen; via a change in scope (\ref{scopemobility}) or a
+change in physical structure (\ref{migration}).  The foremost example
+of scope mobility is the $\pi$ calculus \cite{milner:pi} which we
+explore in \ref{picalculus}.  This extends CCS so that the name of a
+channel may become known to a process during the course of execution,
+extending its scope.  This is akin to passing a pointer or memory
+reference to a function in a programming language; the recipient then
+has knowledge of and can access something which it could not, prior to
+the call.
 
 The following section (\ref{pivariants}) covers a number of variations
 of the $\pi$ calculus, including its asynchronous and polyadic forms,
@@ -1061,7 +1061,7 @@ biology which has some parallels with the ambient calculus previously
 discussed.  We look more closely at the comparison between the two in
 \ref{bioapps} where we compare their different approaches to modelling
 biological scenarios.  The final section (\ref{bigraphs}) deals with
-bigraphs \cite{bigraph1}, a framework proposed by Milner which aim to
+bigraphs \cite{bigraph1}, a framework proposed by Milner which aims to
 unify the various process calculi using a common representation.
 
 The second part of the thesis introduces our own research and novel
@@ -1098,7 +1098,7 @@ prototypical application from \ref{app:req} by providing the design of
 the communication infrastructure in Nomadic Time.
 
 Chapter \ref{dynamite} covers the development of the DynamiTE (Dynamic
-Theory Execution) framework, beginning with a explanation
+Theory Execution) framework, beginning with an explanation
 (\ref{whyjava}) of why we chose Java for our initial implementation
 work.  In \ref{dyn:maptheory}, we then show how the process terms from
 Nomadic Time are mapped onto Java objects and how these objects are
@@ -1124,16 +1124,16 @@ ambients abstract machine \cite{sangiorgi:safeambientsmachine}
 
 The following chapter (\ref{tnt}) demonstrates how Nomadic Time may
 optionally be extended with a type system to create TNT (Typed Nomadic
-Time).  We begin by looking at existing attempts. The first section,
-\ref{pitypes}, covers type systems in the context of the $\pi$
-calculus, including sorts which enforce the requirement that the
-number of items being sent matches the number being received.  We then
-turn to typing systems for the ambient calculus in \ref{ambienttypes}
-and cover the notion of groups.  In \ref{typesys}, we then take this
-idea of a group type and create our own for the Nomadic Time process
-calculus, which is then used to give typing rules for the new Typed
-Nomadic Time calculus; this forms contributions \cont{3.1} and
-\cont{3.2}.  Contribution \cont{3.3} is found in appendices
+Time).  We begin by looking at existing type systems. The first
+section, \ref{pitypes}, covers type systems in the context of the
+$\pi$ calculus, including `sorts' which enforce the requirement that
+the number of items being sent matches the number being received.  We
+then turn to typing systems for the ambient calculus in
+\ref{ambienttypes} and cover the notion of groups.  In \ref{typesys},
+we take this idea of a group type and create our own for the Nomadic
+Time process calculus, which is then used to give typing rules for the
+new Typed Nomadic Time calculus; this forms contributions \cont{3.1}
+and \cont{3.2}.  Contribution \cont{3.3} is found in appendices
 \ref{progress} and \ref{preservation} in the form of proofs of type
 safety for TNT.  Section \ref{dyn:type} returns to DynamiTE and shows
 how it can be extended to perform type checking, using the example of
