@@ -82,15 +82,14 @@ with the aim of creating a safer and more portable language:
   with regard to memory management as, while the acquisition and
   release of a lock tend to occur in close proximity to one another,
   allocation and deallocation can occur in quite disparate parts of
-  the application.  In Java, memory is instead managed by a
-  \emph{garbage collector} which allocates memory for objects as
-  needed and periodically reclaims those that are no longer
-  referenced.  The downside of this is that the garbage collector has
-  to use processor time to perform its scans which would otherwise be
-  used by the application.  However, as new garbage collection
-  techniques, such as concurrent and generational collectors, become
-  prevalent, this disadvantage is further outweighed by the prospect
-  of chasing memory leaks.
+  the application.  Java instead makes use of existing research into
+  \emph{garbage collectors} which allocate memory as needed and
+  periodically reclaim it.  The downside of this is that the garbage
+  collector has to use processor time to perform its scans which would
+  otherwise be used by the application.  However, as new garbage
+  collection techniques, such as concurrent and generational
+  collectors, become prevalent, this disadvantage is further
+  outweighed by the prospect of chasing memory leaks.
 \item \textbf{Lack of unsigned types}.  All integer types in Java use
   a bit to store the sign of the value, with no equivalent unsigned
   types that instead use this bit to store larger values.  This makes
@@ -1017,8 +1016,9 @@ public void evolve(Process p)
 }
 \end{verbatim}
 
-A more practical \texttt{Evolver} is a more complex undertaking.  It
-has to make choices as to which transition to pick when several are
+A more practical \texttt{Evolver} is a more complex undertaking;
+further research in this area is suggested in \ref{future:dynamite}.
+It has to make choices as to which transition to pick when several are
 presented; although CaSE and Nomadic Time have a notion of priority in
 maximal progress, choices must still be made between the ticks of
 different clocks, or between a clock tick and an action.  These
@@ -1195,7 +1195,7 @@ action is matched to the one used for the mobility operation, the
 is no need to deal with code that is currently being executed.  We
 also know exactly what data to be transferred, as this is centrally
 managed by the channel framework.  Again, this is an interesting area
-for future work.
+for future work (see \ref{future:dynamite}).
 
 Now we have explored DynamiTE, the next section provides a walkthrough
 example of creating an application using the framework, following on
@@ -1430,7 +1430,7 @@ we want to introduce the visualiser into the mix; the \texttt{take}
 operation performed on the queue by both \texttt{output} and the new
 \texttt{visualise} method will remove the item from the queue so one
 thread will get a particular value and the other one won't.  There are
-a number of possible solutions to this:
+a number of possible solutions to this.  For example:
 
 \begin{enumerate}
 \item We can replace the queue with an indexed collection and remember
@@ -1534,15 +1534,17 @@ public class Player
 \end{verbatim}
 
 This is clearly more complicated than the example with just input and
-output.  We dispense with the \texttt{BlockingQueue} as we need to
-obtain a lock anyway to ensure the atomicity of the multiple
-\texttt{offer} calls in \texttt{input} and the checks in
-\texttt{output} and \texttt{visualise}.  Both the \texttt{output} and
-\texttt{visualise} methods are very similar and it would be a very
-good idea to generalise these in a \texttt{Consumer} superclass; as we
-noted in \ref{semaphores}, the correct placement of locking and
-signalling constructs is prone to simple errors so anything we can do
-to simplify this and minimise the risk is advantageous.
+output; although it still decomposes nicely, we have to handle
+synchronisation ourselves.  We dispense with the
+\texttt{BlockingQueue} as we need to obtain a lock anyway to ensure
+the atomicity of the multiple \texttt{offer} calls in \texttt{input}
+and the checks in \texttt{output} and \texttt{visualise}.  Both the
+\texttt{output} and \texttt{visualise} methods are very similar and it
+would be a very good idea to generalise these in a \texttt{Consumer}
+superclass; as we noted in \ref{semaphores}, the correct placement of
+locking and signalling constructs is prone to simple errors so
+anything we can do to simplify this and minimise the risk is
+advantageous.
 
 The consumer methods now loop until \texttt{peek} returns a new unseen
 value.  When we reach this loop, \texttt{peek} may return one of three
@@ -1581,10 +1583,10 @@ In summary, we think DynamiTE has achieved its goals; it abstracts
 away many complex and fragile pieces of code which ensure thread
 safety, in much the same way as the concurrency collection classes do
 in the class library.  They are replaced by simple abstract concepts
-such as \texttt{store} and \texttt{retrieve} calls to the repositories.
-In implementing DynamiTE, we believe we have also made it approachable
-for existing Java programmers, either to use to build their own
-applications or even to contribute to DynamiTE itself.  By learning
+such as \texttt{store} and \texttt{retrieve} calls to the
+repositories.  In implementing DynamiTE, we believe we have also made
+it approachable for existing Java programmers, both for building their
+own applications and for contributing to DynamiTE itself.  By learning
 the meaning of a small number of algebraic concepts, they can leverage
 the power of DynamiTE to create applications limited only by the
 plugin factories being used.
@@ -1817,7 +1819,7 @@ expecting a \texttt{String}).
 
 Most of the criticisms we had of Obliq do apply to Nomadic Pict
 however.  While it represents interesting research, and could prove
-very useful in some areas, it's not suitable as a general purpose
+very useful in some areas, it is not suitable as a general purpose
 language for the masses.
 
 \subsection{The Safe Ambients Abstract Machine}
@@ -1989,6 +1991,8 @@ and $y^\star ()$.
   used in real-world situations to produce results, some of which may
   be true.
 
+\section{Conclusion}
+
 As far as implementations go, we believe our work to be novel in
 approaching the task of translating a calculus with both global
 discrete time and mobility into a usable programming framework.  We
@@ -1999,12 +2003,19 @@ JavaSeal.  This is a shame, as it means otherwise good ideas are let
 down by the implementation being simply unapproachable for the
 majority of software developers.
 
-\section{Conclusion}
+Through our example in \ref{app:dynamite}, we saw how DynamiTE
+achieves its goal of simplifying the creation of concurrent
+applications by abstracting away many complex and fragile pieces of
+code which ensure thread safety, replacing them with simple abstract
+concepts such as \texttt{store} and \texttt{retrieve} calls to the
+repositories.  By learning the meaning of a small number of algebraic
+concepts, programmers can leverage the power of DynamiTE to create
+applications limited only by the plugin factories being used.
 
-To conclude, we have presented the overall structure of the DynamiTE
-framework for concurrent systems, giving the second set of novel
-contributions (\cont{2.1} through \cont{2.4}) in this thesis.  This
-includes the translation from Nomadic Time to a process framework
+In this chapter, we have presented the overall structure of the
+DynamiTE framework for concurrent systems, giving the second set of
+novel contributions (\cont{2.1} through \cont{2.4}) in this thesis.
+This includes the translation from Nomadic Time to a process framework
 (\cont{2.1}) with an implementation of the operational semantics
 (\cont{2.2}), the plugin framework for introducing side effects
 (\cont{2.3}) and the evolver framework for working with execution
@@ -2021,12 +2032,15 @@ in the underlying process calculus before implementation even begins,
 giving a solid grounding on top of which the individual tasks may be
 developed.
 
-The actual implementation of the DynamiTE framework is still in heavy
+In implementing DynamiTE, we believe we have also made it approachable
+for existing Java programmers, both for building their own
+applications and for contributing to DynamiTE itself.  The actual
+implementation of the DynamiTE framework is still in heavy
 development; the code is available at:
 \begin{center}
 \url{https://savannah.nongnu.org/projects/dynamite/} 
 \end{center}
-\noindent and patch submissions are welcome.  At its lowest level, it
+\noindent and patch submissions are welcome.    At its lowest level, it
 provides a means of simulating the operations of the Nomadic Time
 process calculus, allowing them to be more clearly understood.  In
 application, it can provide a useful mechanism for structuring

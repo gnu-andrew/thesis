@@ -52,7 +52,7 @@ varying success.  We close with a summary of the novelty of this work,
 and an overview of how this will be covered in the later chapters of
 this thesis.
 
-\section{The Current Status Quo}
+\section{Status Quo}
 
 \subsection{Multiprogramming}
 
@@ -62,7 +62,7 @@ programs at the same time has been in use since
 the same underlying model has remained.  Parallelism is still seen as
 an optimisation, beholden to the maintenance of the sequential
 standard.  Utilising concurrency within a program remains relegated to
-study as an advanced feature, seldom taught and even less well
+study as an advanced feature, seldom taught and even less often
 practised.  If parallelism is to become the dominant means of
 exploiting the power of future hardware, this needs to change.
 
@@ -75,7 +75,7 @@ it needed to do so.  The machine ran a relatively simple
 a specified series of commands written in a batch job language.  Such
 jobs would usually consist of reading in the program, compiling it if
 necessary, and then executing it.  During execution, data was read in
-and the results of computation output for the user to later digest.
+and the results of computation output for the user to digest later.
 
 It soon become clear that having an expensive processor sit idle while
 input and output (I/O) operations took place was wasteful.  To solve
@@ -84,8 +84,8 @@ provided a \emph{scheduler} as part of the operating system.  Instead
 of running each job to completion before attempting the next, the
 system read in multiple jobs to begin with, each forming a
 \emph{process} in memory.  These processes consisted not only of the
-code being executed, but also included contextual information, such as
-the current instruction being executed (the \emph{program counter})
+code to be executed, but also included contextual information, such as
+the next instruction to execute (the \emph{program counter})
 and environmental data (e.g. open file handles).
 
 If a process being run by the system reached a point where it had to
@@ -100,12 +100,17 @@ of which appeared to be running in complete isolation.  The hardware
 provided memory protection, which prevented a process from accessing
 data outside its own memory space and they remained largely oblivious
 to the fact that their execution was effectively being paused and then
-resumed later.  The effect of such operation was only noticeable if
-the running time of the process was recorded, as such results were now
+resumed later.  This was achieved by the scheduler storing the
+register contents and program counter at the continuation point, and
+then restoring these values before handing control back to the resumed
+process.  The effect of such operation was only noticeable if the
+running time of the process was recorded, as such results were now
 dependent on factors such as system load and the arbitrary choices of
-the scheduler.
+the scheduler.  This was a big change in design, which paved the way
+for the the introduction of objects and threads, and the same concepts
+are still used today.
 
-Over time, schedulers have been extended so as also to switch when a
+Over time, schedulers have been extended so as to switch jobs when a
 quantum of time allocated to a process has been depleted.  This
 ensures a greater degree of fairness; a processor-intensive task which
 rarely blocks can no longer become overly dominant.  For batch
@@ -144,7 +149,7 @@ single processor systems, where concurrency is merely simulated by the
 scheduler switching between processes.  Whether or not file corruption
 occurs depends on the choices made by the scheduler, which in turn
 depend on a number of factors, such as system load.  If many processes
-are competing for the processor, then there is less chance of one
+are competing for the processor, then there is more chance of one
 which accesses the same file being picked.
 
 A print spooler is a program which allows a printer (another shared
@@ -268,8 +273,9 @@ semaphore, should the operation succeed on this attempt.  Given that
 there may be multiple waiting threads, there is no guarantee that a
 thread will become active; for each \texttt{up} operation, only one
 \texttt{down} operation will be successful and any other threads will
-again be forced to wait.  Again, this race is why it is essential that
-the \texttt{down} operation itself is atomic.
+again be forced to wait.  Again, these race issues are why it is
+essential that the \texttt{up} and \texttt{down} operations themselves
+are atomic.
 
 Suppose we want to implement a bounded buffer which is accessed by
 multiple threads.  We need to use semaphores both to prevent possible
@@ -382,18 +388,19 @@ the locks in the same order, then all is well.  If they don't, a
 deadlock may occur.
 
 Let's assume process A runs first.  It acquires a lock on
-\texttt{/etc/passwd}.  At this point, A has used its allocated quantum
-of processor time and so is descheduled.  A context switch occurs and
-process B begins to run.  If B begins by trying to acquire a lock on
-\texttt{/etc/passwd}, then it will simply block as A already holds
-this lock.  If, however, it tries to acquire a lock on
+\texttt{/etc/passwd}.  At this point, we assume A has used its
+allocated quantum of processor time and so is descheduled.  A context
+switch occurs and process B begins to run.  If B begins by trying to
+acquire a lock on \texttt{/etc/passwd}, then it will simply block as A
+already holds this lock.  If, however, it tries to acquire a lock on
 \texttt{/etc/shadow} first, this will succeed.  We then get stuck in a
 deadlock; B blocks trying to acquire the lock on \texttt{/etc/passwd}
 held by A, which will never be relinquished because A will be blocked
 trying to acquire the lock on \texttt{/etc/shadow} held by B.  Such
 problems occur simply through an ordering mismatch, but can be
-extremely difficult to catch; in many situations, the process will
-acquire both locks without being descheduled inbetween.
+extremely difficult to catch through simulation or execution; in many
+situations, the process will acquire both locks without being
+descheduled inbetween.
 
 The solution to these problems is to abstract away from such intimate
 details and allow the programmer to work at a more amenable level.
@@ -493,17 +500,20 @@ The similarities and differences between monitors and semaphores can
 be clearly seen by comparing the two buffer examples.  In the Java
 version, the use of the \texttt{empty} and \texttt{full} semaphores is
 replaced by a while loop and the use of \texttt{wait()} and
-\texttt{notifyAll()}.  The value these depend on is also made explicit
-in this version (see the variable \texttt{used}), whereas it is an
-implicit part of the operations on the semaphores in the earlier
-example.  When \texttt{produce} is called, it tests to see if the
-buffer is full (the \texttt{used} count is equal to the size of the
-buffer).  If it is, then \texttt{wait} is called.  The test takes
-place in a \texttt{while} loop rather than a single \texttt{if}
-statement so that the condition is tested again when the thread is
-awoken by the \texttt{notifyAll()} call.  As before, if many threads
-are waiting, it may be the case that the buffer is already full again
-by the time a particular thread is allowed to execute.
+\texttt{notifyAll()}\footnote{The use of the \texttt{while} loop,
+although slightly inefficient, is essential in ensuring that the
+condition is still false once the thread has awoken.}.  The value
+these depend on is also made explicit in this version (see the
+variable \texttt{used}), whereas it is an implicit part of the
+operations on the semaphores in the earlier example.  When
+\texttt{produce} is called, it tests to see if the buffer is full (the
+\texttt{used} count is equal to the size of the buffer).  If it is,
+then \texttt{wait} is called.  The test takes place in a
+\texttt{while} loop rather than a single \texttt{if} statement so that
+the condition is tested again when the thread is awoken by the
+\texttt{notifyAll()} call.  As before, if many threads are waiting, it
+may be the case that the buffer is already full again by the time a
+particular thread is allowed to execute.
 
 The \texttt{synchronized} blocks behave in a way equivalent to those
 protected by the \texttt{mutex} semaphore; the opening bracket is the
